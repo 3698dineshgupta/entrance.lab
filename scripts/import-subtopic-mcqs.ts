@@ -164,8 +164,13 @@ async function main() {
       toCreateAll.push(result.question);
     }
   } else {
+    const officialTopics = TOPIC_ORDER[`${exam}::${subject}`] ?? [];
     for (const sheetName of wb.SheetNames) {
-      const topic = SHEET_TO_TOPIC[sheetName];
+      // Prefer an exact match against the official topic list (e.g. a sheet
+      // literally named "Physical Chemistry"); fall back to the manual alias
+      // dictionary for sheets named differently (e.g. "Optics" for
+      // "Geometric and Physical Optics").
+      const topic = officialTopics.find((t) => t === sheetName) ?? SHEET_TO_TOPIC[sheetName];
       if (!topic) {
         console.warn(`  No topic mapping for sheet "${sheetName}" — skipping`);
         continue;

@@ -56,7 +56,7 @@ export function Hero() {
           </div>
 
           {/* Right: Spline 3D scene */}
-          <div className="w-[45%] md:w-auto h-[260px] sm:h-[300px] md:h-auto md:min-h-[560px] relative flex items-center justify-center pointer-events-auto" style={{ touchAction: 'none' }}>
+          <div className="w-[45%] md:w-auto h-[260px] sm:h-[300px] md:h-auto md:min-h-[560px] relative flex items-center justify-center pointer-events-none">
             <SplineScene
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="absolute inset-0 w-full h-full"

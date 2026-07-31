@@ -282,11 +282,11 @@ function AnswerReview({ summary }: { summary: any }) {
         {/* Filter Tabs */}
         <div className="flex gap-1 p-1 rounded-lg border border-white/10 bg-white/[0.02] text-xs flex-wrap">
           {([
-            { key: "all", label: `All (${questions.length})` },
+            { key: "all", label: `All (${questions.length})`, color: "" },
             { key: "wrong", label: `Wrong (${counts.wrong})`, color: "text-red-400" },
             { key: "correct", label: `Correct (${counts.correct})`, color: "text-green-400" },
             { key: "skipped", label: `Skipped (${counts.skipped})`, color: "text-muted-foreground" },
-          ] as const).map(tab => (
+          ] as { key: "all" | "wrong" | "correct" | "skipped"; label: string; color: string }[]).map(tab => (
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}

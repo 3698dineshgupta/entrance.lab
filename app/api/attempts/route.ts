@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     const attempt = await prisma.attempt.create({
       data: {
         userId: session.user.id,
-        testSetId: testId, // NOTE: The DB expects testSetId, but the client sends testId.
+        testId,
         startedAt: new Date(startedAt),
         submittedAt: new Date(submittedAt),
         durationSeconds,

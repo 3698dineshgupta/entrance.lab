@@ -233,7 +233,6 @@ function AnswerReview({ summary }: { summary: any }) {
   const answers: Record<string, number | null> = summary.answers ?? {};
 
   const [filter, setFilter] = useState<"all" | "wrong" | "correct" | "skipped">("all");
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   if (questions.length === 0) return null;
 
@@ -260,14 +259,6 @@ function AnswerReview({ summary }: { summary: any }) {
     skipped: questions.filter(q => answers[q.id] === null || answers[q.id] === undefined).length,
   };
 
-  const toggleExpand = (id: string) => {
-    setExpanded(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
-
   return (
     <Card className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -276,7 +267,7 @@ function AnswerReview({ summary }: { summary: any }) {
             <BookOpen className="h-4 w-4 text-cyan-400" /> Answer Review
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Click any question to see all options and explanation.
+            Your choice and the correct answer are shown for every question.
           </p>
         </div>
         {/* Filter Tabs */}
@@ -305,24 +296,20 @@ function AnswerReview({ summary }: { summary: any }) {
           const isCorrect = user !== null && user !== undefined && Number(user) === q.correctIndex;
           const isSkipped = user === null || user === undefined;
           const isWrong = !isCorrect && !isSkipped;
-          const isOpen = expanded.has(q.id);
           const qIndex = questions.indexOf(q);
 
           return (
             <div
               key={q.id}
               className={cn(
-                "rounded-xl border transition-colors overflow-hidden",
+                "rounded-xl border overflow-hidden",
                 isCorrect ? "border-green-400/25 bg-green-500/[0.04]"
                   : isWrong ? "border-red-400/25 bg-red-500/[0.04]"
                   : "border-white/[0.07] bg-white/[0.02]"
               )}
             >
-              {/* Header row — always visible */}
-              <button
-                className="w-full text-left px-4 py-3 flex items-start gap-3"
-                onClick={() => toggleExpand(q.id)}
-              >
+              {/* Header row */}
+              <div className="w-full text-left px-4 py-3 flex items-start gap-3">
                 {/* Status badge */}
                 <span className={cn(
                   "shrink-0 mt-0.5 h-6 w-6 rounded-md text-xs font-bold inline-flex items-center justify-center",
@@ -337,53 +324,50 @@ function AnswerReview({ summary }: { summary: any }) {
                     {isWrong && <span className="text-[10px] text-red-400 font-medium">✗ Wrong</span>}
                     {isSkipped && <span className="text-[10px] text-muted-foreground font-medium">— Skipped</span>}
                   </div>
-                  <p className="text-sm mt-0.5 line-clamp-2">{q.text}</p>
+                  <p className="text-sm mt-0.5">{q.text}</p>
                 </div>
-                <span className={cn("shrink-0 text-muted-foreground text-xs transition-transform mt-1", isOpen && "rotate-180")}>▼</span>
-              </button>
+              </div>
 
-              {/* Expanded options */}
-              {isOpen && (
-                <div className="px-4 pb-4 space-y-2 border-t border-white/[0.06] pt-3">
-                  <div className="grid gap-1.5">
-                    {(q.options as string[]).map((opt: string, oi: number) => {
-                      const isThisCorrect = oi === q.correctIndex;
-                      const isThisUser = oi === Number(user);
-                      const isUserWrongHere = isWrong && isThisUser;
-                      return (
-                        <div
-                          key={oi}
-                          className={cn(
-                            "rounded-lg border px-3 py-2.5 text-sm flex items-start gap-2",
-                            isThisCorrect
-                              ? "border-green-400/50 bg-green-500/15 text-green-100"
-                              : isUserWrongHere
-                              ? "border-red-400/50 bg-red-500/15 text-red-200"
-                              : "border-white/[0.06] text-muted-foreground"
-                          )}
-                        >
-                          <span className={cn(
-                            "shrink-0 font-semibold w-5 text-xs mt-0.5",
-                            isThisCorrect ? "text-green-400" : isUserWrongHere ? "text-red-400" : "text-muted-foreground"
-                          )}>
-                            {String.fromCharCode(65 + oi)}.
-                          </span>
-                          <span className="flex-1">{opt}</span>
-                          <span className="shrink-0 text-xs font-medium">
-                            {isThisCorrect && <span className="text-green-400">✓ Answer</span>}
-                            {isUserWrongHere && <span className="text-red-400">✗ Your choice</span>}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {q.explanation && (
-                    <div className="mt-3 p-3 rounded-lg bg-cyan-500/[0.06] border border-cyan-400/20">
-                      <p className="text-xs"><span className="text-cyan-400 font-semibold">Explanation: </span><span className="text-muted-foreground">{q.explanation}</span></p>
-                    </div>
-                  )}
+              {/* Options — always visible */}
+              <div className="px-4 pb-4 space-y-2 border-t border-white/[0.06] pt-3">
+                <div className="grid gap-1.5">
+                  {(q.options as string[]).map((opt: string, oi: number) => {
+                    const isThisCorrect = oi === q.correctIndex;
+                    const isThisUser = oi === Number(user);
+                    const isUserWrongHere = isWrong && isThisUser;
+                    return (
+                      <div
+                        key={oi}
+                        className={cn(
+                          "rounded-lg border px-3 py-2.5 text-sm flex items-start gap-2",
+                          isThisCorrect
+                            ? "border-green-400/50 bg-green-500/15 text-green-100"
+                            : isUserWrongHere
+                            ? "border-red-400/50 bg-red-500/15 text-red-200"
+                            : "border-white/[0.06] text-muted-foreground"
+                        )}
+                      >
+                        <span className={cn(
+                          "shrink-0 font-semibold w-5 text-xs mt-0.5",
+                          isThisCorrect ? "text-green-400" : isUserWrongHere ? "text-red-400" : "text-muted-foreground"
+                        )}>
+                          {String.fromCharCode(65 + oi)}.
+                        </span>
+                        <span className="flex-1">{opt}</span>
+                        <span className="shrink-0 text-xs font-medium">
+                          {isThisCorrect && <span className="text-green-400">✓ Answer</span>}
+                          {isUserWrongHere && <span className="text-red-400">✗ Your choice</span>}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
+                {q.explanation && (
+                  <div className="mt-3 p-3 rounded-lg bg-cyan-500/[0.06] border border-cyan-400/20">
+                    <p className="text-xs"><span className="text-cyan-400 font-semibold">Explanation: </span><span className="text-muted-foreground">{q.explanation}</span></p>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fetchWithCache } from "@/lib/redis";
 import { PracticeBrowser } from "./practice-browser";
+import { getTopicOrder } from "@/lib/syllabus";
 
 export const dynamic = "force-dynamic";
 
@@ -55,13 +56,20 @@ export default async function PracticePage() {
 
   const examGroups: ExamGroup[] = Object.entries(exams).map(([exam, subjects]) => ({
     exam,
-    subjects: Object.entries(subjects).map(([subject, topics]) => ({
-      subject,
-      total: Object.values(topics).reduce((a, b) => a + b, 0),
-      topics: Object.entries(topics)
-        .map(([topic, count]) => ({ topic, count }))
-        .sort((a, b) => b.count - a.count),
-    })).sort((a, b) => b.total - a.total),
+    subjects: Object.entries(subjects).map(([subject, topics]) => {
+      const order = getTopicOrder(exam, subject);
+      const rank = (topic: string) => {
+        const i = order.indexOf(topic);
+        return i === -1 ? order.length : i;
+      };
+      return {
+        subject,
+        total: Object.values(topics).reduce((a, b) => a + b, 0),
+        topics: Object.entries(topics)
+          .map(([topic, count]) => ({ topic, count }))
+          .sort((a, b) => rank(a.topic) - rank(b.topic)),
+      };
+    }).sort((a, b) => b.total - a.total),
   }));
 
   return <PracticeBrowser examGroups={examGroups} />;

@@ -37,6 +37,9 @@ export default function AdminDashboard() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "info">("info");
+  const [uploadFormat, setUploadFormat] = useState<"standard" | "subtopic">("standard");
+  const [uploadExam, setUploadExam] = useState<"AUTO" | "IOE" | "CEE">("AUTO");
+  const [uploadSubject, setUploadSubject] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchUsers = useCallback(async () => {
@@ -68,6 +71,37 @@ export default function AdminDashboard() {
     );
   }
 
+  const parseRow = (row: any, topicOverride: string | null) => {
+    const options = [
+      String(row["Option A"] || "A"),
+      String(row["Option B"] || "B"),
+      String(row["Option C"] || "C"),
+      String(row["Option D"] || "D"),
+    ];
+    const answerRaw = String(row["Answer"] || row["Correct Option"] || row["Correct"] || "A").trim();
+    let correctIndex = options.findIndex(o => o.trim() === answerRaw);
+    if (correctIndex === -1) {
+      // Fallback for minor text drift between the Answer cell and its option
+      correctIndex = options.findIndex(o => o.trim().length > 0 && (answerRaw.startsWith(o.trim()) || o.trim().startsWith(answerRaw)));
+    }
+    if (correctIndex === -1) {
+      if (answerRaw.toUpperCase().startsWith("A")) correctIndex = 0;
+      else if (answerRaw.toUpperCase().startsWith("B")) correctIndex = 1;
+      else if (answerRaw.toUpperCase().startsWith("C")) correctIndex = 2;
+      else if (answerRaw.toUpperCase().startsWith("D")) correctIndex = 3;
+      else correctIndex = 0;
+    }
+    return {
+      subject: row["Subject"] || uploadSubject || "Physics",
+      topic: topicOverride ?? row["Topic"] ?? null,
+      subtopic: row["Sub-Topic"] ?? row["Subtopic"] ?? null,
+      text: row["Question"] || "Missing question",
+      options,
+      correctIndex,
+      explanation: row["Explanation"] || null,
+    };
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -78,43 +112,39 @@ export default function AdminDashboard() {
     try {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data, { type: "array" });
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows: any[] = XLSX.utils.sheet_to_json(firstSheet);
-      setMessage(`Parsed ${rows.length} questions. Uploading...`);
 
-      const questions = rows.map((row) => {
-        const options = [
-          String(row["Option A"] || "A"),
-          String(row["Option B"] || "B"),
-          String(row["Option C"] || "C"),
-          String(row["Option D"] || "D"),
-        ];
-        const answerRaw = String(row["Answer"] || row["Correct Option"] || row["Correct"] || "A").trim();
-        let correctIndex = options.findIndex(o => o.trim() === answerRaw);
-        if (correctIndex === -1) {
-          if (answerRaw.toUpperCase().startsWith("A")) correctIndex = 0;
-          else if (answerRaw.toUpperCase().startsWith("B")) correctIndex = 1;
-          else if (answerRaw.toUpperCase().startsWith("C")) correctIndex = 2;
-          else if (answerRaw.toUpperCase().startsWith("D")) correctIndex = 3;
-          else correctIndex = 0;
+      let questions: any[];
+      if (uploadFormat === "subtopic") {
+        if (!uploadSubject.trim()) throw new Error("Subject is required for subtopic-wise uploads");
+        questions = [];
+        for (const sheetName of workbook.SheetNames) {
+          const rows: any[] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+          for (const row of rows) {
+            if (!row["Question"]) continue; // bare Sub-Topic divider row
+            questions.push(parseRow(row, sheetName));
+          }
         }
-        return {
-          subject: row["Subject"] || "Physics",
-          topic: row["Topic"] || null,
-          text: row["Question"] || "Missing question",
-          options,
-          correctIndex,
-          explanation: row["Explanation"] || null,
-        };
-      });
+      } else {
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows: any[] = XLSX.utils.sheet_to_json(firstSheet);
+        questions = rows.map((row) => parseRow(row, null));
+      }
+      setMessage(`Parsed ${questions.length} questions. Uploading...`);
 
-      const examGuess = file.name.toUpperCase().includes("IOE") ? "IOE" : "CEE";
+      const examGuess = uploadExam !== "AUTO" ? uploadExam : (file.name.toUpperCase().includes("IOE") ? "IOE" : "CEE");
+      const title = uploadFormat === "subtopic"
+        ? `${examGuess} ${uploadSubject.trim()} — Subtopic Practice Bank`
+        : file.name.replace(/\.[^/.]+$/, "");
       const payload = {
-        title: file.name.replace(/\.[^/.]+$/, ""),
+        title,
         exam: examGuess,
-        mode: "full",
+        mode: uploadFormat === "subtopic" ? "subject" : "full",
+        subject: uploadFormat === "subtopic" ? uploadSubject.trim() : undefined,
         difficulty: "mixed",
-        durationMinutes: examGuess === "CEE" ? 180 : 120,
+        durationMinutes: uploadFormat === "subtopic" ? 0 : (examGuess === "CEE" ? 180 : 120),
+        // Subtopic-wise banks are practice-only content, not timed mock tests —
+        // keep them out of the Mock Tests listing.
+        isPublished: uploadFormat !== "subtopic",
         questions,
       };
 
@@ -334,15 +364,72 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="mt-6 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs text-muted-foreground space-y-1 mb-6">
-            <p className="font-medium text-foreground text-sm mb-2">Required columns:</p>
-            <p>• <span className="font-mono text-cyan-400">Subject</span> — Physics, Chemistry, Botany, Zoology, MAT, Mathematics, English</p>
-            <p>• <span className="font-mono text-cyan-400">Question</span> — The full question text</p>
-            <p>• <span className="font-mono text-cyan-400">Option A / B / C / D</span> — Answer choices</p>
-            <p>• <span className="font-mono text-cyan-400">Answer</span> or <span className="font-mono text-cyan-400">Correct Option</span> — The correct answer text or letter (A/B/C/D)</p>
-            <p>• <span className="font-mono text-cyan-400">Topic</span> <span className="opacity-70">(optional)</span> — Enables topic-wise practice mode for these questions</p>
-            <p>• <span className="font-mono text-cyan-400">Explanation</span> <span className="opacity-70">(optional)</span> — Shown to students after they answer</p>
-            <p className="mt-2 text-[11px] text-cyan-400/70">💡 The exam type (CEE/IOE) is auto-detected from the filename.</p>
+          {/* Format selector */}
+          <div className="mt-6 flex gap-1 p-1 rounded-lg border border-white/10 bg-white/[0.02] w-fit">
+            {([
+              { key: "standard", label: "Standard (single sheet)" },
+              { key: "subtopic", label: "Subtopic-wise (one sheet per topic)" },
+            ] as { key: "standard" | "subtopic"; label: string }[]).map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setUploadFormat(f.key)}
+                className={cn(
+                  "px-3 py-1.5 text-xs rounded-md transition",
+                  uploadFormat === f.key ? "bg-white/[0.08] text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-muted-foreground">Exam</label>
+              <select
+                value={uploadExam}
+                onChange={(e) => setUploadExam(e.target.value as any)}
+                className="text-xs bg-white/[0.03] border border-white/10 rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-400/50"
+              >
+                <option value="AUTO">Auto-detect from filename</option>
+                <option value="IOE">IOE</option>
+                <option value="CEE">CEE</option>
+              </select>
+            </div>
+            {uploadFormat === "subtopic" && (
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-muted-foreground">Subject</label>
+                <input
+                  value={uploadSubject}
+                  onChange={(e) => setUploadSubject(e.target.value)}
+                  placeholder="e.g. Physics"
+                  className="text-xs bg-white/[0.03] border border-white/10 rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-400/50 w-40"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs text-muted-foreground space-y-1 mb-6">
+            {uploadFormat === "standard" ? (
+              <>
+                <p className="font-medium text-foreground text-sm mb-2">Required columns:</p>
+                <p>• <span className="font-mono text-cyan-400">Subject</span> — Physics, Chemistry, Botany, Zoology, MAT, Mathematics, English</p>
+                <p>• <span className="font-mono text-cyan-400">Question</span> — The full question text</p>
+                <p>• <span className="font-mono text-cyan-400">Option A / B / C / D</span> — Answer choices</p>
+                <p>• <span className="font-mono text-cyan-400">Answer</span> or <span className="font-mono text-cyan-400">Correct Option</span> — The correct answer text or letter (A/B/C/D)</p>
+                <p>• <span className="font-mono text-cyan-400">Topic</span> <span className="opacity-70">(optional)</span> — Enables topic-wise practice mode for these questions</p>
+                <p>• <span className="font-mono text-cyan-400">Explanation</span> <span className="opacity-70">(optional)</span> — Shown to students after they answer</p>
+              </>
+            ) : (
+              <>
+                <p className="font-medium text-foreground text-sm mb-2">Expected format:</p>
+                <p>• One <span className="font-mono text-cyan-400">sheet per topic</span> — the sheet name becomes the topic (e.g. "Mechanics")</p>
+                <p>• <span className="font-mono text-cyan-400">Sub-Topic</span> — groups rows into a subtopic (e.g. "1.1 Kinematics")</p>
+                <p>• <span className="font-mono text-cyan-400">Question</span>, <span className="font-mono text-cyan-400">Option A-D</span>, <span className="font-mono text-cyan-400">Answer</span>, <span className="font-mono text-cyan-400">Explanation</span> — same as standard format</p>
+                <p>• Uploaded as an unpublished practice bank (won't appear in Mock Tests)</p>
+              </>
+            )}
+            <p className="mt-2 text-[11px] text-cyan-400/70">💡 The exam type is auto-detected from the filename unless you pick one above.</p>
           </div>
 
           <label className={cn(

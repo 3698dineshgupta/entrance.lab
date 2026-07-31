@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, exam, mode, difficulty, durationMinutes, questions } = body;
+    const { title, exam, mode, difficulty, durationMinutes, isPublished, questions } = body;
 
     if (!title || !exam || !questions || !Array.isArray(questions)) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
@@ -25,10 +25,12 @@ export async function POST(req: Request) {
         mode: mode || "full",
         difficulty: difficulty || "mixed",
         durationMinutes: durationMinutes || 180,
+        isPublished: isPublished ?? true,
         questions: {
           create: questions.map((q: any) => ({
             subject: q.subject,
             topic: q.topic ?? null,
+            subtopic: q.subtopic ?? null,
             text: q.text,
             options: q.options,
             correctIndex: q.correctIndex,

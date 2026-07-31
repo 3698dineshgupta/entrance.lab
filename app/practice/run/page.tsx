@@ -7,11 +7,11 @@ import { PracticeInterface, PracticeQuestion } from "@/components/practice-inter
 export const dynamic = "force-dynamic";
 
 interface Props {
-  searchParams: Promise<{ exam?: string; subject?: string; topic?: string }>;
+  searchParams: Promise<{ exam?: string; subject?: string; topic?: string; subtopic?: string }>;
 }
 
 export default async function PracticeRunPage({ searchParams }: Props) {
-  const { exam, subject, topic } = await searchParams;
+  const { exam, subject, topic, subtopic } = await searchParams;
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login?callbackUrl=/practice");
   if (!exam || !subject) notFound();
@@ -20,9 +20,10 @@ export default async function PracticeRunPage({ searchParams }: Props) {
     where: {
       subject,
       topic: topic ? topic : undefined,
+      subtopic: subtopic ? subtopic : undefined,
       testSet: { exam },
     },
-    select: { id: true, subject: true, topic: true, text: true, options: true, correctIndex: true, explanation: true },
+    select: { id: true, subject: true, topic: true, subtopic: true, text: true, options: true, correctIndex: true, explanation: true },
   });
 
   // De-dupe identical question text (same content seeded across multiple test sets)
@@ -35,6 +36,7 @@ export default async function PracticeRunPage({ searchParams }: Props) {
       id: r.id,
       subject: r.subject,
       topic: r.topic,
+      subtopic: r.subtopic,
       text: r.text,
       options: r.options as string[],
       correctIndex: r.correctIndex,
@@ -44,5 +46,16 @@ export default async function PracticeRunPage({ searchParams }: Props) {
 
   if (questions.length === 0) notFound();
 
-  return <PracticeInterface questions={questions} subject={subject} topic={topic ?? null} />;
+  return (
+    <PracticeInterface
+      questions={questions}
+      subject={subject}
+      topic={topic ?? null}
+      subtopic={subtopic ? stripNumericPrefix(subtopic) : null}
+    />
+  );
+}
+
+function stripNumericPrefix(s: string): string {
+  return s.replace(/^\d+(\.\d+)?\s*/, "");
 }

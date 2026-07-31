@@ -44,6 +44,7 @@ model Question {
   testId        String
   subject       String
   topic         String?
+  subtopic      String?
   text          String
   options       String[] // PostgreSQL string array
   correctIndex  Int

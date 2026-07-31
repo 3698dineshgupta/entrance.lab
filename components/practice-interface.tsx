@@ -12,6 +12,7 @@ export interface PracticeQuestion {
   id: string;
   subject: string;
   topic: string | null;
+  subtopic: string | null;
   text: string;
   options: string[];
   correctIndex: number;
@@ -22,11 +23,12 @@ interface Props {
   questions: PracticeQuestion[];
   subject: string;
   topic: string | null;
+  subtopic?: string | null;
 }
 
 type Answers = Record<string, number | null>;
 
-export function PracticeInterface({ questions: initialQuestions, subject, topic }: Props) {
+export function PracticeInterface({ questions: initialQuestions, subject, topic, subtopic }: Props) {
   // Shuffled client-side, after mount, so server and client render the same
   // initial order (avoids an SSR/hydration mismatch) while still varying the
   // order between practice sessions.
@@ -95,6 +97,8 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic 
     setFinished(false);
   };
 
+  const breadcrumb = [subject, topic, subtopic].filter(Boolean).join(" → ");
+
   if (finished) {
     const accuracy = stats.correct + stats.wrong > 0 ? Math.round((stats.correct / (stats.correct + stats.wrong)) * 100) : 0;
     return (
@@ -104,7 +108,7 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic 
             <Trophy className="h-7 w-7 text-cyan-400" />
           </div>
           <h1 className="mt-4 text-xl font-semibold">Practice complete</h1>
-          <p className="text-sm text-muted-foreground mt-1">{subject}{topic ? ` · ${topic}` : ""}</p>
+          <p className="text-sm text-muted-foreground mt-1">{breadcrumb}</p>
 
           <div className="mt-6 grid grid-cols-3 gap-2 text-center text-xs">
             <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{stats.correct}</p><p className="text-muted-foreground">Correct</p></div>
@@ -137,7 +141,7 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic 
               : <Bookmark className="h-4 w-4 text-muted-foreground" />}
           </button>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground truncate">{subject}{topic ? ` → ${topic}` : ""}</p>
+            <p className="text-xs text-muted-foreground truncate">{breadcrumb}</p>
           </div>
           <span className="text-sm font-mono text-orange-400 shrink-0">{idx + 1}/{total}</span>
           <button

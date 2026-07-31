@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { formatTime, cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Flag, Save, Timer, AlertTriangle, Menu, BookOpen } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flag, Save, Timer, AlertTriangle, Menu, BookOpen, Loader2 } from "lucide-react";
 
 interface Props { test: MockTest; }
 
@@ -24,6 +24,7 @@ export function TestInterface({ test }: Props) {
   );
   const [marked, setMarked] = useState<Marked>({});
   const [showSubmit, setShowSubmit] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [showNav, setShowNav] = useState(false);
   const [remaining, setRemaining] = useState(test.durationMinutes * 60);
   const startedAt = useRef(Date.now());
@@ -107,6 +108,8 @@ export function TestInterface({ test }: Props) {
     // Guard against double-submit (e.g., button spam or timer firing simultaneously)
     if (isSubmitting.current) return;
     isSubmitting.current = true;
+    setSubmitting(true);
+    setShowSubmit(true);
 
     // flush remaining subject time
     if (lastSubjectSwitch.current) {
@@ -335,25 +338,35 @@ export function TestInterface({ test }: Props) {
       </Dialog>
 
       {/* Submit confirm */}
-      <Dialog open={showSubmit} onOpenChange={setShowSubmit}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-400" /> Submit test?
-            </DialogTitle>
-            <DialogDescription>
-              You have answered {answeredCount} of {total} questions. This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-3 gap-2 text-center text-xs">
-            <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{answeredCount}</p><p className="text-muted-foreground">Answered</p></div>
-            <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-orange-400">{Object.values(marked).filter(Boolean).length}</p><p className="text-muted-foreground">Marked</p></div>
-            <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-muted-foreground">{total - answeredCount}</p><p className="text-muted-foreground">Unanswered</p></div>
-          </div>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setShowSubmit(false)}>Keep testing</Button>
-            <Button variant="destructive" onClick={submit}>Submit test</Button>
-          </DialogFooter>
+      <Dialog open={showSubmit} onOpenChange={(open) => { if (!submitting) setShowSubmit(open); }}>
+        <DialogContent showClose={!submitting}>
+          {submitting ? (
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+              <p className="font-medium">Submitting your test…</p>
+              <p className="text-sm text-muted-foreground">Please don't close this window.</p>
+            </div>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-orange-400" /> Submit test?
+                </DialogTitle>
+                <DialogDescription>
+                  You have answered {answeredCount} of {total} questions. This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{answeredCount}</p><p className="text-muted-foreground">Answered</p></div>
+                <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-orange-400">{Object.values(marked).filter(Boolean).length}</p><p className="text-muted-foreground">Marked</p></div>
+                <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-muted-foreground">{total - answeredCount}</p><p className="text-muted-foreground">Unanswered</p></div>
+              </div>
+              <DialogFooter>
+                <Button variant="secondary" onClick={() => setShowSubmit(false)}>Keep testing</Button>
+                <Button variant="destructive" onClick={submit}>Submit test</Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

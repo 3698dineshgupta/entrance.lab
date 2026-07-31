@@ -59,7 +59,7 @@ export async function getUserSummaries(userId: string, examFilter?: string): Pro
     }
 
     const total = test.questions.length;
-    const maxScore = test.questions.reduce((s, q) => s + q.marks, 0);
+    const maxScore = test.questions.reduce((s: number, q: any) => s + (q.marks || 1), 0);
     // Percentage: clamped to 0 minimum (negative marks can't make percentage go below 0%)
     const rawPercentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
     const percentage = Math.max(0, Math.round(rawPercentage));

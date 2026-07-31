@@ -153,6 +153,7 @@ export function TestInterface({ test }: Props) {
       (s as any).accuracy = attempted > 0 ? Math.round(((s as any).correct / attempted) * 100) : 0;
     }
 
+    score = Math.round(score * 100) / 100;
     const maxScore = test.questions.reduce((s, q) => s + q.marks, 0);
     const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
     const accuracy = correct + incorrect > 0 ? Math.round((correct / (correct + incorrect)) * 100) : 0;

@@ -68,12 +68,15 @@ export async function getUserSummaries(userId: string, examFilter?: string): Pro
     // Display score clamped to 0 (showing -2 is confusing)
     const displayScore = parseFloat(Math.max(0, score).toFixed(2));
 
+    const submittedAt = new Date(attempt.submittedAt);
+    const date = submittedAt.getTime();
+
     return {
       attemptId: attempt.id,
       testId: test.id,
       exam: test.exam as any,
       title: test.title,
-      date: attempt.submittedAt.getTime(),
+      date,
       score: displayScore,
       maxScore,
       percentage,

@@ -10,6 +10,23 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
+// Desired subject sequence per exam — questions are grouped and ordered
+// by this before being handed to the client, since the DB fetch has no
+// guaranteed ordering and different question sets label biology as either
+// combined "Biology" or split "Botany"/"Zoology".
+const SUBJECT_ORDER: Record<string, string[]> = {
+  CEE: ["Physics", "Chemistry", "Botany", "Zoology", "Biology", "MAT"],
+};
+
+function sortBySubject<T extends { subject: string }>(questions: T[], exam: string): T[] {
+  const order = SUBJECT_ORDER[exam] ?? [];
+  const priority = (subject: string) => {
+    const i = order.indexOf(subject);
+    return i === -1 ? order.length : i;
+  };
+  return [...questions].sort((a, b) => priority(a.subject) - priority(b.subject));
+}
+
 export default async function TestPage({ params }: Props) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
@@ -50,10 +67,13 @@ export default async function TestPage({ params }: Props) {
 
   const mockTest = {
     ...test,
-    questions: test.questions.map(q => ({
-      ...q,
-      options: q.options as string[]
-    }))
+    questions: sortBySubject(
+      test.questions.map(q => ({
+        ...q,
+        options: q.options as string[]
+      })),
+      test.exam
+    )
   };
 
   return <TestInterface test={mockTest as any} />;

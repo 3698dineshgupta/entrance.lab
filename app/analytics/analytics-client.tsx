@@ -260,29 +260,32 @@ export function AnalyticsClient({ initialSummaries }: { initialSummaries: Attemp
         <h3 className="font-semibold flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" /> Attempt History
         </h3>
-        <div className="mt-4 overflow-x-auto">
+        <div className="-mx-4 sm:mx-0 overflow-x-auto px-4 sm:px-0 mt-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-muted-foreground uppercase tracking-wider border-b border-white/[0.06]">
-                <th className="text-left pb-2 pr-4">#</th>
+                <th className="text-left pb-2 pr-4 hidden sm:table-cell">#</th>
                 <th className="text-left pb-2 pr-4">Test</th>
                 <th className="text-left pb-2 pr-4">Date</th>
-                <th className="text-right pb-2 pr-4">Score</th>
-                <th className="text-right pb-2 pr-4">Accuracy</th>
-                <th className="text-right pb-2">Result</th>
+                <th className="text-right pb-2 sm:pr-4">Score</th>
+                <th className="text-right pb-2 pr-4 hidden sm:table-cell">Accuracy</th>
+                <th className="text-right pb-2 hidden sm:table-cell">Result</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
               {[...filtered].reverse().map((s, i) => (
                 <tr key={s.attemptId}>
-                  <td className="py-2.5 pr-4 text-muted-foreground">{filtered.length - i}</td>
-                  <td className="py-2.5 pr-4 max-w-[200px] truncate">{s.title}</td>
-                  <td className="py-2.5 pr-4 text-muted-foreground text-xs">
-                    {new Date(s.date).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
+                  <td className="py-2.5 pr-4 text-muted-foreground hidden sm:table-cell">{filtered.length - i}</td>
+                  <td className="py-2.5 pr-4 max-w-[120px] sm:max-w-[200px] truncate font-medium">{s.title}</td>
+                  <td className="py-2.5 pr-4 text-muted-foreground text-[10px] sm:text-xs">
+                    {new Date(s.date).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "2-digit" })}
                   </td>
-                  <td className="py-2.5 pr-4 text-right font-mono">{s.score}/{s.maxScore}</td>
-                  <td className="py-2.5 pr-4 text-right font-mono">{s.accuracy}%</td>
-                  <td className="py-2.5 text-right">
+                  <td className="py-2.5 sm:pr-4 text-right font-mono text-xs sm:text-sm">
+                    <span className={cn(s.percentage >= 50 ? "text-green-400" : "text-red-400")}>{s.score}</span>
+                    <span className="text-muted-foreground">/{s.maxScore}</span>
+                  </td>
+                  <td className="py-2.5 pr-4 text-right font-mono hidden sm:table-cell">{s.accuracy}%</td>
+                  <td className="py-2.5 text-right hidden sm:table-cell">
                     {s.percentage >= 50
                       ? <CheckCircle2 className="h-4 w-4 text-green-400 ml-auto" />
                       : <AlertCircle className="h-4 w-4 text-red-400 ml-auto" />

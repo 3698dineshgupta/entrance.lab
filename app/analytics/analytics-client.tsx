@@ -2,7 +2,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { AttemptSummary } from "@/lib/types";
-import { getTrendData, getWeakSubjects, getStreakData } from "@/lib/analytics";
+import { getTrendData, getWeakSubjects, getStreakData } from "@/lib/analytics-helpers";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

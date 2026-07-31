@@ -22,11 +22,11 @@ export default async function TestPage({ params }: Props) {
         where: { id },
         include: {
           questions: {
-            select: { id: true, subject: true, text: true, options: true, marks: true, negativeMarks: true }
+            select: { id: true, subject: true, text: true, options: true, correctIndex: true, explanation: true, marks: true, negativeMarks: true }
           }
         }
       });
-      
+
       // Fallback for hardcoded slugs (like ioe-full-1) matching the database titles
       if (!dbTest) {
         const hardcoded = MOCK_TESTS.find(t => t.id === id);
@@ -35,7 +35,7 @@ export default async function TestPage({ params }: Props) {
             where: { title: hardcoded.title },
             include: {
               questions: {
-                select: { id: true, subject: true, text: true, options: true, marks: true, negativeMarks: true }
+                select: { id: true, subject: true, text: true, options: true, correctIndex: true, explanation: true, marks: true, negativeMarks: true }
               }
             }
           });

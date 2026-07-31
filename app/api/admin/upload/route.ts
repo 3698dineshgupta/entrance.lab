@@ -28,9 +28,14 @@ export async function POST(req: Request) {
         questions: {
           create: questions.map((q: any) => ({
             subject: q.subject,
+            topic: q.topic ?? null,
             text: q.text,
             options: q.options,
             correctIndex: q.correctIndex,
+            explanation: q.explanation ?? null,
+            difficulty: q.difficulty ?? "medium",
+            marks: q.marks ?? 1,
+            negativeMarks: q.negativeMarks ?? 0,
           })),
         },
       },

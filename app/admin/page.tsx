@@ -98,7 +98,14 @@ export default function AdminDashboard() {
           else if (answerRaw.toUpperCase().startsWith("D")) correctIndex = 3;
           else correctIndex = 0;
         }
-        return { subject: row["Subject"] || "Physics", text: row["Question"] || "Missing question", options, correctIndex };
+        return {
+          subject: row["Subject"] || "Physics",
+          topic: row["Topic"] || null,
+          text: row["Question"] || "Missing question",
+          options,
+          correctIndex,
+          explanation: row["Explanation"] || null,
+        };
       });
 
       const examGuess = file.name.toUpperCase().includes("IOE") ? "IOE" : "CEE";
@@ -333,6 +340,8 @@ export default function AdminDashboard() {
             <p>• <span className="font-mono text-cyan-400">Question</span> — The full question text</p>
             <p>• <span className="font-mono text-cyan-400">Option A / B / C / D</span> — Answer choices</p>
             <p>• <span className="font-mono text-cyan-400">Answer</span> or <span className="font-mono text-cyan-400">Correct Option</span> — The correct answer text or letter (A/B/C/D)</p>
+            <p>• <span className="font-mono text-cyan-400">Topic</span> <span className="opacity-70">(optional)</span> — Enables topic-wise practice mode for these questions</p>
+            <p>• <span className="font-mono text-cyan-400">Explanation</span> <span className="opacity-70">(optional)</span> — Shown to students after they answer</p>
             <p className="mt-2 text-[11px] text-cyan-400/70">💡 The exam type (CEE/IOE) is auto-detected from the filename.</p>
           </div>
 

@@ -13,6 +13,7 @@ export function Navbar() {
   const links = [
     { href: "/", label: "Home" },
     { href: "/mock-tests", label: "Mock Tests" },
+    { href: "/practice", label: "Practice" },
     { href: "/analytics", label: "Analytics" },
   ];
 

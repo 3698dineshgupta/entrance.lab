@@ -20,18 +20,23 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const res = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    });
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
 
-    if (res?.error) {
-      setError("Invalid email or password");
+      if (res?.error) {
+        setError("Invalid email or password");
+        setLoading(false);
+      } else {
+        router.push("/mock-tests");
+        router.refresh();
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
       setLoading(false);
-    } else {
-      router.push("/mock-tests");
-      router.refresh();
     }
   };
 

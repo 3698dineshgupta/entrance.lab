@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  attempts  Attempt[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model TestSet {
+  id              String     @id @default(cuid())
+  exam            String     // e.g., "IOE" or "CEE"
+  title           String
+  mode            String     // "full" or "subject"
+  subject         String?
+  difficulty      String     @default("mixed")
+  durationMinutes Int
+  isPublished     Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  questions       Question[]
+  attempts        Attempt[]
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  testId        String
+  subject       String
+  topic         String?
+  text          String
+  options       String[] // PostgreSQL string array
+  correctIndex  Int
+  explanation   String?
+  difficulty    String   @default("medium")
+  marks         Int      @default(1)
+  negativeMarks Float?   @default(0)
+
+  testSet       TestSet  @relation(fields: [testId], references: [id], onDelete: Cascade)
+}
+
+model Attempt {
+  id              String   @id @default(cuid())
+  userId          String
+  testId          String
+  startedAt       DateTime
+  submittedAt     DateTime
+  durationSeconds Int
+  answers         Json     // Store { "questionId": index }
+  marked          Json     // Store { "questionId": boolean }
+  subjectTimes    Json?    // Store { "subject": seconds }
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testSet         TestSet  @relation(fields: [testId], references: [id], onDelete: Cascade)
+}

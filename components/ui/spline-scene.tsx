@@ -1,42 +1,23 @@
 'use client'
-import { Suspense, lazy, useEffect, useState } from 'react'
-// Revert to standard React.lazy to avoid Next.js module resolution bugs with this specific package's exports
-const Spline = lazy(() => import('@splinetool/react-spline'))
+import dynamic from 'next/dynamic'
+
+// Use Next.js dynamic import with SSR disabled to prevent WebGL hydration crashes on refresh
+const Spline = dynamic(() => import('@splinetool/react-spline'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
+    </div>
+  ),
+})
 
 interface SplineSceneProps {
   scene: string
   className?: string
 }
 
-export function SplineScene({
-  scene,
-  className = '',
-}: SplineSceneProps) {
-  // Defer loading to improve initial paint speed
-  const [shouldLoad, setShouldLoad] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShouldLoad(true), 200)
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (!shouldLoad) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <span className="loader" aria-label="Loading 3D scene" />
-      </div>
-    )
-  }
-
+export function SplineScene({ scene, className = '' }: SplineSceneProps) {
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-full w-full items-center justify-center">
-          <span className="loader" aria-label="Loading 3D scene" />
-        </div>
-      }
-    >
-      <Spline scene={scene} className={className} />
-    </Suspense>
+    <Spline scene={scene} className={className} />
   )
 }

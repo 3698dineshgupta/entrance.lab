@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { AttemptSummary } from "@/lib/types";
 import { getTrendData, getWeakSubjects, getStreakData } from "@/lib/analytics-helpers";
@@ -29,15 +29,19 @@ export function AnalyticsClient({ initialSummaries }: { initialSummaries: Attemp
   const [examFilter, setExamFilter] = useState<string>("ALL");
   const [summaries, setSummaries] = useState<AttemptSummary[]>(initialSummaries);
   const [loading, setLoading] = useState(false);
+  // Track if we've already loaded data for a given filter to avoid refetch
+  const loadedFilters = useRef<Set<string>>(new Set(["ALL"]));
 
-  // Re-fetch from server API when filter changes (ensures fresh, per-user data)
+  // Only re-fetch when filter changes AND we haven't loaded it yet
   const fetchSummaries = useCallback(async (filter: string) => {
+    if (loadedFilters.current.has(filter)) return; // skip if already loaded
     setLoading(true);
     try {
       const res = await fetch(`/api/analytics?exam=${filter}`);
       if (res.ok) {
         const data = await res.json();
         setSummaries(data);
+        loadedFilters.current.add(filter);
       }
     } catch {}
     finally { setLoading(false); }

@@ -16,9 +16,26 @@ export async function getUserSummaries(userId: string, examFilter?: string): Pro
           userId,
           ...(examFilter && examFilter !== "ALL" ? { testSet: { exam: examFilter } } : {})
         },
-        include: {
+        select: {
+          id: true,
+          submittedAt: true,
+          durationSeconds: true,
+          answers: true,
           testSet: {
-            include: { questions: true }
+            select: {
+              id: true,
+              exam: true,
+              title: true,
+              questions: {
+                select: {
+                  id: true,
+                  subject: true,
+                  correctIndex: true,
+                  marks: true,
+                  negativeMarks: true,
+                }
+              }
+            }
           }
         },
         orderBy: { submittedAt: "asc" }

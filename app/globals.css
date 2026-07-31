@@ -21,7 +21,18 @@
   }
   * { @apply border-border; }
   html, body { @apply bg-background text-foreground antialiased; font-style: normal; }
-  body { background-image: radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,0.08), transparent 60%), radial-gradient(900px 500px at 100% 10%, rgba(167,139,250,0.06), transparent 60%); }
+  /* Background moved to ::before pseudo-element with position:fixed so the GPU composites
+     it as a separate layer — eliminates CPU repaints during every scroll frame */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,0.08), transparent 60%),
+      radial-gradient(900px 500px at 100% 10%, rgba(167,139,250,0.06), transparent 60%);
+  }
   i, em { font-style: normal; }
 }
 
@@ -29,6 +40,8 @@
   .glass {
     @apply bg-white/[0.03] border border-white/10 backdrop-blur-xl;
     box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -30px rgba(0,0,0,0.6);
+    /* Promote to GPU layer to avoid triggering layout/paint during scroll */
+    will-change: transform;
   }
   .glass-hover { @apply transition-all duration-300 hover:bg-white/[0.05] hover:border-white/20; }
   .grid-bg {

@@ -27,9 +27,12 @@ export function TestInterface({ test }: Props) {
   const [showNav, setShowNav] = useState(false);
   const [remaining, setRemaining] = useState(test.durationMinutes * 60);
   const startedAt = useRef(Date.now());
+  const isSubmitting = useRef(false); // prevent double-submit
   // per-subject time tracking
   const subjectTimes = useRef<Record<string, number>>({});
   const lastSubjectSwitch = useRef<{ subject: string; ts: number } | null>(null);
+  // Stable ref to submit so the timer interval never captures a stale closure
+  const submitRef = useRef<() => void>(() => {});
 
   const current = test.questions[idx];
   const answeredCount = Object.values(answers).filter((v) => v !== null).length;
@@ -65,17 +68,16 @@ export function TestInterface({ test }: Props) {
     lastSubjectSwitch.current = { subject: currentSubj, ts: Date.now() };
   }, [current.subject]);
 
-  // timer
+  // timer — uses submitRef so auto-submit never fires a stale closure
   useEffect(() => {
     const t = setInterval(() => {
       setRemaining((r) => {
-        if (r <= 1) { clearInterval(t); submit(); return 0; }
+        if (r <= 1) { clearInterval(t); submitRef.current(); return 0; }
         return r - 1;
       });
     }, 1000);
     return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // intentionally empty deps — submitRef is always current
 
   // warn before leave
   useEffect(() => {
@@ -102,6 +104,10 @@ export function TestInterface({ test }: Props) {
   }, [current.id, total]);
 
   const submit = async () => {
+    // Guard against double-submit (e.g., button spam or timer firing simultaneously)
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
+
     // flush remaining subject time
     if (lastSubjectSwitch.current) {
       const { subject, ts } = lastSubjectSwitch.current;
@@ -183,6 +189,10 @@ export function TestInterface({ test }: Props) {
 
     router.push("/results");
   };
+
+  // Keep submitRef in sync so the timer always calls the latest version
+  // This runs every render but is just a ref assignment — essentially free
+  submitRef.current = submit;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col">
@@ -359,15 +369,17 @@ function NavigatorCard({
   marked: Record<string, boolean>;
   compact?: boolean;
 }) {
-  // Group questions by subject for the navigator
-  const subjects = useMemo(() => {
-    const seen = new Set<string>();
-    const out: string[] = [];
-    for (const q of test.questions) {
-      if (!seen.has(q.subject)) { seen.add(q.subject); out.push(q.subject); }
-    }
-    return out;
+  // Memoize grouped questions — avoids O(n²) re-filtering on every answer change
+  const questionsBySubject = useMemo(() => {
+    const map: Record<string, { q: MockTest['questions'][number]; i: number }[]> = {};
+    test.questions.forEach((q, i) => {
+      if (!map[q.subject]) map[q.subject] = [];
+      map[q.subject].push({ q, i });
+    });
+    return map;
   }, [test.questions]);
+
+  const subjects = useMemo(() => Object.keys(questionsBySubject), [questionsBySubject]);
 
   return (
     <div className={cn("glass rounded-2xl p-4 space-y-4 max-h-[calc(100vh-10rem)] overflow-y-auto", compact && "p-0 border-0 bg-transparent shadow-none")}>
@@ -379,9 +391,7 @@ function NavigatorCard({
       </div>
 
       {subjects.map((subject) => {
-        const subjectQs = test.questions
-          .map((q, i) => ({ q, i }))
-          .filter(({ q }) => q.subject === subject);
+        const subjectQs = questionsBySubject[subject];
 
         return (
           <div key={subject}>

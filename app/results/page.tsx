@@ -222,56 +222,173 @@ export default function ResultsPage() {
         </div>
       </Card>
 
-      {/* Answer review */}
-      <Card className="p-6">
-        <h3 className="font-semibold">Answer Review</h3>
-        <p className="text-xs text-muted-foreground">Every question with the correct answer and explanation.</p>
-        <div className="mt-4 space-y-3">
-          {(summary as any).questions?.map((q: any, i: number) => {
-            const user = (summary as any).answers[q.id];
-            const isCorrect = user === q.correctIndex;
-            const isUnanswered = user === null || user === undefined;
-            return (
-              <div key={q.id} className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
-                <div className="flex items-start gap-3">
-                  <span className={cn(
-                    "shrink-0 mt-0.5 h-6 w-6 rounded-md text-xs font-semibold inline-flex items-center justify-center",
-                    isUnanswered ? "bg-white/[0.06] text-muted-foreground"
-                      : isCorrect ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300"
-                  )}>{i + 1}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground mb-1">{q.subject}</p>
-                    <p className="text-sm">{q.text}</p>
-                    <div className="mt-3 grid gap-1.5 text-xs">
-                      {(q.options as string[]).map((o: string, oi: number) => (
+      {/* Answer Review */}
+      <AnswerReview summary={summary as any} />
+    </div>
+  );
+}
+
+function AnswerReview({ summary }: { summary: any }) {
+  const questions: any[] = summary.questions ?? [];
+  const answers: Record<string, number | null> = summary.answers ?? {};
+
+  const [filter, setFilter] = useState<"all" | "wrong" | "correct" | "skipped">("all");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  if (questions.length === 0) return null;
+
+  const filteredQs = questions.filter((q: any) => {
+    const user = answers[q.id];
+    const isCorrect = user !== null && user !== undefined && Number(user) === q.correctIndex;
+    const isSkipped = user === null || user === undefined;
+    const isWrong = !isCorrect && !isSkipped;
+    if (filter === "wrong") return isWrong;
+    if (filter === "correct") return isCorrect;
+    if (filter === "skipped") return isSkipped;
+    return true;
+  });
+
+  const counts = {
+    wrong: questions.filter(q => {
+      const u = answers[q.id];
+      return u !== null && u !== undefined && Number(u) !== q.correctIndex;
+    }).length,
+    correct: questions.filter(q => {
+      const u = answers[q.id];
+      return u !== null && u !== undefined && Number(u) === q.correctIndex;
+    }).length,
+    skipped: questions.filter(q => answers[q.id] === null || answers[q.id] === undefined).length,
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpanded(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  return (
+    <Card className="p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 className="font-semibold flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-cyan-400" /> Answer Review
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Click any question to see all options and explanation.
+          </p>
+        </div>
+        {/* Filter Tabs */}
+        <div className="flex gap-1 p-1 rounded-lg border border-white/10 bg-white/[0.02] text-xs flex-wrap">
+          {([
+            { key: "all", label: `All (${questions.length})` },
+            { key: "wrong", label: `Wrong (${counts.wrong})`, color: "text-red-400" },
+            { key: "correct", label: `Correct (${counts.correct})`, color: "text-green-400" },
+            { key: "skipped", label: `Skipped (${counts.skipped})`, color: "text-muted-foreground" },
+          ] as const).map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key)}
+              className={cn(
+                "px-2.5 py-1 rounded-md transition",
+                filter === tab.key ? "bg-white/[0.10] text-foreground" : `text-muted-foreground hover:text-foreground ${tab.color ?? ""}`
+              )}
+            >{tab.label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 space-y-2">
+        {filteredQs.map((q: any, i: number) => {
+          const user = answers[q.id];
+          const isCorrect = user !== null && user !== undefined && Number(user) === q.correctIndex;
+          const isSkipped = user === null || user === undefined;
+          const isWrong = !isCorrect && !isSkipped;
+          const isOpen = expanded.has(q.id);
+          const qIndex = questions.indexOf(q);
+
+          return (
+            <div
+              key={q.id}
+              className={cn(
+                "rounded-xl border transition-colors overflow-hidden",
+                isCorrect ? "border-green-400/25 bg-green-500/[0.04]"
+                  : isWrong ? "border-red-400/25 bg-red-500/[0.04]"
+                  : "border-white/[0.07] bg-white/[0.02]"
+              )}
+            >
+              {/* Header row — always visible */}
+              <button
+                className="w-full text-left px-4 py-3 flex items-start gap-3"
+                onClick={() => toggleExpand(q.id)}
+              >
+                {/* Status badge */}
+                <span className={cn(
+                  "shrink-0 mt-0.5 h-6 w-6 rounded-md text-xs font-bold inline-flex items-center justify-center",
+                  isCorrect ? "bg-green-500/25 text-green-300"
+                    : isWrong ? "bg-red-500/25 text-red-300"
+                    : "bg-white/[0.07] text-muted-foreground"
+                )}>{qIndex + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{q.subject}</span>
+                    {isCorrect && <span className="text-[10px] text-green-400 font-medium">✓ Correct</span>}
+                    {isWrong && <span className="text-[10px] text-red-400 font-medium">✗ Wrong</span>}
+                    {isSkipped && <span className="text-[10px] text-muted-foreground font-medium">— Skipped</span>}
+                  </div>
+                  <p className="text-sm mt-0.5 line-clamp-2">{q.text}</p>
+                </div>
+                <span className={cn("shrink-0 text-muted-foreground text-xs transition-transform mt-1", isOpen && "rotate-180")}>▼</span>
+              </button>
+
+              {/* Expanded options */}
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-2 border-t border-white/[0.06] pt-3">
+                  <div className="grid gap-1.5">
+                    {(q.options as string[]).map((opt: string, oi: number) => {
+                      const isThisCorrect = oi === q.correctIndex;
+                      const isThisUser = oi === Number(user);
+                      const isUserWrongHere = isWrong && isThisUser;
+                      return (
                         <div
                           key={oi}
                           className={cn(
-                            "rounded-md border px-3 py-2",
-                            oi === q.correctIndex
-                              ? "border-green-400/40 bg-green-500/10 text-green-200"
-                              : oi === user
-                                ? "border-red-400/40 bg-red-500/10 text-red-200"
-                                : "border-white/[0.06]"
+                            "rounded-lg border px-3 py-2.5 text-sm flex items-start gap-2",
+                            isThisCorrect
+                              ? "border-green-400/50 bg-green-500/15 text-green-100"
+                              : isUserWrongHere
+                              ? "border-red-400/50 bg-red-500/15 text-red-200"
+                              : "border-white/[0.06] text-muted-foreground"
                           )}
                         >
-                          <span className="text-muted-foreground mr-2">{String.fromCharCode(65 + oi)}.</span>{o}
+                          <span className={cn(
+                            "shrink-0 font-semibold w-5 text-xs mt-0.5",
+                            isThisCorrect ? "text-green-400" : isUserWrongHere ? "text-red-400" : "text-muted-foreground"
+                          )}>
+                            {String.fromCharCode(65 + oi)}.
+                          </span>
+                          <span className="flex-1">{opt}</span>
+                          <span className="shrink-0 text-xs font-medium">
+                            {isThisCorrect && <span className="text-green-400">✓ Answer</span>}
+                            {isUserWrongHere && <span className="text-red-400">✗ Your choice</span>}
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                    {q.explanation && (
-                      <p className="mt-3 text-xs text-muted-foreground border-l-2 border-cyan-400/40 pl-3">
-                        <span className="text-foreground font-medium">Explanation:</span> {q.explanation}
-                      </p>
-                    )}
+                      );
+                    })}
                   </div>
+                  {q.explanation && (
+                    <div className="mt-3 p-3 rounded-lg bg-cyan-500/[0.06] border border-cyan-400/20">
+                      <p className="text-xs"><span className="text-cyan-400 font-semibold">Explanation: </span><span className="text-muted-foreground">{q.explanation}</span></p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
-    </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Card>
   );
 }
 

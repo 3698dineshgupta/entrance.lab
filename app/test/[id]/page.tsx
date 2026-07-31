@@ -12,10 +12,9 @@ interface Props {
 
 // Desired subject sequence per exam — questions are grouped and ordered
 // by this before being handed to the client, since the DB fetch has no
-// guaranteed ordering and different question sets label biology as either
-// combined "Biology" or split "Botany"/"Zoology".
+// guaranteed ordering.
 const SUBJECT_ORDER: Record<string, string[]> = {
-  CEE: ["Physics", "Chemistry", "Botany", "Zoology", "Biology", "MAT"],
+  CEE: ["Physics", "Chemistry", "Botany", "Zoology", "MAT"],
 };
 
 function sortBySubject<T extends { subject: string }>(questions: T[], exam: string): T[] {

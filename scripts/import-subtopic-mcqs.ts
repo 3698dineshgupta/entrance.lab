@@ -44,6 +44,29 @@ const SHEET_TO_TOPIC: Record<string, string> = {
   "4. Organic Chem-I": "Organic Chemistry",
   "5. Organic Chem-II": "Organic Chemistry",
   "6. Bio & Polymers": "Applied Chemistry",
+  // CEE_Botany_MCQ_Expanded.xlsx sheet names — default topic per sheet;
+  // specific subtopics that actually belong to a different official unit
+  // are corrected via SUBTOPIC_TOPIC_OVERRIDE below.
+  "1. Basic Comp & Biodiversity": "Basic Components of Life",
+  "2. Gymnosperms & Angiosperms": "Biodiversity",
+  "3. Cell Biology": "Cell Biology",
+  "4. Plant Anatomy & Physiology": "Plant Anatomy",
+  "5. Developmental Botany": "Developmental Botany",
+  "6. Genetics & Molecular Biology": "Genetics",
+  "7. Ecology & Applied Botany": "Ecology and Vegetation",
+};
+
+// Exact Sub-Topic text -> official topic, overriding the sheet-level default
+// above for sheets whose name spans two official units (e.g. "Plant Anatomy
+// & Physiology" contains both Plant Anatomy and Plant Physiology content).
+const SUBTOPIC_TOPIC_OVERRIDE: Record<string, string> = {
+  "1.2 Monera, Virus & Cyanobacteria": "Biodiversity",
+  "1.3 Fungi, Lichens & Algae": "Biodiversity",
+  "1.4 Bryophytes & Pteridophytes": "Biodiversity",
+  "4.2 Water Relations, Mineral Nutrition & Transpiration": "Plant Physiology",
+  "4.3 Photosynthesis": "Plant Physiology",
+  "4.4 Respiration in Plants": "Plant Physiology",
+  "7.3 Applied Botany — Tissue Culture, Genetic Engineering": "Applied Botany",
 };
 
 // Official syllabus unit order per exam+subject, for format (B) where the
@@ -204,7 +227,9 @@ async function main() {
       let sheetCount = 0;
       for (const row of rows) {
         if (!row["Question"]) { skippedHeader++; continue; } // bare Sub-Topic divider row
-        const result = buildQuestion(testSet!.id, subject, topic, row);
+        const subtopicRaw = String(row["Sub-Topic"] ?? row["Sub-topic"] ?? "");
+        const rowTopic = SUBTOPIC_TOPIC_OVERRIDE[subtopicRaw] ?? topic;
+        const result = buildQuestion(testSet!.id, subject, rowTopic, row);
         if (result.error) {
           console.warn(`  [${sheetName}] Q${row["Q.No"]}: ${result.error} — skipping`);
           skippedBadAnswer++;

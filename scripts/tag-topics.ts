@@ -114,8 +114,31 @@ function classify(exam: string, subject: string, text: string): string {
   return `General ${subject}`;
 }
 
+// Default: only classify rows that have never been tagged (topic IS NULL).
+// This script's keyword classifier is a coarse fallback — many questions now
+// have precise topic/subtopic data from real subtopic-wise source files
+// (scripts/import-subtopic-mcqs.ts), and unconditionally reclassifying the
+// whole table would silently overwrite that precise data with worse guesses.
+// Pass --all to force reclassifying everything anyway (rarely correct — make
+// sure you mean it), or --testId=<id> to scope to one test set (e.g. a
+// freshly imported flat mock test with no subtopic data to protect).
 async function main() {
+  const args = process.argv.slice(2);
+  const forceAll = args.includes("--all");
+  const testIdArg = args.find((a) => a.startsWith("--testId="))?.split("=")[1];
+
+  const where = testIdArg
+    ? { testId: testIdArg }
+    : forceAll
+    ? {}
+    : { topic: null };
+
+  if (forceAll) {
+    console.warn("--all: reclassifying EVERY question, including ones with existing precise topic/subtopic data. Make sure this is really what you want.");
+  }
+
   const questions = await prisma.question.findMany({
+    where,
     select: { id: true, subject: true, text: true, testSet: { select: { exam: true } } },
   });
   console.log(`Classifying ${questions.length} questions...`);

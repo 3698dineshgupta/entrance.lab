@@ -54,6 +54,17 @@ const SHEET_TO_TOPIC: Record<string, string> = {
   "5. Developmental Botany": "Developmental Botany",
   "6. Genetics & Molecular Biology": "Genetics",
   "7. Ecology & Applied Botany": "Ecology and Vegetation",
+  // CEE_Zoology_MCQ_Expanded.xlsx sheet names — default topic per sheet;
+  // subtopics that actually belong to a different official unit are
+  // corrected via SUBTOPIC_TOPIC_OVERRIDE below.
+  "1. Animal Diversity": "Animal Diversity and Classification",
+  "2. Animal Diversity II": "Animal Diversity and Classification",
+  "3. Selected Animals": "Study of Selected Animals",
+  "4. Human Biology I": "Human Biology and Physiology",
+  "5. Human Biology II": "Human Biology and Physiology",
+  "6. Genetics & Evolution": "Evolutionary Biology",
+  "7. Health & Disease": "Microbial Diseases and Immunology",
+  "8. Ecology & Environment": "Biota, Environment and Conservation",
 };
 
 // Exact Sub-Topic text -> official topic, overriding the sheet-level default
@@ -67,6 +78,12 @@ const SUBTOPIC_TOPIC_OVERRIDE: Record<string, string> = {
   "4.3 Photosynthesis": "Plant Physiology",
   "4.4 Respiration in Plants": "Plant Physiology",
   "7.3 Applied Botany — Tissue Culture, Genetic Engineering": "Applied Botany",
+  // CEE_Zoology_MCQ_Expanded.xlsx: sheet 4's "Animal Tissue" subtopic
+  // belongs to the dedicated histology unit, not Human Biology; sheet 7's
+  // "Prevention, Control & Public Health" fits applied biology better than
+  // the microbial-diseases bucket it otherwise defaults to.
+  "12. Animal Tissue": "Animal Tissues and Histology",
+  "4. Prevention, Control & Public Health": "Medical Technology and Applied Biology",
 };
 
 // Official syllabus unit order per exam+subject, for format (B) where the

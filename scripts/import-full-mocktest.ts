@@ -12,9 +12,12 @@ const prisma = new PrismaClient();
 // Usage: npx tsx scripts/import-full-mocktest.ts <path-to-xlsx> <exam> <title> <durationMinutes>
 
 function matchAnswerIndex(options: string[], answer: string): number {
-  let idx = options.findIndex((o) => o === answer);
+  // Some source files prefix the answer with its own option letter, e.g.
+  // "D) Cavity of stomach of mosquito" — strip that before comparing.
+  const stripped = answer.replace(/^[A-D]\)\s*/, "");
+  let idx = options.findIndex((o) => o === stripped);
   if (idx === -1) {
-    idx = options.findIndex((o) => o.length > 0 && (answer.startsWith(o) || o.startsWith(answer)));
+    idx = options.findIndex((o) => o.length > 0 && (stripped.startsWith(o) || o.startsWith(stripped)));
   }
   return idx;
 }

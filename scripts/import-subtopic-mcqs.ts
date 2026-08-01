@@ -28,6 +28,22 @@ const SHEET_TO_TOPIC: Record<string, string> = {
   "Waves & Optics": "Waves and Optics",
   "Current Electricity & Magnetism": "Current Electricity and Magnetism",
   "Electrostatics & Capacitors": "Electrostatics and Capacitors",
+  // CEE_Physics_MCQ_Expanded.xlsx sheet names (numbered, 1:1 with official units)
+  "1. Mechanics": "Mechanics",
+  "2. Heat & Thermo": "Heat and Thermodynamics",
+  "3. Waves & Optics": "Waves and Optics",
+  "4. Electricity & Magnetism": "Current Electricity and Magnetism",
+  "5. Electrostatics": "Electrostatics and Capacitors",
+  "6. Modern Physics": "Modern Physics",
+  // CEE_Chemistry_MCQ_Expanded.xlsx sheet names — several sheets share an
+  // official unit (General/Physical Chem both -> Physical Chemistry;
+  // Organic Chem-I/II both -> Organic Chemistry).
+  "1. General Chem": "Physical Chemistry",
+  "2. Physical Chem": "Physical Chemistry",
+  "3. Inorganic Chem": "Inorganic Chemistry",
+  "4. Organic Chem-I": "Organic Chemistry",
+  "5. Organic Chem-II": "Organic Chemistry",
+  "6. Bio & Polymers": "Applied Chemistry",
 };
 
 // Official syllabus unit order per exam+subject, for format (B) where the

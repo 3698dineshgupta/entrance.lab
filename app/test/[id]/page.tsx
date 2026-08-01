@@ -15,6 +15,7 @@ interface Props {
 // guaranteed ordering.
 const SUBJECT_ORDER: Record<string, string[]> = {
   CEE: ["Physics", "Chemistry", "Botany", "Zoology", "MAT"],
+  IOE: ["Mathematics", "Physics", "Chemistry", "English"],
 };
 
 function sortBySubject<T extends { subject: string }>(questions: T[], exam: string): T[] {

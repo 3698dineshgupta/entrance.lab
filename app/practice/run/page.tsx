@@ -82,5 +82,5 @@ export default async function PracticeRunPage({ searchParams }: Props) {
 }
 
 function stripNumericPrefix(s: string): string {
-  return s.replace(/^\d+(\.\d+)?\s*/, "");
+  return s.replace(/^\d+(?:\.\d+)?[a-z]?\.?\s*/i, "");
 }

@@ -57,7 +57,7 @@ export default async function SubjectDetailPage({ params }: Props) {
           return {
             key: `${t.topic}::${st.subtopic}`,
             topic: t.topic,
-            label: st.subtopic.replace(/^\d+(\.\d+)?\s*/, ""),
+            label: st.subtopic.replace(/^\d+(?:\.\d+)?[a-z]?\.?\s*/i, ""),
             unitLabel: unitLabel(st.subtopic, ti, si),
             count: st.count,
             answered: sStats.answered,

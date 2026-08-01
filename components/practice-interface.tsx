@@ -17,6 +17,7 @@ export interface PracticeQuestion {
   options: string[];
   correctIndex: number;
   explanation: string | null;
+  previouslyAnswered?: boolean;
 }
 
 interface Props {
@@ -34,13 +35,21 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
   // order between practice sessions.
   const [questions, setQuestions] = useState(initialQuestions);
   useEffect(() => {
-    setQuestions((qs) => {
-      const shuffled = [...qs];
-      for (let i = shuffled.length - 1; i > 0; i--) {
+    // Shuffle for variety, but keep unanswered questions (server-sorted
+    // first) ahead of previously-answered ones — shuffling each segment
+    // separately preserves that resume-at-new-material ordering.
+    const shuffle = <T,>(arr: T[]) => {
+      const out = [...arr];
+      for (let i = out.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        [out[i], out[j]] = [out[j], out[i]];
       }
-      return shuffled;
+      return out;
+    };
+    setQuestions((qs) => {
+      const unanswered = qs.filter((q) => !q.previouslyAnswered);
+      const answered = qs.filter((q) => q.previouslyAnswered);
+      return [...shuffle(unanswered), ...shuffle(answered)];
     });
   }, []);
 
@@ -71,6 +80,13 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
   const selectOption = (optionIndex: number) => {
     if (isAnswered) return;
     setAnswers((a) => ({ ...a, [current.id]: optionIndex }));
+    // Fire-and-forget: don't block the UI on this, and a failure here
+    // shouldn't interrupt the practice session.
+    fetch("/api/practice/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ questionId: current.id, correct: optionIndex === current.correctIndex }),
+    }).catch(() => {});
   };
 
   const goTo = (i: number) => {
@@ -207,6 +223,11 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
 
       {/* Question */}
       <div className="container py-6 max-w-2xl flex-1">
+        {current.previouslyAnswered && !isAnswered && (
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-400 bg-amber-500/10 border border-amber-400/20 rounded-full px-2.5 py-1 mb-3">
+            <RotateCcw className="h-3 w-3" /> Reviewing a question you've answered before
+          </span>
+        )}
         <p className="text-lg leading-relaxed">{current.text}</p>
 
         <div className="mt-6 space-y-3">

@@ -80,3 +80,36 @@ export async function getPracticeIndex(): Promise<ExamGroup[]> {
     }).sort((a, b) => b.total - a.total),
   }));
 }
+
+export interface ProgressStats {
+  answered: number;
+  correct: number;
+}
+
+// Per-(exam, subject, topic, subtopic) progress for one user. Keyed by
+// `${exam}::${subject}::${topic}::${subtopic ?? ""}` — an empty subtopic key
+// aggregates answers to questions that don't have subtopic-level tagging.
+// Deliberately not cached (per-user, changes on every answer) — the query
+// itself is cheap since it's indexed on userId.
+export async function getUserPracticeProgress(userId: string): Promise<Record<string, ProgressStats>> {
+  const rows = await prisma.practiceAttempt.findMany({
+    where: { userId },
+    select: {
+      correct: true,
+      question: { select: { subject: true, topic: true, subtopic: true, testSet: { select: { exam: true } } } },
+    },
+  });
+
+  const map: Record<string, ProgressStats> = {};
+  for (const r of rows) {
+    const exam = r.question.testSet.exam;
+    const subject = r.question.subject;
+    const topic = r.question.topic ?? "General";
+    const subtopic = r.question.subtopic ?? "";
+    const key = `${exam}::${subject}::${topic}::${subtopic}`;
+    map[key] ??= { answered: 0, correct: 0 };
+    map[key].answered += 1;
+    if (r.correct) map[key].correct += 1;
+  }
+  return map;
+}

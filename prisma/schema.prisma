@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  name      String?
-  role      Role      @default(USER)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  attempts  Attempt[]
+  id               String            @id @default(cuid())
+  email            String            @unique
+  password         String
+  name             String?
+  role             Role              @default(USER)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  attempts         Attempt[]
+  practiceAttempts PracticeAttempt[]
 }
 
 enum Role {
@@ -24,19 +25,19 @@ enum Role {
 }
 
 model TestSet {
-  id              String     @id @default(cuid())
-  exam            String     // e.g., "IOE" or "CEE"
+  id              String   @id @default(cuid())
+  exam            String // e.g., "IOE" or "CEE"
   title           String
-  mode            String     // "full" or "subject"
+  mode            String // "full" or "subject"
   subject         String?
-  difficulty      String     @default("mixed")
+  difficulty      String   @default("mixed")
   durationMinutes Int
-  isPublished     Boolean    @default(true)
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  isPublished     Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  questions       Question[]
-  attempts        Attempt[]
+  questions Question[]
+  attempts  Attempt[]
 }
 
 model Question {
@@ -53,7 +54,26 @@ model Question {
   marks         Int      @default(1)
   negativeMarks Float?   @default(0)
 
-  testSet       TestSet  @relation(fields: [testId], references: [id], onDelete: Cascade)
+  testSet          TestSet           @relation(fields: [testId], references: [id], onDelete: Cascade)
+  practiceAttempts PracticeAttempt[]
+}
+
+// One row per (user, question) — tracks the user's most recent practice-mode
+// answer so the subtopic browser can show completion progress and resume
+// sessions at the first unanswered question. Upserted on every answer, not
+// a full attempt history.
+model PracticeAttempt {
+  id         String   @id @default(cuid())
+  userId     String
+  questionId String
+  correct    Boolean
+  answeredAt DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@index([userId])
 }
 
 model Attempt {
@@ -63,10 +83,10 @@ model Attempt {
   startedAt       DateTime
   submittedAt     DateTime
   durationSeconds Int
-  answers         Json     // Store { "questionId": index }
-  marked          Json     // Store { "questionId": boolean }
-  subjectTimes    Json?    // Store { "subject": seconds }
+  answers         Json // Store { "questionId": index }
+  marked          Json // Store { "questionId": boolean }
+  subjectTimes    Json? // Store { "subject": seconds }
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  testSet         TestSet  @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testSet TestSet @relation(fields: [testId], references: [id], onDelete: Cascade)
 }

@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,16 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 
 export default function LoginPage() {
-  const router = useRouter();
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/mock-tests";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -31,8 +41,12 @@ export default function LoginPage() {
         setError("Invalid email or password");
         setLoading(false);
       } else {
-        router.push("/mock-tests");
-        router.refresh();
+        // Hard navigation rather than router.push()+router.refresh(): the
+        // session cookie was just set by signIn(), and an immediate
+        // client-side transition can race with the middleware reading that
+        // cookie on the next request, bouncing back to /login. A full page
+        // load always has the fresh cookie attached.
+        window.location.href = callbackUrl;
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");

@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,10 +41,11 @@ export default function RegisterPage() {
       });
 
       if (loginRes?.ok) {
-        router.push("/mock-tests");
-        router.refresh();
+        // Hard navigation — see app/login/page.tsx for why router.push()+
+        // router.refresh() is unreliable right after signIn().
+        window.location.href = "/mock-tests";
       } else {
-        router.push("/login");
+        window.location.href = "/login";
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getCurrentWeekStart } from "@/lib/practice-data";
 import { PracticeInterface, PracticeQuestion } from "@/components/practice-interface";
 
 export const dynamic = "force-dynamic";
@@ -52,11 +53,17 @@ export default async function PracticeRunPage({ searchParams }: Props) {
 
   if (deduped.length === 0) notFound();
 
-  // Resume support: questions this user has already answered in a previous
-  // practice session are pushed to the end, so a fresh visit starts on new
-  // material instead of repeating what's already been covered.
+  // Resume support: questions this user has already answered this practice
+  // week are pushed to the end, so a fresh visit starts on new material
+  // instead of repeating what's already been covered. Progress (and this
+  // resume priority) resets each week — a question answered last week is
+  // fresh again.
   const priorAttempts = await prisma.practiceAttempt.findMany({
-    where: { userId: session.user.id, questionId: { in: deduped.map((q) => q.id) } },
+    where: {
+      userId: session.user.id,
+      questionId: { in: deduped.map((q) => q.id) },
+      answeredAt: { gte: getCurrentWeekStart() },
+    },
     select: { questionId: true },
   });
   const answeredIds = new Set(priorAttempts.map((a) => a.questionId));

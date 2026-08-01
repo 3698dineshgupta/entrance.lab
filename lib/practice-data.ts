@@ -81,19 +81,31 @@ export async function getPracticeIndex(): Promise<ExamGroup[]> {
   }));
 }
 
+// Start of the current practice week (Monday 00:00 UTC). Progress and
+// resume-priority are both scoped to this window so a question answered
+// last week becomes fresh again this week, without deleting the underlying
+// PracticeAttempt history.
+export function getCurrentWeekStart(): Date {
+  const now = new Date();
+  const day = now.getUTCDay(); // 0 = Sunday, 1 = Monday, ...
+  const diffToMonday = (day + 6) % 7; // days since the most recent Monday
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diffToMonday));
+  return monday;
+}
+
 export interface ProgressStats {
   answered: number;
   correct: number;
 }
 
-// Per-(exam, subject, topic, subtopic) progress for one user. Keyed by
-// `${exam}::${subject}::${topic}::${subtopic ?? ""}` — an empty subtopic key
-// aggregates answers to questions that don't have subtopic-level tagging.
-// Deliberately not cached (per-user, changes on every answer) — the query
-// itself is cheap since it's indexed on userId.
+// Per-(exam, subject, topic, subtopic) progress for one user, scoped to the
+// current practice week. Keyed by `${exam}::${subject}::${topic}::${subtopic
+// ?? ""}` — an empty subtopic key aggregates answers to questions that don't
+// have subtopic-level tagging. Deliberately not cached (per-user, changes on
+// every answer) — the query itself is cheap since it's indexed on userId.
 export async function getUserPracticeProgress(userId: string): Promise<Record<string, ProgressStats>> {
   const rows = await prisma.practiceAttempt.findMany({
-    where: { userId },
+    where: { userId, answeredAt: { gte: getCurrentWeekStart() } },
     select: {
       correct: true,
       question: { select: { subject: true, topic: true, subtopic: true, testSet: { select: { exam: true } } } },

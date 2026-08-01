@@ -79,7 +79,7 @@ export default async function SubjectDetailPage({ params }: Props) {
         {subjectAnswered > 0 && (
           <div className="mt-5">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-              <span>Overall progress</span>
+              <span>This week's progress <span className="opacity-60">· resets Monday</span></span>
               <span>{subjectAnswered}/{subjectGroup.total} · {Math.round((subjectAnswered / subjectGroup.total) * 100)}%</span>
             </div>
             <div className="h-1.5 rounded-full bg-white/[0.08] overflow-hidden">

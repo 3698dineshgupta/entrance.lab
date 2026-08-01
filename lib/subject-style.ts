@@ -1,5 +1,7 @@
 import {
   Atom, FlaskConical, Leaf, PawPrint, Dna, Calculator, Languages, Brain, Layers,
+  Move, Scale, Zap, Orbit, RefreshCw, Droplet, Waves, Thermometer, Sun, Cpu,
+  TestTube, Beaker, Sigma, Divide, PieChart, SpellCheck, MessageSquare, BookOpen, Hash, TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -57,4 +59,47 @@ export function getSubjectImage(subject: string, exam?: string): string | null {
     }
   }
   return SUBJECT_IMAGE[subject] ?? null;
+}
+
+// Keyword-based icon picker for individual subtopic/topic cards, so the
+// practice browser grid doesn't show the same one icon for every card in a
+// subject. Falls back to the caller-provided default (usually the subject's
+// own icon) when nothing matches.
+const SUBTOPIC_ICON_RULES: [RegExp, LucideIcon][] = [
+  [/vector|kinemat|projectile|relative motion/i, Move],
+  [/newton|friction|law of motion|laws of motion/i, Scale],
+  [/work|energy|power|momentum|collision/i, Zap],
+  [/circular|gravitat|orbit|satellite/i, Orbit],
+  [/rotation|angular/i, RefreshCw],
+  [/fluid|pressure|viscosity|surface tension|hydro/i, Droplet],
+  [/elastic|shm|oscillat|simple harmonic|spring/i, Waves],
+  [/thermodynam|calorimetry|kinetic theory|specific heat|expansion/i, Thermometer],
+  [/light|optic|reflection|refraction|lens|mirror|photo/i, Sun],
+  [/wave|sound|doppler|interference|diffraction|acoustic/i, Waves],
+  [/electr|magnet|circuit|current|capacitor/i, Zap],
+  [/modern physics|atom|nuclear|quantum|semiconductor/i, Cpu],
+  [/organic|hydrocarbon|alcohol|carbonyl|polymer/i, FlaskConical],
+  [/inorganic|periodic|metal|acid|base|salt/i, TestTube],
+  [/physical chemistry|equilibrium|thermochemistry|electrochemistry|kinetics|solution/i, Beaker],
+  [/cell biology|genetic|dna|chromosom|heredity/i, Dna],
+  [/plant|photosynth|transpiration|bryophyte|pteridophyte|fungi|algae/i, Leaf],
+  [/animal|tissue|histology|physiology|human biology/i, PawPrint],
+  [/ecology|biodivers|conservation|environment|monera|virus/i, Leaf],
+  [/algebra|equation|polynomial|matrix|complex number/i, Sigma],
+  [/trigonomet/i, TrendingUp],
+  [/geometry|coordinate|conic/i, Hash],
+  [/calculus|differen|integra|limit|continuity/i, Divide],
+  [/statistic|probabilit/i, PieChart],
+  [/set|logic|function|relation/i, Layers],
+  [/grammar|tense|voice|clause|preposition|article/i, SpellCheck],
+  [/phonetic|pronunciation|stress|intonation/i, MessageSquare],
+  [/reading|comprehension|passage|vocabulary/i, BookOpen],
+  [/verbal|reasoning|logical|numerical|sequenc/i, Brain],
+];
+
+export function getSubtopicIcon(label: string, fallback: LucideIcon = Layers): LucideIcon {
+  for (const [pattern, icon] of SUBTOPIC_ICON_RULES) {
+    if (pattern.test(label)) return icon;
+  }
+  return fallback;
 }

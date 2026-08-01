@@ -60,6 +60,10 @@ const TOPIC_ORDER: Record<string, string[]> = {
   "CEE::MAT": ["Verbal Reasoning", "Numerical Reasoning", "Logical Sequencing", "Spatial Relation / Abstract Reasoning"],
 };
 
+function normalize(s: string): string {
+  return s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
+}
+
 function matchAnswerIndex(options: string[], answer: string): number {
   let idx = options.findIndex((o) => o === answer);
   if (idx === -1) {
@@ -77,12 +81,17 @@ function buildQuestion(testId: string, subject: string, topic: string, row: any)
   if (correctIndex === -1) return { error: `answer "${answer}" not found in options` as string };
 
   const subtopicRaw = row["Sub-Topic"] ?? row["Sub-topic"] ?? row["Subtopic"];
+  const subtopicText = subtopicRaw ? String(subtopicRaw).replace(/^\d+(\.\d+)?\.?\s*/, "").trim() : null;
+  // Some sources use the Sub-Topic column to carry the top-level topic itself
+  // (e.g. "5. Human Biology & Physiology") rather than a finer subtopic —
+  // storing that as-is would just duplicate the topic name in the UI.
+  const isRedundant = subtopicText && normalize(subtopicText) === normalize(topic);
   return {
     question: {
       testId,
       subject,
       topic,
-      subtopic: subtopicRaw ? String(subtopicRaw).trim() : null,
+      subtopic: isRedundant ? null : (subtopicRaw ? String(subtopicRaw).trim() : null),
       text: String(row["Question"]).trim(),
       options,
       correctIndex,

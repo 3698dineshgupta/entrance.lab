@@ -34,3 +34,27 @@ export const SUBJECT_COLOR: Record<string, { text: string; from: string; to: str
 export function getSubjectColor(subject: string) {
   return SUBJECT_COLOR[subject] ?? { text: "text-cyan-400", from: "from-cyan-500/20", to: "to-blue-600/10", ring: "border-cyan-400/20" };
 }
+
+// Custom banner artwork per subject (already has the subject name and topic
+// list baked into the image). Falls back to the gradient+icon treatment for
+// any subject without one.
+export const SUBJECT_IMAGE: Record<string, string> = {
+  Physics: "/practice/physics_new.png",
+  Chemistry: "/practice/chemistry_new.png",
+  Botany: "/practice/botany_new.png",
+  Zoology: "/practice/zoology_new.png",
+  Biology: "/practice/biology_new.png",
+  Mathematics: "/practice/mathematics_new.png",
+  English: "/practice/english_new.png",
+  MAT: "/practice/mat_new.png",
+};
+
+export function getSubjectImage(subject: string, exam?: string): string | null {
+  if (exam) {
+    const examKey = `${exam}_${subject}`;
+    if (SUBJECT_IMAGE[examKey]) {
+      return SUBJECT_IMAGE[examKey];
+    }
+  }
+  return SUBJECT_IMAGE[subject] ?? null;
+}

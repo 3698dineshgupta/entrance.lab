@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { ArrowRight, BookOpen, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getSubjectIcon, getSubjectColor } from "@/lib/subject-style";
+import { getSubjectIcon, getSubjectColor, getSubjectImage } from "@/lib/subject-style";
 import type { ExamGroup } from "@/lib/practice-data";
 
 export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
@@ -56,6 +57,7 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {group.subjects.map((s) => {
+                const image = getSubjectImage(s.subject, group.exam);
                 const Icon = getSubjectIcon(s.subject);
                 const color = getSubjectColor(s.subject);
                 return (
@@ -63,27 +65,45 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
                     key={s.subject}
                     href={`/practice/${encodeURIComponent(group.exam)}/${encodeURIComponent(s.subject)}`}
                     className={cn(
-                      "group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-6 h-44 flex flex-col justify-between transition-all",
+                      "group relative overflow-hidden rounded-2xl border transition-all",
                       "hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/20",
-                      color.from, color.to, color.ring
+                      image ? "border-white/10 aspect-[2.5/1]" : cn("bg-gradient-to-br aspect-[4/1]", color.from, color.to, color.ring)
                     )}
                   >
-                    <Icon className={cn(
-                      "absolute -right-4 -bottom-4 h-32 w-32 opacity-[0.08] group-hover:opacity-[0.14] group-hover:scale-105 transition-all duration-300",
-                      color.text
-                    )} />
-
-                    <div className="relative flex items-start justify-between">
-                      <span className={cn("h-11 w-11 rounded-xl bg-background/40 backdrop-blur border inline-flex items-center justify-center", color.ring)}>
-                        <Icon className={cn("h-5 w-5", color.text)} />
-                      </span>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                    </div>
-
-                    <div className="relative">
-                      <h3 className="text-xl font-semibold tracking-tight">{s.subject}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">{s.topics.length} topics · {s.total} questions</p>
-                    </div>
+                    {image ? (
+                      <>
+                        <Image
+                          src={image}
+                          alt={s.subject}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+                          priority={false}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="bg-white/70 backdrop-blur-sm rounded-full px-6 py-2 border border-white/40 shadow-sm">
+                            <h3 className="text-xl md:text-2xl font-serif font-bold text-slate-800 uppercase tracking-widest">
+                              {s.subject}
+                            </h3>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="relative h-full flex items-center gap-3 px-4">
+                        <Icon className={cn(
+                          "absolute -right-3 -bottom-3 h-20 w-20 opacity-[0.08] group-hover:opacity-[0.14] group-hover:scale-105 transition-all duration-300",
+                          color.text
+                        )} />
+                        <span className={cn("h-9 w-9 shrink-0 rounded-lg bg-background/40 backdrop-blur border inline-flex items-center justify-center", color.ring)}>
+                          <Icon className={cn("h-4 w-4", color.text)} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-base font-semibold tracking-tight truncate">{s.subject}</h3>
+                          <p className="text-[11px] text-muted-foreground">{s.topics.length} topics · {s.total} questions</p>
+                        </div>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                      </div>
+                    )}
                   </Link>
                 );
               })}

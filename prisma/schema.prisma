@@ -17,11 +17,30 @@ model User {
   updatedAt        DateTime          @updatedAt
   attempts         Attempt[]
   practiceAttempts PracticeAttempt[]
+  materialRequests MaterialRequest[]
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+// A user-submitted request for study material that isn't on the site yet
+// (e.g. "add IOE English past papers"), surfaced to admins for follow-up.
+// userId is optional since the Request Hub form doesn't require login.
+model MaterialRequest {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  whatsapp  String
+  message   String
+  status    String   @default("pending") // "pending" | "fulfilled"
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
 }
 
 model TestSet {

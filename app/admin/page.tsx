@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Users, Upload, BarChart2, FileText, Trash2, Shield,
-  RefreshCw, Search, ChevronDown, ChevronUp, Clock, Trophy, AlertCircle
+  RefreshCw, Search, ChevronDown, ChevronUp, Clock, Trophy, AlertCircle, MessagesSquare, Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatTime } from "@/lib/utils";
@@ -25,7 +25,17 @@ type UserRecord = {
   }[];
 };
 
-type Tab = "users" | "upload" | "overview";
+type RequestRecord = {
+  id: string;
+  name: string;
+  whatsapp: string;
+  message: string;
+  status: "pending" | "fulfilled";
+  createdAt: string;
+  user: { email: string } | null;
+};
+
+type Tab = "users" | "upload" | "overview" | "requests";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -40,6 +50,8 @@ export default function AdminDashboard() {
   const [uploadFormat, setUploadFormat] = useState<"standard" | "subtopic">("standard");
   const [uploadExam, setUploadExam] = useState<"AUTO" | "IOE" | "CEE">("AUTO");
   const [uploadSubject, setUploadSubject] = useState("");
+  const [requests, setRequests] = useState<RequestRecord[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchUsers = useCallback(async () => {
@@ -52,9 +64,30 @@ export default function AdminDashboard() {
     }
   }, []);
 
+  const fetchRequests = useCallback(async () => {
+    setLoadingRequests(true);
+    try {
+      const res = await fetch("/api/admin/requests");
+      if (res.ok) setRequests(await res.json());
+    } finally {
+      setLoadingRequests(false);
+    }
+  }, []);
+
+  const toggleRequestStatus = async (id: string, current: "pending" | "fulfilled") => {
+    const next = current === "pending" ? "fulfilled" : "pending";
+    setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: next } : r)));
+    await fetch("/api/admin/requests", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status: next }),
+    });
+  };
+
   useEffect(() => {
     if (tab === "users" || tab === "overview") fetchUsers();
-  }, [tab, fetchUsers]);
+    if (tab === "requests" || tab === "overview") fetchRequests();
+  }, [tab, fetchUsers, fetchRequests]);
 
   if (status === "loading") return (
     <div className="flex h-screen items-center justify-center">
@@ -188,16 +221,21 @@ export default function AdminDashboard() {
           <p className="text-sm text-muted-foreground mt-1">Logged in as <span className="text-cyan-400">{session.user.email}</span></p>
         </div>
         <div className="flex gap-1 p-1 rounded-lg border border-white/10 bg-white/[0.02]">
-          {(["overview", "users", "upload"] as Tab[]).map(t => (
+          {(["overview", "users", "requests", "upload"] as Tab[]).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={cn(
-                "px-4 py-2 text-sm rounded-md capitalize transition",
+                "px-4 py-2 text-sm rounded-md capitalize transition inline-flex items-center gap-1.5",
                 tab === t ? "bg-white/[0.08] text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {t === "overview" ? "Overview" : t === "users" ? "Users" : "Upload Test"}
+              {t === "overview" ? "Overview" : t === "users" ? "Users" : t === "requests" ? "Requests" : "Upload Test"}
+              {t === "requests" && requests.some(r => r.status === "pending") && (
+                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] px-1">
+                  {requests.filter(r => r.status === "pending").length}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -349,6 +387,76 @@ export default function AdminDashboard() {
             </div>
           </Card>
         </div>
+      )}
+
+      {/* REQUESTS TAB */}
+      {tab === "requests" && (
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold flex items-center gap-2">
+              <MessagesSquare className="h-4 w-4 text-cyan-400" /> Material Requests
+            </h2>
+            <Button size="sm" variant="secondary" onClick={fetchRequests} disabled={loadingRequests}>
+              <RefreshCw className={cn("h-3.5 w-3.5", loadingRequests && "animate-spin")} /> Refresh
+            </Button>
+          </div>
+
+          {loadingRequests && requests.length === 0 ? (
+            <div className="py-12 text-center text-sm text-muted-foreground">Loading requests...</div>
+          ) : requests.length === 0 ? (
+            <div className="py-12 text-center text-sm text-muted-foreground">No requests submitted yet.</div>
+          ) : (
+            <div className="space-y-3">
+              {requests.map((r) => (
+                <div
+                  key={r.id}
+                  className={cn(
+                    "rounded-xl border p-4",
+                    r.status === "fulfilled" ? "border-white/[0.06] bg-white/[0.01] opacity-60" : "border-white/10 bg-white/[0.02]"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-medium">{r.name}</p>
+                        {r.user?.email && (
+                          <span className="text-[11px] text-muted-foreground">({r.user.email})</span>
+                        )}
+                        <span className={cn(
+                          "text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border",
+                          r.status === "fulfilled" ? "border-green-400/20 text-green-400 bg-green-500/[0.06]" : "border-cyan-400/20 text-cyan-300 bg-cyan-500/[0.06]"
+                        )}>
+                          {r.status}
+                        </span>
+                      </div>
+                      <a
+                        href={`https://wa.me/${r.whatsapp.replace(/[^\d]/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-green-400 hover:underline mt-0.5 inline-block"
+                      >
+                        {r.whatsapp}
+                      </a>
+                      <p className="text-sm text-foreground/90 mt-2 whitespace-pre-wrap">{r.message}</p>
+                      <p className="text-[11px] text-muted-foreground mt-2">
+                        {new Date(r.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={r.status === "fulfilled" ? "secondary" : "default"}
+                      onClick={() => toggleRequestStatus(r.id, r.status)}
+                      className="shrink-0"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      {r.status === "fulfilled" ? "Mark pending" : "Mark fulfilled"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
       )}
 
       {/* UPLOAD TAB */}

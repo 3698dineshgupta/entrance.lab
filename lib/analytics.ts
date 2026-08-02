@@ -6,13 +6,16 @@ import { fetchWithCache } from "./redis";
 // ─── Summary computation ──────────────────────────────────────────────────────
 
 export async function getUserSummaries(userId: string, examFilter?: string): Promise<AttemptSummary[]> {
-  const cacheKey = `user_summaries_${userId}_${examFilter || "ALL"}`;
+  const cacheKey = `user_summaries_v2_${userId}_${examFilter || "ALL"}`;
 
-  const attempts = await fetchWithCache(
+  // Cache the fully-computed summaries, not just the raw attempts — the
+  // per-question scoring pass below was re-running on every request even on
+  // a cache hit.
+  return fetchWithCache(
     cacheKey,
     async () => {
-      return await prisma.attempt.findMany({
-        where: { 
+      const attempts = await prisma.attempt.findMany({
+        where: {
           userId,
           ...(examFilter && examFilter !== "ALL" ? { testSet: { exam: examFilter } } : {})
         },
@@ -40,10 +43,14 @@ export async function getUserSummaries(userId: string, examFilter?: string): Pro
         },
         orderBy: { submittedAt: "asc" }
       });
+
+      return computeSummaries(attempts);
     },
     300 // Cache analytics for 5 minutes
   );
+}
 
+function computeSummaries(attempts: any[]): AttemptSummary[] {
   return attempts.map((attempt: any) => {
     const test = attempt.testSet;
     let correct = 0, incorrect = 0, unanswered = 0, score = 0;

@@ -1,6 +1,7 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { GraduationCap } from "lucide-react";
 import { SplineScene } from "@/components/ui/spline-scene";
 import { Spotlight } from "@/components/ui/spotlight";
 import { ExamSelectionModal } from "@/components/exam-selection-modal";
@@ -9,6 +10,18 @@ import { ExamType } from "@/lib/types";
 export function Hero() {
   const [open, setOpen] = useState(false);
   const [exam, setExam] = useState<ExamType>("IOE");
+  // The Spline 3D scene pins the main thread at ~100% CPU continuously
+  // (a permanent WebGL render loop) — fine on desktop, but makes every
+  // interaction on mobile (where most traffic is) feel janky. Only mount it
+  // on wider viewports; mobile gets a lightweight CSS fallback instead.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    setIsDesktop(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6">
@@ -55,12 +68,21 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Right: Spline 3D scene */}
+          {/* Right: Spline 3D scene (desktop only — see isDesktop comment above) */}
           <div className="w-[45%] md:w-auto h-[260px] sm:h-[300px] md:h-auto md:min-h-[560px] relative flex items-center justify-center pointer-events-auto" style={{ touchAction: 'pan-y' }}>
-            <SplineScene
-              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-              className="absolute inset-0 w-full h-full"
-            />
+            {isDesktop ? (
+              <SplineScene
+                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                className="absolute inset-0 w-full h-full"
+              />
+            ) : (
+              <div className="relative flex h-full w-full items-center justify-center">
+                <div className="absolute h-32 w-32 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-2xl animate-pulse" />
+                <span className="relative inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-blue-500/30">
+                  <GraduationCap className="h-10 w-10 text-white" />
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

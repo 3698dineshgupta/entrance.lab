@@ -32,9 +32,9 @@ export async function POST(req: Request) {
     });
 
     // Invalidate analytics caches for this user
-    await invalidateCache(`user_summaries_${session.user.id}_ALL`);
-    await invalidateCache(`user_summaries_${session.user.id}_IOE`);
-    await invalidateCache(`user_summaries_${session.user.id}_CEE`);
+    await invalidateCache(`user_summaries_v2_${session.user.id}_ALL`);
+    await invalidateCache(`user_summaries_v2_${session.user.id}_IOE`);
+    await invalidateCache(`user_summaries_v2_${session.user.id}_CEE`);
 
     return NextResponse.json({ success: true, attemptId: attempt.id });
   } catch (error: any) {

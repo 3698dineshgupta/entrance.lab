@@ -65,6 +65,11 @@ const SHEET_TO_TOPIC: Record<string, string> = {
   "6. Genetics & Evolution": "Evolutionary Biology",
   "7. Health & Disease": "Microbial Diseases and Immunology",
   "8. Ecology & Environment": "Biota, Environment and Conservation",
+  // CEE_MAT_MCQ_Expanded.xlsx sheet names.
+  "1. Verbal Reasoning": "Verbal Reasoning",
+  "2. Logical Reasoning": "Logical Sequencing",
+  "3. Quantitative Aptitude": "Numerical Reasoning",
+  "4. Abstract & Mixed": "Spatial Relation / Abstract Reasoning",
 };
 
 // Exact Sub-Topic text -> official topic, overriding the sheet-level default

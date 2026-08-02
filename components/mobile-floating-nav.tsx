@@ -51,64 +51,65 @@ export function MobileFloatingNav() {
         })}
       </nav>
 
-      {session ? (
+      <div className="relative shrink-0">
+        {menuOpen && (
+          <>
+            <button
+              aria-label="Close menu"
+              className="fixed inset-0 z-40 cursor-default"
+              onClick={() => setMenuOpen(false)}
+            />
+            <div className="absolute bottom-full right-0 mb-3 z-50 flex w-48 flex-col gap-1 rounded-2xl border border-white/10 bg-background/95 backdrop-blur-xl p-2 shadow-2xl shadow-black/40">
+              {TABS.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <Link
+                    key={tab.href}
+                    href={tab.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-white/[0.06] transition"
+                  >
+                    <Icon className="h-4 w-4 text-muted-foreground" /> {tab.label}
+                  </Link>
+                );
+              })}
+              <div className="h-px bg-white/10 my-1" />
+              {session ? (
+                <button
+                  onClick={() => { setMenuOpen(false); signOut(); }}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-white/[0.06] transition text-left"
+                >
+                  <LogOut className="h-4 w-4" /> Logout
+                </button>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-white/[0.06] transition"
+                  >
+                    <LogIn className="h-4 w-4" /> Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:opacity-90 transition"
+                  >
+                    <UserPlus className="h-4 w-4" /> Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+          </>
+        )}
         <button
-          onClick={() => signOut()}
-          aria-label="Logout"
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-purple-500/30 text-white active:scale-95 transition"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Menu"
+          className="relative z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-purple-500/30 text-white active:scale-95 transition"
         >
-          <LogOut className="h-5 w-5" />
+          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
-      ) : (
-        <div className="relative shrink-0">
-          {menuOpen && (
-            <>
-              <button
-                aria-label="Close menu"
-                className="fixed inset-0 z-40 cursor-default"
-                onClick={() => setMenuOpen(false)}
-              />
-              <div className="absolute bottom-full right-0 mb-3 z-50 flex w-48 flex-col gap-1 rounded-2xl border border-white/10 bg-background/95 backdrop-blur-xl p-2 shadow-2xl shadow-black/40">
-                {TABS.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <Link
-                      key={tab.href}
-                      href={tab.href}
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-white/[0.06] transition"
-                    >
-                      <Icon className="h-4 w-4 text-muted-foreground" /> {tab.label}
-                    </Link>
-                  );
-                })}
-                <div className="h-px bg-white/10 my-1" />
-                <Link
-                  href="/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-white/[0.06] transition"
-                >
-                  <LogIn className="h-4 w-4" /> Login
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:opacity-90 transition"
-                >
-                  <UserPlus className="h-4 w-4" /> Sign Up
-                </Link>
-              </div>
-            </>
-          )}
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Menu"
-            className="relative z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-purple-500/30 text-white active:scale-95 transition"
-          >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -129,3 +129,102 @@ export async function getUserPracticeProgress(userId: string): Promise<Record<st
   }
   return map;
 }
+
+// ─── Mock-test readiness ────────────────────────────────────────────────────
+// A different question from weekly resume progress: "across everything
+// they've ever practiced, how much of the syllabus have they covered, and
+// how accurately?" Used to tell a user whether they've practiced enough of
+// a subject/exam to be worth attempting a real mock test.
+
+export type ReadinessStatus = "not-started" | "started" | "in-progress" | "ready";
+
+export interface SubjectReadiness {
+  subject: string;
+  total: number;
+  attempted: number;
+  correct: number;
+  coverage: number; // 0-100, % of the subject's questions attempted at least once (all-time)
+  accuracy: number; // 0-100, % of attempted questions answered correctly (most recent answer)
+  status: ReadinessStatus;
+}
+
+export interface ExamReadiness {
+  exam: string;
+  total: number;
+  attempted: number;
+  correct: number;
+  coverage: number;
+  accuracy: number;
+  ready: boolean;
+  subjects: SubjectReadiness[];
+}
+
+const READY_COVERAGE_THRESHOLD = 70;
+const READY_ACCURACY_THRESHOLD = 60;
+const IN_PROGRESS_COVERAGE_THRESHOLD = 35;
+
+function statusFor(attempted: number, coverage: number, accuracy: number): ReadinessStatus {
+  if (attempted === 0) return "not-started";
+  if (coverage >= READY_COVERAGE_THRESHOLD && accuracy >= READY_ACCURACY_THRESHOLD) return "ready";
+  if (coverage >= IN_PROGRESS_COVERAGE_THRESHOLD) return "in-progress";
+  return "started";
+}
+
+// All-time (not week-scoped, unlike getUserPracticeProgress) so readiness
+// reflects the user's full practice history, not just this week's resets.
+export async function getUserPracticeReadiness(userId: string): Promise<ExamReadiness[]> {
+  const [index, attempts] = await Promise.all([
+    getPracticeIndex(),
+    prisma.practiceAttempt.findMany({
+      where: { userId },
+      select: { correct: true, question: { select: { subject: true, testSet: { select: { exam: true } } } } },
+    }),
+  ]);
+
+  const progress: Record<string, { attempted: number; correct: number }> = {};
+  for (const a of attempts) {
+    const key = `${a.question.testSet.exam}::${a.question.subject}`;
+    progress[key] ??= { attempted: 0, correct: 0 };
+    progress[key].attempted += 1;
+    if (a.correct) progress[key].correct += 1;
+  }
+
+  return index.map((examGroup) => {
+    const subjects: SubjectReadiness[] = examGroup.subjects.map((s) => {
+      const p = progress[`${examGroup.exam}::${s.subject}`] ?? { attempted: 0, correct: 0 };
+      // Clamp: a subject's `total` is deduped by question text, but
+      // PracticeAttempt rows are keyed by questionId, so a small mismatch
+      // between duplicate-seeded copies can theoretically push the raw
+      // attempted count slightly past total — clamp rather than show >100%.
+      const attempted = Math.min(p.attempted, s.total);
+      const coverage = s.total > 0 ? Math.round((attempted / s.total) * 100) : 0;
+      const accuracy = p.attempted > 0 ? Math.round((p.correct / p.attempted) * 100) : 0;
+      return {
+        subject: s.subject,
+        total: s.total,
+        attempted,
+        correct: p.correct,
+        coverage,
+        accuracy,
+        status: statusFor(attempted, coverage, accuracy),
+      };
+    }).sort((a, b) => b.total - a.total);
+
+    const total = subjects.reduce((sum, s) => sum + s.total, 0);
+    const attempted = subjects.reduce((sum, s) => sum + s.attempted, 0);
+    const correct = subjects.reduce((sum, s) => sum + s.correct, 0);
+    const coverage = total > 0 ? Math.round((attempted / total) * 100) : 0;
+    const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+
+    return {
+      exam: examGroup.exam,
+      total,
+      attempted,
+      correct,
+      coverage,
+      accuracy,
+      ready: attempted > 0 && coverage >= READY_COVERAGE_THRESHOLD && accuracy >= READY_ACCURACY_THRESHOLD,
+      subjects,
+    };
+  });
+}

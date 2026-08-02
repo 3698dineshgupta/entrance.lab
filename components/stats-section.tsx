@@ -6,7 +6,7 @@ import { motion, useInView } from "framer-motion";
 const STATS = [
   { icon: Users, label: "Students", value: 1240, suffix: "+", color: "text-blue-400", bg: "from-blue-500/20 to-blue-500/5" },
   { icon: FileText, label: "Mock Tests", value: 12, suffix: "", color: "text-cyan-400", bg: "from-cyan-500/20 to-cyan-500/5" },
-  { icon: HelpCircle, label: "Questions", value: 2200, suffix: "+", color: "text-purple-400", bg: "from-purple-500/20 to-purple-500/5" },
+  { icon: HelpCircle, label: "Questions", value: 10000, suffix: "+", color: "text-purple-400", bg: "from-purple-500/20 to-purple-500/5" },
   { icon: Trophy, label: "Tests Attempted", value: 4800, suffix: "+", color: "text-orange-400", bg: "from-orange-500/20 to-orange-500/5" },
 ];
 

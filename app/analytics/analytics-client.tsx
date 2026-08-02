@@ -2,6 +2,7 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { AttemptSummary } from "@/lib/types";
+import { ExamReadiness } from "@/lib/practice-data";
 import { getTrendData, getWeakSubjects, getStreakData } from "@/lib/analytics-helpers";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
 } from "recharts";
 import {
   TrendingUp, Target, Trophy, BookOpen, Flame, Play, AlertCircle,
-  CheckCircle2, BarChart2, Zap, Clock
+  CheckCircle2, BarChart2, Zap, Clock, GraduationCap, ArrowRight, CircleDashed,
 } from "lucide-react";
 
 const SUBJECT_COLORS: Record<string, string> = {
@@ -25,7 +26,7 @@ const SUBJECT_COLORS: Record<string, string> = {
   MAT: "#f43f5e",
 };
 
-export function AnalyticsClient({ initialSummaries }: { initialSummaries: AttemptSummary[] }) {
+export function AnalyticsClient({ initialSummaries, readiness }: { initialSummaries: AttemptSummary[]; readiness: ExamReadiness[] }) {
   const [examFilter, setExamFilter] = useState<string>("ALL");
   const [summaries, setSummaries] = useState<AttemptSummary[]>(initialSummaries);
   const [loading, setLoading] = useState(false);
@@ -87,19 +88,26 @@ export function AnalyticsClient({ initialSummaries }: { initialSummaries: Attemp
       }))
     : [];
 
-  if (summaries.length === 0 && !loading) {
+  const hasReadinessData = readiness.some((r) => r.attempted > 0);
+
+  if (summaries.length === 0 && !loading && !hasReadinessData) {
     return (
       <div className="container py-24 text-center max-w-lg mx-auto">
         <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/10 border border-cyan-400/20 mb-6">
           <BarChart2 className="h-8 w-8 text-cyan-400" />
         </div>
-        <h1 className="text-2xl font-semibold">No attempts yet</h1>
+        <h1 className="text-2xl font-semibold">No activity yet</h1>
         <p className="text-muted-foreground mt-2 text-sm">
-          Complete at least one mock test to see your analytics here.
+          Practice a topic or complete a mock test to see your analytics here.
         </p>
-        <Button asChild className="mt-6">
-          <Link href="/mock-tests"><Play className="h-4 w-4" /> Start a Test</Link>
-        </Button>
+        <div className="mt-6 flex gap-2 justify-center">
+          <Button asChild>
+            <Link href="/practice"><BookOpen className="h-4 w-4" /> Start Practicing</Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/mock-tests"><Play className="h-4 w-4" /> Start a Test</Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -144,6 +152,24 @@ export function AnalyticsClient({ initialSummaries }: { initialSummaries: Attemp
         </div>
       </div>
 
+      {/* Mock test readiness, based on practice coverage + accuracy */}
+      <PracticeReadinessSection readiness={readiness} />
+
+      {summaries.length === 0 ? (
+        <Card className="p-8 text-center border-dashed">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 border border-cyan-400/20 mb-3">
+            <BarChart2 className="h-6 w-6 text-cyan-400" />
+          </div>
+          <h3 className="font-semibold">No mock test attempts yet</h3>
+          <p className="text-muted-foreground mt-1.5 text-sm max-w-sm mx-auto">
+            Score trends, subject accuracy, and attempt history will show up here once you complete a mock test.
+          </p>
+          <Button asChild className="mt-5" size="sm">
+            <Link href="/mock-tests"><Play className="h-3.5 w-3.5" /> Start a Test</Link>
+          </Button>
+        </Card>
+      ) : (
+      <>
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard icon={<Trophy className="h-5 w-5" />} label="Best Score" value={`${bestScore}%`} color="text-orange-400" sub={`across ${filtered.length} tests`} />
@@ -301,6 +327,99 @@ export function AnalyticsClient({ initialSummaries }: { initialSummaries: Attemp
           </table>
         </div>
       </Card>
+      </>
+      )}
+    </div>
+  );
+}
+
+function PracticeReadinessSection({ readiness }: { readiness: ExamReadiness[] }) {
+  const active = readiness.filter((r) => r.total > 0);
+  if (active.length === 0) return null;
+
+  return (
+    <Card className="p-6">
+      <h3 className="font-semibold flex items-center gap-2">
+        <GraduationCap className="h-4 w-4 text-cyan-400" /> Mock Test Readiness
+      </h3>
+      <p className="text-xs text-muted-foreground mt-1">
+        How much of each subject's practice bank you've covered, and how accurately — a rough guide to
+        whether you're ready to attempt a timed mock test.
+      </p>
+
+      <div className="mt-5 grid md:grid-cols-2 gap-4">
+        {active.map((examReadiness) => (
+          <ExamReadinessCard key={examReadiness.exam} data={examReadiness} />
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function ExamReadinessCard({ data }: { data: ExamReadiness }) {
+  const verdict = data.attempted === 0
+    ? { label: "Not started", color: "text-muted-foreground", bg: "bg-white/[0.02] border-white/10", icon: CircleDashed }
+    : data.ready
+    ? { label: "Ready for mock test", color: "text-green-400", bg: "bg-green-500/[0.06] border-green-400/20", icon: CheckCircle2 }
+    : { label: "Keep practicing", color: "text-amber-400", bg: "bg-amber-500/[0.06] border-amber-400/20", icon: AlertCircle };
+  const Icon = verdict.icon;
+
+  return (
+    <div className={cn("rounded-xl border p-4", verdict.bg)}>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{data.exam}</p>
+          <p className={cn("mt-0.5 text-sm font-semibold flex items-center gap-1.5", verdict.color)}>
+            <Icon className="h-4 w-4" /> {verdict.label}
+          </p>
+        </div>
+        <Button asChild size="sm" variant={data.ready ? "default" : "secondary"}>
+          <Link href={data.ready ? "/mock-tests" : "/practice"}>
+            {data.ready ? "Take mock test" : "Practice"} <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </Button>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <div className="flex justify-between mb-1"><span className="text-muted-foreground">Coverage</span><span className="font-mono">{data.coverage}%</span></div>
+          <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-500" style={{ width: `${data.coverage}%` }} />
+          </div>
+        </div>
+        <div>
+          <div className="flex justify-between mb-1"><span className="text-muted-foreground">Accuracy</span><span className="font-mono">{data.accuracy}%</span></div>
+          <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+            <div
+              className={cn("h-full", data.accuracy >= 60 ? "bg-green-400" : data.accuracy >= 40 ? "bg-amber-400" : "bg-red-400")}
+              style={{ width: `${data.accuracy}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-3 text-[11px] text-muted-foreground">{data.attempted}/{data.total} questions practiced</p>
+
+      <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
+        {data.subjects.map((s) => (
+          <div key={s.subject} className="flex items-center gap-2 text-xs">
+            <span className="w-20 shrink-0 truncate">{s.subject}</span>
+            <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+              <div
+                className={cn(
+                  "h-full",
+                  s.status === "ready" ? "bg-green-400"
+                    : s.status === "in-progress" ? "bg-cyan-400"
+                    : s.status === "started" ? "bg-amber-400"
+                    : "bg-white/10"
+                )}
+                style={{ width: `${s.coverage}%` }}
+              />
+            </div>
+            <span className="w-9 shrink-0 text-right font-mono text-muted-foreground">{s.coverage}%</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

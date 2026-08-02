@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { GraduationCap } from "lucide-react";
 import { SplineScene } from "@/components/ui/spline-scene";
 import { Spotlight } from "@/components/ui/spotlight";
 import { ExamSelectionModal } from "@/components/exam-selection-modal";
@@ -13,7 +12,8 @@ export function Hero() {
   // The Spline 3D scene pins the main thread at ~100% CPU continuously
   // (a permanent WebGL render loop) — fine on desktop, but makes every
   // interaction on mobile (where most traffic is) feel janky. Only mount it
-  // on wider viewports; mobile gets a lightweight CSS fallback instead.
+  // on wider viewports; the right-hand column is hidden entirely on mobile
+  // (see the `hidden md:flex` column below), so text takes the full card.
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -31,9 +31,9 @@ export function Hero() {
           fill="white"
         />
 
-        <div className="relative z-10 flex flex-row md:grid md:grid-cols-[48%_52%] md:min-h-[560px] items-center">
-          {/* Left: content */}
-          <div className="flex flex-col justify-center w-[55%] md:w-full px-4 sm:px-6 md:px-12 lg:px-16 py-6 md:py-12 z-20 text-left">
+        <div className="relative z-10 flex flex-col md:grid md:grid-cols-[48%_52%] md:min-h-[560px] items-center">
+          {/* Left: content — full width on mobile since there's no 3D column there */}
+          <div className="flex flex-col justify-center w-full px-4 sm:px-6 md:px-12 lg:px-16 py-6 md:py-12 z-20 text-left">
             <p className="mb-2 md:mb-4 text-[9px] sm:text-xs md:text-sm font-medium uppercase tracking-[0.18em] text-blue-400">
               IOE &amp; CEE Mock Tests
             </p>
@@ -68,20 +68,13 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Right: Spline 3D scene (desktop only — see isDesktop comment above) */}
-          <div className="w-[45%] md:w-auto h-[260px] sm:h-[300px] md:h-auto md:min-h-[560px] relative flex items-center justify-center pointer-events-auto" style={{ touchAction: 'pan-y' }}>
-            {isDesktop ? (
+          {/* Right: Spline 3D scene — hidden entirely on mobile, no fallback graphic */}
+          <div className="hidden md:flex md:h-auto md:min-h-[560px] relative items-center justify-center pointer-events-auto" style={{ touchAction: 'pan-y' }}>
+            {isDesktop && (
               <SplineScene
                 scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
                 className="absolute inset-0 w-full h-full"
               />
-            ) : (
-              <div className="relative flex h-full w-full items-center justify-center">
-                <div className="absolute h-32 w-32 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-2xl animate-pulse" />
-                <span className="relative inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-blue-500/30">
-                  <GraduationCap className="h-10 w-10 text-white" />
-                </span>
-              </div>
             )}
           </div>
         </div>

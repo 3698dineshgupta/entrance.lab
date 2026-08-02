@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { invalidateCache } from "@/lib/redis";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
@@ -10,6 +11,12 @@ export async function POST(req: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Defense-in-depth against automated/scripted submissions — generous
+    // enough that no real test-taker (who submits one attempt at a time)
+    // would ever hit it.
+    const limit = await rateLimit(`attempts:${session.user.id}`, 30, 3600);
+    if (!limit.success) return rateLimitResponse(limit);
 
     const body = await req.json();
     const { testId, startedAt, submittedAt, durationSeconds, answers, marked, subjectTimes } = body;
@@ -37,8 +44,8 @@ export async function POST(req: Request) {
     await invalidateCache(`user_summaries_v2_${session.user.id}_CEE`);
 
     return NextResponse.json({ success: true, attemptId: attempt.id });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Save attempt error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

@@ -36,31 +36,53 @@ export async function GET() {
 }
 
 export async function PATCH(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { userId, role } = await req.json();
+    if (typeof userId !== "string" || !userId || (role !== "USER" && role !== "ADMIN")) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
+    // Prevent an admin from accidentally demoting themselves and losing
+    // access to this very panel mid-session.
+    if (userId === session.user.id && role !== "ADMIN") {
+      return NextResponse.json({ error: "You can't change your own admin role." }, { status: 400 });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: { role },
+      select: { id: true, role: true }
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error("Update user role error:", error);
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
-
-  const { userId, role } = await req.json();
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: { role },
-    select: { id: true, role: true }
-  });
-
-  return NextResponse.json(updated);
 }
 
 export async function DELETE(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+    if (!userId) return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+    if (userId === session.user.id) {
+      return NextResponse.json({ error: "You can't delete your own account from here." }, { status: 400 });
+    }
+
+    await prisma.user.delete({ where: { id: userId } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
-
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
-  if (!userId) return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-
-  await prisma.user.delete({ where: { id: userId } });
-  return NextResponse.json({ success: true });
 }

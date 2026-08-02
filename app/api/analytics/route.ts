@@ -21,8 +21,8 @@ export async function GET(req: Request) {
         "Cache-Control": "private, max-age=10",
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Analytics error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

@@ -13,8 +13,17 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { title, exam, mode, difficulty, durationMinutes, isPublished, questions } = body;
 
-    if (!title || !exam || !questions || !Array.isArray(questions)) {
+    if (!title || !exam || !questions || !Array.isArray(questions) || questions.length === 0) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    }
+    for (const q of questions) {
+      if (
+        typeof q.text !== "string" || !q.text.trim() ||
+        !Array.isArray(q.options) || q.options.length !== 4 ||
+        !Number.isInteger(q.correctIndex) || q.correctIndex < 0 || q.correctIndex > 3
+      ) {
+        return NextResponse.json({ error: "Invalid question data — each question needs text, 4 options, and a valid correct answer index." }, { status: 400 });
+      }
     }
 
     // Create the test set and all questions in a single transaction
@@ -44,8 +53,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, testSetId: testSet.id });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

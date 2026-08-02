@@ -85,7 +85,10 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
     fetch("/api/practice/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ questionId: current.id, correct: optionIndex === current.correctIndex }),
+      // Send the raw selected index, not a client-computed "correct"
+      // boolean — the server looks up the real answer itself so a direct
+      // API call can't fake accuracy stats used by mock-test readiness.
+      body: JSON.stringify({ questionId: current.id, selectedIndex: optionIndex }),
     }).catch(() => {});
   };
 

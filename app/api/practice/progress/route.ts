@@ -10,10 +10,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { questionId, correct } = await req.json();
-    if (!questionId || typeof correct !== "boolean") {
+    const body = await req.json();
+    const { questionId, selectedIndex } = body;
+    if (typeof questionId !== "string" || !questionId || typeof selectedIndex !== "number") {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+
+    // Correctness is derived from our own copy of the question, never
+    // trusted from the client — otherwise a direct API call could mark any
+    // question "correct" without answering it, inflating practice accuracy
+    // and the mock-test readiness verdict.
+    const question = await prisma.question.findUnique({
+      where: { id: questionId },
+      select: { correctIndex: true },
+    });
+    if (!question) {
+      return NextResponse.json({ error: "Question not found" }, { status: 404 });
+    }
+    const correct = selectedIndex === question.correctIndex;
 
     await prisma.practiceAttempt.upsert({
       where: { userId_questionId: { userId: session.user.id, questionId } },
@@ -22,8 +36,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Save practice progress error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

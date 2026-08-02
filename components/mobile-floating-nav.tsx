@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Home, ClipboardList, BookOpen, BarChart3, LogIn, LogOut } from "lucide-react";
+import { Home, ClipboardList, BookOpen, BarChart3, Menu, LogOut, LogIn, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -16,6 +17,7 @@ const TABS = [
 export function MobileFloatingNav() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="md:hidden fixed inset-x-0 bottom-4 z-40 flex items-center justify-center gap-3 px-4 pb-[env(safe-area-inset-bottom)]">
@@ -58,13 +60,40 @@ export function MobileFloatingNav() {
           <LogOut className="h-5 w-5" />
         </button>
       ) : (
-        <Link
-          href="/login"
-          aria-label="Login"
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-purple-500/30 text-white active:scale-95 transition"
-        >
-          <LogIn className="h-5 w-5" />
-        </Link>
+        <div className="relative shrink-0">
+          {menuOpen && (
+            <>
+              <button
+                aria-label="Close menu"
+                className="fixed inset-0 z-40 cursor-default"
+                onClick={() => setMenuOpen(false)}
+              />
+              <div className="absolute bottom-full right-0 mb-3 z-50 flex w-40 flex-col gap-2 rounded-2xl border border-white/10 bg-background/95 backdrop-blur-xl p-2 shadow-2xl shadow-black/40">
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-white/[0.06] transition"
+                >
+                  <LogIn className="h-4 w-4" /> Login
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:opacity-90 transition"
+                >
+                  <UserPlus className="h-4 w-4" /> Sign Up
+                </Link>
+              </div>
+            </>
+          )}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Menu"
+            className="relative z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-purple-500/30 text-white active:scale-95 transition"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
       )}
     </div>
   );

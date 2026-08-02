@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, GraduationCap } from "lucide-react";
+import { Menu, X, GraduationCap, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSession, signOut } from "next-auth/react";
@@ -56,41 +56,43 @@ export function Navbar() {
 
         <button
           className="md:hidden p-2 rounded-md hover:bg-white/5"
-          aria-label="Toggle menu"
-          onClick={() => setOpen((v) => !v)}
+          aria-label={session ? "Logout" : "Toggle menu"}
+          onClick={() => (session ? signOut() : setOpen((v) => !v))}
         >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {session ? (
+            <LogOut className="h-5 w-5" />
+          ) : open ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
         </button>
       </div>
 
-      <div
-        className={cn(
-          "md:hidden overflow-hidden border-t border-white/[0.06] transition-[max-height]",
-          open ? "max-h-64" : "max-h-0"
-        )}
-      >
-        <div className="container py-3 flex flex-col gap-1">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="px-3 py-2 rounded-md hover:bg-white/[0.04] text-sm"
-            >
-              {l.label}
-            </Link>
-          ))}
-          {session ? (
-            <Button size="sm" variant="secondary" className="mt-2" onClick={() => { setOpen(false); signOut(); }}>
-              Logout
-            </Button>
-          ) : (
+      {!session && (
+        <div
+          className={cn(
+            "md:hidden overflow-hidden border-t border-white/[0.06] transition-[max-height]",
+            open ? "max-h-64" : "max-h-0"
+          )}
+        >
+          <div className="container py-3 flex flex-col gap-1">
+            {links.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="px-3 py-2 rounded-md hover:bg-white/[0.04] text-sm"
+              >
+                {l.label}
+              </Link>
+            ))}
             <Button asChild size="sm" className="mt-2">
               <Link href="/login" onClick={() => setOpen(false)}>Login</Link>
             </Button>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }

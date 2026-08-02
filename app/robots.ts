@@ -1,6 +1,8 @@
 import { MetadataRoute } from "next";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://entrancelab.in.net";
+// The bare apex (entrancelab.in.net) 308-redirects to www — the sitemap
+// reference should point at the final serving domain directly.
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.entrancelab.in.net";
 
 export default function robots(): MetadataRoute.Robots {
   return {

@@ -6,7 +6,9 @@ import { MetadataRoute } from "next";
 // listing them would just send crawlers into a redirect with nothing to
 // index. /signup is a non-functional placeholder (real registration is at
 // /register) and is deliberately left out.
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://entrancelab.in.net";
+// The bare apex (entrancelab.in.net) 308-redirects to www — list the final
+// serving domain directly so crawlers don't spend a hop on every URL.
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.entrancelab.in.net";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();

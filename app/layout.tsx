@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://entrancelab.in.net"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.entrancelab.in.net"),
   title: {
     default: "EntranceLab — IOE & CEE Mock Tests for Nepal",
     template: "%s · EntranceLab",

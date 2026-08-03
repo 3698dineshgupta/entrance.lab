@@ -21,6 +21,10 @@ export default function robots(): MetadataRoute.Robots {
           "/analytics",
           "/results",
           "/practice",
+          // /merchandise itself is public; posting and managing your own
+          // listings requires login.
+          "/merchandise/new",
+          "/merchandise/mine",
           // Non-functional placeholder; real registration is at /register.
           "/signup",
         ],

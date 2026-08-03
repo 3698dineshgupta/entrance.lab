@@ -14,6 +14,7 @@ export function Navbar() {
     { href: "/", label: "Home" },
     { href: "/mock-tests", label: "Mock Tests" },
     { href: "/practice", label: "Practice" },
+    { href: "/merchandise", label: "Merchandise" },
     { href: "/analytics", label: "Analytics" },
   ];
 

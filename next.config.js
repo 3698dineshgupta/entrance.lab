@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // No external image hosts are actually used (subject banners and the
-  // favicon are all local /public assets) — the previous wildcard
-  // `hostname: "**"` let Next's image optimizer fetch and process any
-  // attacker-chosen HTTPS URL for free, which was unused surface area.
-  images: { remotePatterns: [] },
+  // Subject banners and the favicon are local /public assets, but
+  // merchandise listing photos live on Vercel Blob — allow-list that host
+  // specifically rather than reopening the previous unused `hostname: "**"`
+  // wildcard.
+  images: { remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }] },
   experimental: {
     // Tree-shake icon and animation libraries — only import what's actually used
     optimizePackageImports: ["lucide-react", "framer-motion", "recharts"],
@@ -35,7 +35,7 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob:",
+              "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
               "font-src 'self' data:",
               "media-src 'self' data: blob:",
               // unpkg.com: @splinetool/runtime fetches its modelling WASM

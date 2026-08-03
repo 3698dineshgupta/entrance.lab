@@ -4,6 +4,7 @@ import { GraduationCap, Bug } from "lucide-react";
 export function Footer() {
   const resources = [
     { href: "/mock-tests", label: "Mock Tests" },
+    { href: "/merchandise", label: "Merchandise" },
     { href: "/request-hub", label: "Request Hub" },
   ];
   const platform = [

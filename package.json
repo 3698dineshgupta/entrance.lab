@@ -19,6 +19,7 @@
     "@splinetool/react-spline": "^4.0.0",
     "@splinetool/runtime": "^1.9.35",
     "@upstash/redis": "^1.38.0",
+    "@vercel/blob": "^2.6.1",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

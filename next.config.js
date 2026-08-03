@@ -2,10 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   // Subject banners and the favicon are local /public assets, but
-  // merchandise listing photos live on Vercel Blob — allow-list that host
-  // specifically rather than reopening the previous unused `hostname: "**"`
-  // wildcard.
-  images: { remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }] },
+  // merchandise listing photos are hosted on Cloudinary — allow-list that
+  // host specifically rather than reopening the previous unused
+  // `hostname: "**"` wildcard.
+  images: { remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }] },
   experimental: {
     // Tree-shake icon and animation libraries — only import what's actually used
     optimizePackageImports: ["lucide-react", "framer-motion", "recharts"],
@@ -35,7 +35,7 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
+              "img-src 'self' data: blob: https://res.cloudinary.com",
               "font-src 'self' data:",
               "media-src 'self' data: blob:",
               // unpkg.com: @splinetool/runtime fetches its modelling WASM

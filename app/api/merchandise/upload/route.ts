@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { put } from "@vercel/blob";
+import { v2 as cloudinary } from "cloudinary";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+
+// cloudinary's SDK auto-configures from the CLOUDINARY_URL env var.
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
@@ -31,7 +33,8 @@ export async function POST(req: Request) {
     if (file.size > MAX_BYTES) {
       return NextResponse.json({ error: "Image must be under 5MB" }, { status: 400 });
     }
-    const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const head = buffer.subarray(0, 12);
     const isJpeg = head[0] === 0xff && head[1] === 0xd8;
     const isPng = head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47;
     const isWebp = head[8] === 0x57 && head[9] === 0x45 && head[10] === 0x42 && head[11] === 0x50;
@@ -39,13 +42,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "File content doesn't match a supported image format" }, { status: 400 });
     }
 
-    const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
-    const blob = await put(`merchandise/${session.user.id}-${Date.now()}.${ext}`, file, {
-      access: "public",
-      contentType: file.type,
+    const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: "entrancelab/merchandise",
+      public_id: `${session.user.id}-${Date.now()}`,
+      resource_type: "image",
     });
 
-    return NextResponse.json({ url: blob.url });
+    return NextResponse.json({ url: result.secure_url });
   } catch (error) {
     console.error("Merchandise image upload error:", error);
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });

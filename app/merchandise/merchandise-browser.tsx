@@ -2,11 +2,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, Plus, ShoppingBag, ImageOff } from "lucide-react";
+import { MessageCircle, Plus, ShoppingBag, ImageOff, ShieldAlert, Flag, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { WhatsAppInput } from "@/components/whatsapp-input";
 import { cn } from "@/lib/utils";
 import { MERCHANDISE_CATEGORIES } from "@/lib/merchandise";
+import { toNepaliWhatsapp } from "@/lib/phone";
 
 interface Listing {
   id: string;
@@ -22,6 +26,7 @@ interface Listing {
 
 export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
   const [category, setCategory] = useState<string>("All");
+  const [reportTarget, setReportTarget] = useState<Listing | null>(null);
   const filtered = category === "All" ? listings : listings.filter((l) => l.category === category);
 
   return (
@@ -37,6 +42,13 @@ export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
         <Button asChild size="lg" className="shrink-0">
           <Link href="/merchandise/new"><Plus className="h-4 w-4" /> Post an ad</Link>
         </Button>
+      </div>
+
+      <div className="mt-5 flex gap-2.5 rounded-lg border border-amber-400/20 bg-amber-500/[0.06] p-3 max-w-2xl">
+        <ShieldAlert className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-200/90 leading-relaxed">
+          We just list ads — we don't verify sellers or handle payment. Inspect the item and confirm everything's genuine before you pay. See something suspicious? Use the Report link on that listing.
+        </p>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -66,15 +78,17 @@ export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
       ) : (
         <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((l) => (
-            <ListingCard key={l.id} listing={l} />
+            <ListingCard key={l.id} listing={l} onReport={() => setReportTarget(l)} />
           ))}
         </div>
       )}
+
+      <ReportDialog listing={reportTarget} onOpenChange={(v) => !v && setReportTarget(null)} />
     </div>
   );
 }
 
-function ListingCard({ listing }: { listing: Listing }) {
+function ListingCard({ listing, onReport }: { listing: Listing; onReport: () => void }) {
   const sold = listing.status === "sold";
   const waMessage = encodeURIComponent(`Hi, I'm interested in your "${listing.title}" listing on EntranceLab.`);
   const waHref = `https://wa.me/${listing.whatsapp.replace(/[^\d]/g, "")}?text=${waMessage}`;
@@ -100,7 +114,16 @@ function ListingCard({ listing }: { listing: Listing }) {
       </div>
 
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-semibold text-sm leading-snug line-clamp-2">{listing.title}</h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-sm leading-snug line-clamp-2">{listing.title}</h3>
+          <button
+            onClick={onReport}
+            className="shrink-0 inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-red-400 transition mt-0.5"
+            aria-label="Report this listing"
+          >
+            <Flag className="h-3 w-3" /> Report
+          </button>
+        </div>
         <p className="text-cyan-400 font-semibold mt-1.5">Rs. {listing.price.toLocaleString("en-IN")}</p>
         <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 flex-1">{listing.description}</p>
 
@@ -118,5 +141,92 @@ function ListingCard({ listing }: { listing: Listing }) {
         )}
       </div>
     </Card>
+  );
+}
+
+function ReportDialog({ listing, onOpenChange }: { listing: Listing | null; onOpenChange: (v: boolean) => void }) {
+  const [reason, setReason] = useState("");
+  const [contact, setContact] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+
+  const reset = () => { setReason(""); setContact(""); setError(""); setDone(false); };
+
+  const submit = async () => {
+    if (!listing) return;
+    if (!reason.trim()) { setError("Describe what happened."); return; }
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/merchandise/${listing.id}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reason,
+          reporterContact: contact ? toNepaliWhatsapp(contact) : null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Something went wrong. Please try again.");
+        setLoading(false);
+        return;
+      }
+      setDone(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={!!listing} onOpenChange={(v) => { if (!v) { onOpenChange(false); setTimeout(reset, 200); } }}>
+      <DialogContent className="sm:max-w-md">
+        {done ? (
+          <div className="py-4 text-center">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-green-500/10 border border-green-400/20 mb-3">
+              <CheckCircle2 className="h-6 w-6 text-green-400" />
+            </div>
+            <p className="font-medium">Report received</p>
+            <p className="text-sm text-muted-foreground mt-1">Our team will look into it.</p>
+            <Button className="mt-5" onClick={() => onOpenChange(false)}>Close</Button>
+          </div>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>Report "{listing?.title}"</DialogTitle>
+              <DialogDescription>Tell us what happened — fake item, no response, asked for payment upfront, etc.</DialogDescription>
+            </DialogHeader>
+
+            {error && (
+              <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">{error}</div>
+            )}
+
+            <div className="space-y-4">
+              <Textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="What happened?"
+                rows={4}
+                maxLength={1000}
+              />
+              <WhatsAppInput
+                id="report-contact"
+                value={contact}
+                onChange={setContact}
+                hint="Optional — only if you're OK with us following up."
+              />
+            </div>
+
+            <DialogFooter>
+              <Button variant="secondary" onClick={() => onOpenChange(false)}>Cancel</Button>
+              <Button onClick={submit} disabled={loading}>{loading ? "Sending..." : "Submit report"}</Button>
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

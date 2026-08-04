@@ -122,6 +122,40 @@ export async function markListingDecided(
   }
 }
 
+export interface FraudReport {
+  listingId: string;
+  listingTitle: string;
+  reason: string;
+  reporterContact: string | null;
+}
+
+// Fraud reports go straight to the staff group with no buttons — these need
+// a human to actually follow up (message the reporter, contact the seller,
+// pull the listing), not a one-tap decision like approve/reject.
+export async function sendFraudAlert(report: FraudReport): Promise<void> {
+  if (!API_BASE || !STAFF_GROUP_ID) {
+    console.error("[Telegram] TELEGRAM_BOT_TOKEN or TELEGRAM_STAFF_GROUP_ID not configured — skipping fraud alert.");
+    return;
+  }
+  const text = [
+    `🚩 <b>Fraud report</b>`,
+    ``,
+    `Listing: <b>${escapeHtml(report.listingTitle)}</b>`,
+    `Reason: ${escapeHtml(report.reason).slice(0, 800)}`,
+    report.reporterContact ? `Reporter contact: ${escapeHtml(report.reporterContact)}` : `Reporter contact: not provided`,
+  ].join("\n");
+
+  try {
+    await fetch(`${API_BASE}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: STAFF_GROUP_ID, text, parse_mode: "HTML" }),
+    });
+  } catch (error) {
+    console.error("[Telegram] sendFraudAlert error:", error);
+  }
+}
+
 export async function answerCallback(callbackQueryId: string, text: string): Promise<void> {
   if (!API_BASE) return;
   try {

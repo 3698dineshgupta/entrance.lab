@@ -28,6 +28,10 @@ export async function GET() {
         soldAt: true,
         createdAt: true,
         user: { select: { name: true, email: true } },
+        reports: {
+          orderBy: { createdAt: "desc" },
+          select: { id: true, reason: true, reporterContact: true, createdAt: true },
+        },
       },
     });
 

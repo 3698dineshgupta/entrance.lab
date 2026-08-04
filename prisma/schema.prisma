@@ -66,9 +66,27 @@ model MerchandiseListing {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports MerchandiseReport[]
 
   @@index([userId])
+  @@index([status])
+}
+
+// A fraud/scam flag raised by any visitor against a listing. Public — no
+// login required, so someone who got scammed via WhatsApp (i.e. never
+// interacted with the site as a logged-in user) can still report it.
+model MerchandiseReport {
+  id              String   @id @default(cuid())
+  listingId       String
+  reason          String
+  reporterContact String?
+  status          String   @default("open") // "open" | "resolved"
+  createdAt       DateTime @default(now())
+
+  listing MerchandiseListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
   @@index([status])
 }
 

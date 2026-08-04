@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, MessagesSquare } from "lucide-react";
+import { WhatsAppInput } from "@/components/whatsapp-input";
+import { isValidNepaliLocal, toNepaliWhatsapp } from "@/lib/phone";
 
 export default function RequestHubPage() {
   const { data: session } = useSession();
@@ -19,13 +21,17 @@ export default function RequestHubPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    if (!isValidNepaliLocal(whatsapp)) {
+      setError("Enter a valid 10-digit WhatsApp number.");
+      return;
+    }
+    setLoading(true);
     try {
       const res = await fetch("/api/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, whatsapp, message }),
+        body: JSON.stringify({ name, whatsapp: toNepaliWhatsapp(whatsapp), message }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -86,18 +92,7 @@ export default function RequestHubPage() {
             <Label htmlFor="name">Your name</Label>
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="whatsapp">WhatsApp number</Label>
-            <Input
-              id="whatsapp"
-              type="tel"
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
-              placeholder="98XXXXXXXX"
-              required
-            />
-            <p className="text-[11px] text-muted-foreground">So we can reach out if we need more details.</p>
-          </div>
+          <WhatsAppInput id="whatsapp" value={whatsapp} onChange={setWhatsapp} required hint="So we can reach out if we need more details." />
           <div className="space-y-1.5">
             <Label htmlFor="message">What do you need?</Label>
             <Textarea

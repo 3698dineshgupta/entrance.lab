@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ImagePlus, X, CheckCircle2 } from "lucide-react";
+import { ImagePlus, X, CheckCircle2, ShieldAlert } from "lucide-react";
 import { MERCHANDISE_CATEGORIES } from "@/lib/merchandise";
+import { WhatsAppInput } from "@/components/whatsapp-input";
+import { isValidNepaliLocal, toNepaliWhatsapp } from "@/lib/phone";
 
 export function NewMerchandiseForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,8 +40,13 @@ export function NewMerchandiseForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+
+    if (!isValidNepaliLocal(whatsapp)) {
+      setError("Enter a valid 10-digit WhatsApp number.");
+      return;
+    }
+    setLoading(true);
 
     try {
       let imageUrl: string | null = null;
@@ -64,7 +71,7 @@ export function NewMerchandiseForm() {
           description,
           price: Number(price),
           category,
-          whatsapp,
+          whatsapp: toNepaliWhatsapp(whatsapp),
           imageUrl,
         }),
       });
@@ -117,6 +124,13 @@ export function NewMerchandiseForm() {
           Selling books, a calculator, or notes? List it here — every ad is reviewed before it goes live.
         </p>
 
+        <div className="mt-4 flex gap-2.5 rounded-lg border border-amber-400/20 bg-amber-500/[0.06] p-3">
+          <ShieldAlert className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-200/90 leading-relaxed">
+            EntranceLab only lists ads — we don't verify sellers or handle any payment. Be honest about the item's condition, and expect buyers to inspect it before paying.
+          </p>
+        </div>
+
         {error && (
           <div className="mt-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">{error}</div>
         )}
@@ -150,11 +164,7 @@ export function NewMerchandiseForm() {
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Condition, edition, why you're selling..." rows={4} required maxLength={2000} />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="whatsapp">WhatsApp number</Label>
-            <Input id="whatsapp" type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="98XXXXXXXX" required />
-            <p className="text-[11px] text-muted-foreground">Buyers will message you here directly.</p>
-          </div>
+          <WhatsAppInput id="whatsapp" value={whatsapp} onChange={setWhatsapp} required hint="Buyers will message you here directly." />
 
           <div className="space-y-1.5">
             <Label>Photo (optional)</Label>

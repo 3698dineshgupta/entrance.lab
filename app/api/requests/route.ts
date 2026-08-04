@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitResponse, getClientIp } from "@/lib/rate-limit";
+import { isValidNepaliWhatsapp } from "@/lib/phone";
 
 // Public — the Request Hub form works whether the visitor is logged in or
 // not, so a missing session isn't an error here.
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     if (!name?.trim() || !whatsapp?.trim() || !message?.trim()) {
       return NextResponse.json({ error: "Name, WhatsApp number, and message are all required." }, { status: 400 });
     }
-    if (!/^[+\d][\d\s-]{6,}$/.test(whatsapp.trim())) {
+    if (!isValidNepaliWhatsapp(whatsapp)) {
       return NextResponse.json({ error: "Enter a valid WhatsApp number." }, { status: 400 });
     }
 

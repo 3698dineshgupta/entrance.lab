@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import {
   Users, Upload, BarChart2, FileText, Trash2, Shield,
   RefreshCw, Search, ChevronDown, ChevronUp, Clock, Trophy, AlertCircle, MessagesSquare, Check,
-  ShoppingBag, X, ImageOff,
+  ShoppingBag, X, ImageOff, ShieldAlert,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -37,6 +37,13 @@ type RequestRecord = {
   user: { email: string } | null;
 };
 
+type MerchandiseReport = {
+  id: string;
+  reason: string;
+  reporterContact: string | null;
+  createdAt: string;
+};
+
 type MerchandiseRecord = {
   id: string;
   title: string;
@@ -49,6 +56,7 @@ type MerchandiseRecord = {
   soldAt: string | null;
   createdAt: string;
   user: { name: string | null; email: string };
+  reports: MerchandiseReport[];
 };
 
 type Tab = "users" | "upload" | "overview" | "requests" | "merchandise";
@@ -119,6 +127,12 @@ export default function AdminDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status: decision }),
     });
+  };
+
+  const deleteMerchandise = async (id: string, title: string) => {
+    if (!window.confirm(`Delete "${title}"? This can't be undone.`)) return;
+    setMerchandise((prev) => prev.filter((m) => m.id !== id));
+    await fetch(`/api/admin/merchandise/${id}`, { method: "DELETE" });
   };
 
   useEffect(() => {
@@ -524,50 +538,78 @@ export default function AdminDashboard() {
                 <div
                   key={m.id}
                   className={cn(
-                    "rounded-xl border p-4 flex gap-4",
-                    m.status === "rejected" || m.status === "sold" ? "border-white/[0.06] bg-white/[0.01] opacity-60" : "border-white/10 bg-white/[0.02]"
+                    "rounded-xl border p-4",
+                    m.reports.length > 0 ? "border-red-400/25 bg-red-500/[0.03]"
+                      : m.status === "rejected" || m.status === "sold" ? "border-white/[0.06] bg-white/[0.01] opacity-60"
+                      : "border-white/10 bg-white/[0.02]"
                   )}
                 >
-                  <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-white/[0.03] border border-white/[0.06] shrink-0">
-                    {m.imageUrl ? (
-                      <Image src={m.imageUrl} alt={m.title} fill className="object-cover" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-muted-foreground"><ImageOff className="h-5 w-5" /></div>
-                    )}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-medium">{m.title}</p>
-                      <span className={cn(
-                        "text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border",
-                        m.status === "approved" ? "border-green-400/20 text-green-400 bg-green-500/[0.06]"
-                          : m.status === "pending" ? "border-cyan-400/20 text-cyan-300 bg-cyan-500/[0.06]"
-                          : m.status === "sold" ? "border-white/15 text-muted-foreground bg-white/[0.04]"
-                          : "border-red-400/20 text-red-400 bg-red-500/[0.06]"
-                      )}>
-                        {m.status}
-                      </span>
+                  <div className="flex gap-4">
+                    <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-white/[0.03] border border-white/[0.06] shrink-0">
+                      {m.imageUrl ? (
+                        <Image src={m.imageUrl} alt={m.title} fill className="object-cover" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-muted-foreground"><ImageOff className="h-5 w-5" /></div>
+                      )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">Rs. {m.price.toLocaleString("en-IN")} · {m.category}</p>
-                    <p className="text-xs text-foreground/80 mt-1.5 line-clamp-2">{m.description}</p>
-                    <div className="mt-2 flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
-                      <span>Posted by <span className="text-foreground">{m.user.name || "—"}</span> ({m.user.email})</span>
-                      <a href={`https://wa.me/${m.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">
-                        {m.whatsapp}
-                      </a>
-                      <span>{new Date(m.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" })}</span>
-                    </div>
-                  </div>
 
-                  {m.status === "pending" && (
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-medium">{m.title}</p>
+                        <span className={cn(
+                          "text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border",
+                          m.status === "approved" ? "border-green-400/20 text-green-400 bg-green-500/[0.06]"
+                            : m.status === "pending" ? "border-cyan-400/20 text-cyan-300 bg-cyan-500/[0.06]"
+                            : m.status === "sold" ? "border-white/15 text-muted-foreground bg-white/[0.04]"
+                            : "border-red-400/20 text-red-400 bg-red-500/[0.06]"
+                        )}>
+                          {m.status}
+                        </span>
+                        {m.reports.length > 0 && (
+                          <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border border-red-400/30 text-red-400 bg-red-500/10 flex items-center gap-1">
+                            <ShieldAlert className="h-3 w-3" /> {m.reports.length} report{m.reports.length > 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">Rs. {m.price.toLocaleString("en-IN")} · {m.category}</p>
+                      <p className="text-xs text-foreground/80 mt-1.5 line-clamp-2">{m.description}</p>
+                      <div className="mt-2 flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
+                        <span>Posted by <span className="text-foreground">{m.user.name || "—"}</span> ({m.user.email})</span>
+                        <a href={`https://wa.me/${m.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">
+                          {m.whatsapp}
+                        </a>
+                        <span>{new Date(m.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" })}</span>
+                      </div>
+                    </div>
+
                     <div className="flex flex-col gap-2 shrink-0">
-                      <Button size="sm" onClick={() => decideMerchandise(m.id, "approved")}>
-                        <Check className="h-3.5 w-3.5" /> Approve
+                      {m.status === "pending" && (
+                        <>
+                          <Button size="sm" onClick={() => decideMerchandise(m.id, "approved")}>
+                            <Check className="h-3.5 w-3.5" /> Approve
+                          </Button>
+                          <Button size="sm" variant="secondary" onClick={() => decideMerchandise(m.id, "rejected")}>
+                            <X className="h-3.5 w-3.5" /> Reject
+                          </Button>
+                        </>
+                      )}
+                      <Button size="sm" variant="destructive" onClick={() => deleteMerchandise(m.id, m.title)}>
+                        <Trash2 className="h-3.5 w-3.5" /> Delete
                       </Button>
-                      <Button size="sm" variant="secondary" onClick={() => decideMerchandise(m.id, "rejected")}>
-                        <X className="h-3.5 w-3.5" /> Reject
-                      </Button>
+                    </div>
+                  </div>
+
+                  {m.reports.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-red-400/15 space-y-2">
+                      {m.reports.map((r) => (
+                        <div key={r.id} className="text-xs">
+                          <p className="text-red-300">{r.reason}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            {r.reporterContact ? `Contact: ${r.reporterContact} · ` : ""}
+                            {new Date(r.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { sendListingForReview } from "@/lib/telegram";
 import { MERCHANDISE_CATEGORIES } from "@/lib/merchandise";
+import { isValidNepaliWhatsapp } from "@/lib/phone";
 
 export async function POST(req: Request) {
   try {
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
     if (typeof category !== "string" || !MERCHANDISE_CATEGORIES.includes(category as any)) {
       return NextResponse.json({ error: "Choose a valid category." }, { status: 400 });
     }
-    if (typeof whatsapp !== "string" || !/^[+\d][\d\s-]{6,}$/.test(whatsapp.trim())) {
+    if (typeof whatsapp !== "string" || !isValidNepaliWhatsapp(whatsapp)) {
       return NextResponse.json({ error: "Enter a valid WhatsApp number." }, { status: 400 });
     }
     if (imageUrl !== undefined && imageUrl !== null && typeof imageUrl !== "string") {

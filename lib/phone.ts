@@ -17,6 +17,12 @@ export function toNepaliWhatsapp(local: string): string {
   return `${NEPAL_PREFIX}${local.trim()}`;
 }
 
+// Inverse of toNepaliWhatsapp — for pre-filling the local-number input when
+// editing a listing that already stored the full +977 form.
+export function stripNepaliPrefix(full: string): string {
+  return full.trim().startsWith(NEPAL_PREFIX) ? full.trim().slice(NEPAL_PREFIX.length) : full.trim();
+}
+
 // For wa.me links / display — strips everything but digits, e.g.
 // "+977 9812345678" -> "9779812345678".
 export function digitsOnly(whatsapp: string): string {

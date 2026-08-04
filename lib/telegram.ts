@@ -17,6 +17,7 @@ export interface ListingForReview {
   imageUrl: string | null;
   sellerName: string;
   sellerEmail: string;
+  isEdit?: boolean;
 }
 
 function escapeHtml(s: string): string {
@@ -25,7 +26,7 @@ function escapeHtml(s: string): string {
 
 function caption(listing: ListingForReview): string {
   return [
-    `🛒 <b>New merchandise listing</b>`,
+    listing.isEdit ? `✏️ <b>Edited listing — needs re-review</b>` : `🛒 <b>New merchandise listing</b>`,
     ``,
     `<b>${escapeHtml(listing.title)}</b>`,
     `Rs. ${listing.price.toLocaleString("en-IN")} · ${escapeHtml(listing.category)}`,

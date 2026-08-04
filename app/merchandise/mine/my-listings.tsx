@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Plus, ImageOff, Clock, CheckCircle2, XCircle, Tag } from "lucide-react";
+import { Plus, ImageOff, Clock, CheckCircle2, XCircle, Tag, Pencil } from "lucide-react";
 
 interface Listing {
   id: string;
@@ -76,14 +76,21 @@ export function MyListings({ listings: initial }: { listings: Listing[] }) {
                     <Icon className="h-3 w-3" /> {meta.label}
                   </span>
                 </div>
-                {l.status === "approved" && (
-                  <Button size="sm" variant="secondary" onClick={() => markSold(l.id)} disabled={pending === l.id} className="shrink-0">
-                    {pending === l.id ? "Marking..." : "Mark as sold"}
-                  </Button>
-                )}
-                {l.status === "sold" && (
-                  <span className="text-[11px] text-muted-foreground shrink-0">Removes automatically after 48h</span>
-                )}
+                <div className="flex flex-col gap-2 shrink-0">
+                  {l.status !== "sold" && (
+                    <Button size="sm" variant="secondary" asChild>
+                      <Link href={`/merchandise/${l.id}/edit`}><Pencil className="h-3.5 w-3.5" /> Edit</Link>
+                    </Button>
+                  )}
+                  {l.status === "approved" && (
+                    <Button size="sm" onClick={() => markSold(l.id)} disabled={pending === l.id}>
+                      {pending === l.id ? "Marking..." : "Mark as sold"}
+                    </Button>
+                  )}
+                  {l.status === "sold" && (
+                    <span className="text-[11px] text-muted-foreground">Removes automatically after 48h</span>
+                  )}
+                </div>
               </Card>
             );
           })}

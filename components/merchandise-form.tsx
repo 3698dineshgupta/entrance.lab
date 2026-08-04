@@ -10,18 +10,34 @@ import { Label } from "@/components/ui/label";
 import { ImagePlus, X, CheckCircle2, ShieldAlert } from "lucide-react";
 import { MERCHANDISE_CATEGORIES } from "@/lib/merchandise";
 import { WhatsAppInput } from "@/components/whatsapp-input";
-import { isValidNepaliLocal, toNepaliWhatsapp } from "@/lib/phone";
+import { isValidNepaliLocal, toNepaliWhatsapp, stripNepaliPrefix } from "@/lib/phone";
 
-export function NewMerchandiseForm() {
+export interface EditableListing {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  whatsapp: string;
+  imageUrl: string | null;
+}
+
+interface Props {
+  editListing?: EditableListing;
+}
+
+export function MerchandiseForm({ editListing }: Props) {
+  const isEdit = !!editListing;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [category, setCategory] = useState<string>(MERCHANDISE_CATEGORIES[0]);
-  const [whatsapp, setWhatsapp] = useState("");
+  const [title, setTitle] = useState(editListing?.title ?? "");
+  const [description, setDescription] = useState(editListing?.description ?? "");
+  const [price, setPrice] = useState(editListing ? String(editListing.price) : "");
+  const [category, setCategory] = useState<string>(editListing?.category ?? MERCHANDISE_CATEGORIES[0]);
+  const [whatsapp, setWhatsapp] = useState(editListing ? stripNepaliPrefix(editListing.whatsapp) : "");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(editListing?.imageUrl ?? null);
+  const [imageRemoved, setImageRemoved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -35,7 +51,15 @@ export function NewMerchandiseForm() {
     }
     setError("");
     setImageFile(file);
+    setImageRemoved(false);
     setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setImageRemoved(true);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +73,10 @@ export function NewMerchandiseForm() {
     setLoading(true);
 
     try {
-      let imageUrl: string | null = null;
+      // Three cases: a new file was picked (upload it), the existing photo
+      // was explicitly removed (send null), or neither (keep whatever's
+      // already stored, i.e. editListing.imageUrl).
+      let imageUrl: string | null = editListing?.imageUrl ?? null;
       if (imageFile) {
         const formData = new FormData();
         formData.append("file", imageFile);
@@ -61,10 +88,12 @@ export function NewMerchandiseForm() {
           return;
         }
         imageUrl = uploadData.url;
+      } else if (imageRemoved) {
+        imageUrl = null;
       }
 
-      const res = await fetch("/api/merchandise", {
-        method: "POST",
+      const res = await fetch(isEdit ? `/api/merchandise/${editListing.id}` : "/api/merchandise", {
+        method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
@@ -95,21 +124,25 @@ export function NewMerchandiseForm() {
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/10 border border-green-400/20 mb-4">
             <CheckCircle2 className="h-7 w-7 text-green-400" />
           </div>
-          <h1 className="text-xl font-semibold">Listing submitted</h1>
+          <h1 className="text-xl font-semibold">{isEdit ? "Changes saved" : "Listing submitted"}</h1>
           <p className="text-sm text-muted-foreground mt-2">
-            It's been sent for review — it'll appear on the Merchandise page as soon as it's approved.
+            {isEdit
+              ? "Your edited listing has been sent for review again — it'll go back live once it's approved."
+              : "It's been sent for review — it'll appear on the Merchandise page as soon as it's approved."}
           </p>
           <div className="mt-6 flex gap-2 justify-center">
-            <Button asChild><Link href="/merchandise">Back to Merchandise</Link></Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setDone(false); setTitle(""); setDescription(""); setPrice(""); setWhatsapp("");
-                setImageFile(null); setImagePreview(null);
-              }}
-            >
-              Post another
-            </Button>
+            <Button asChild><Link href={isEdit ? "/merchandise/mine" : "/merchandise"}>{isEdit ? "Back to My Listings" : "Back to Merchandise"}</Link></Button>
+            {!isEdit && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setDone(false); setTitle(""); setDescription(""); setPrice(""); setWhatsapp("");
+                  setImageFile(null); setImagePreview(null);
+                }}
+              >
+                Post another
+              </Button>
+            )}
           </div>
         </Card>
       </div>
@@ -119,9 +152,11 @@ export function NewMerchandiseForm() {
   return (
     <div className="container py-12 flex justify-center">
       <Card className="w-full max-w-lg p-7">
-        <h1 className="text-2xl font-semibold tracking-tight">Post an ad</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{isEdit ? "Edit your ad" : "Post an ad"}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Selling books, a calculator, or notes? List it here — every ad is reviewed before it goes live.
+          {isEdit
+            ? "Editing sends it back for review before it's live again."
+            : "Selling books, a calculator, or notes? List it here — every ad is reviewed before it goes live."}
         </p>
 
         <div className="mt-4 flex gap-2.5 rounded-lg border border-amber-400/20 bg-amber-500/[0.06] p-3">
@@ -173,7 +208,7 @@ export function NewMerchandiseForm() {
                 <Image src={imagePreview} alt="Preview" fill className="object-cover" />
                 <button
                   type="button"
-                  onClick={() => { setImageFile(null); setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                  onClick={removeImage}
                   className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80"
                 >
                   <X className="h-4 w-4" />
@@ -193,7 +228,7 @@ export function NewMerchandiseForm() {
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Submitting..." : "Submit for review"}
+            {loading ? "Saving..." : isEdit ? "Save changes" : "Submit for review"}
           </Button>
         </form>
       </Card>

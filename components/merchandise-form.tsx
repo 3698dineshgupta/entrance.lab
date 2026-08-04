@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ImagePlus, X, CheckCircle2, ShieldAlert } from "lucide-react";
+import { ImagePlus, X, CheckCircle2, ShieldAlert, ChevronRight } from "lucide-react";
 import { MERCHANDISE_CATEGORIES } from "@/lib/merchandise";
 import { WhatsAppInput } from "@/components/whatsapp-input";
 import { isValidNepaliLocal, toNepaliWhatsapp, stripNepaliPrefix } from "@/lib/phone";
@@ -150,7 +150,18 @@ export function MerchandiseForm({ editListing }: Props) {
   }
 
   return (
-    <div className="container py-12 flex justify-center">
+    <div className="container py-12 flex flex-col items-center">
+      <div className="w-full max-w-lg flex items-center gap-1.5 text-xs text-muted-foreground mb-4">
+        <Link href="/merchandise" className="hover:text-foreground transition">Merchandise</Link>
+        <ChevronRight className="h-3 w-3" />
+        {isEdit && (
+          <>
+            <Link href="/merchandise/mine" className="hover:text-foreground transition">My listings</Link>
+            <ChevronRight className="h-3 w-3" />
+          </>
+        )}
+        <span className="text-foreground">{isEdit ? "Edit" : "Post an ad"}</span>
+      </div>
       <Card className="w-full max-w-lg p-7">
         <h1 className="text-2xl font-semibold tracking-tight">{isEdit ? "Edit your ad" : "Post an ad"}</h1>
         <p className="text-sm text-muted-foreground mt-1">

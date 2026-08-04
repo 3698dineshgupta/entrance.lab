@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Plus, ImageOff, Clock, CheckCircle2, XCircle, Tag, Pencil } from "lucide-react";
+import { Plus, ImageOff, Clock, CheckCircle2, XCircle, Tag, Pencil, ChevronRight } from "lucide-react";
 
 interface Listing {
   id: string;
@@ -42,6 +42,11 @@ export function MyListings({ listings: initial }: { listings: Listing[] }) {
 
   return (
     <div className="container py-12 max-w-4xl">
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4">
+        <Link href="/merchandise" className="hover:text-foreground transition">Merchandise</Link>
+        <ChevronRight className="h-3 w-3" />
+        <span className="text-foreground">My listings</span>
+      </div>
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-400 font-medium">Merchandise</p>

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, Plus, ShoppingBag, ImageOff, ShieldAlert, Flag, CheckCircle2 } from "lucide-react";
+import { MessageCircle, Plus, ShoppingBag, ImageOff, ShieldAlert, Flag, CheckCircle2, ListChecks } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,9 +39,14 @@ export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
             Books, calculators, and notes from other IOE/CEE aspirants. Contact sellers directly on WhatsApp — every listing is reviewed before it goes live.
           </p>
         </div>
-        <Button asChild size="lg" className="shrink-0">
-          <Link href="/merchandise/new"><Plus className="h-4 w-4" /> Post an ad</Link>
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button asChild variant="secondary" size="lg">
+            <Link href="/merchandise/mine"><ListChecks className="h-4 w-4" /> My listings</Link>
+          </Button>
+          <Button asChild size="lg">
+            <Link href="/merchandise/new"><Plus className="h-4 w-4" /> Post an ad</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mt-5 flex gap-2.5 rounded-lg border border-amber-400/20 bg-amber-500/[0.06] p-3 max-w-2xl">

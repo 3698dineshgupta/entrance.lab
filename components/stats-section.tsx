@@ -33,8 +33,8 @@ export function StatsSection() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="container py-14">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <section ref={ref} className="container py-6 md:py-14">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {STATS.map((s, i) => (
           <StatCard key={s.label} inView={inView} {...s} delay={i * 0.08} />
         ))}
@@ -52,13 +52,13 @@ function StatCard({ icon: Icon, label, value, suffix, color, bg, inView, delay }
       initial={{ opacity: 0, y: 16 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay }}
-      className="glass rounded-2xl p-5 md:p-6 relative overflow-hidden"
+      className="glass rounded-2xl p-4 md:p-6 relative overflow-hidden"
     >
       <div className={`absolute -top-16 -right-16 h-40 w-40 rounded-full bg-gradient-to-br ${bg} blur-2xl`} />
-      <div className={`relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] border border-white/10 ${color}`}>
-        <Icon className="h-5 w-5" />
+      <div className={`relative inline-flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-xl bg-white/[0.04] border border-white/10 ${color}`}>
+        <Icon className="h-4 w-4 md:h-5 md:w-5" />
       </div>
-      <p className="relative mt-4 text-2xl md:text-3xl font-semibold tracking-tight">
+      <p className="relative mt-3 text-xl md:text-3xl font-semibold tracking-tight">
         {formatted}
         <span className={color}>{suffix}</span>
       </p>

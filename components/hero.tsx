@@ -24,8 +24,9 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6">
-      <div className="relative md:min-h-[560px] overflow-hidden rounded-[20px] border border-white/10 bg-black shadow-2xl">
+    <section className="mx-auto w-full max-w-7xl px-4 py-5 sm:py-6 md:px-6 md:py-8">
+      <div className="grid-bg relative md:min-h-[560px] overflow-hidden rounded-[20px] border border-white/10 bg-black shadow-2xl">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/70 to-black md:bg-gradient-to-r md:from-black/20 md:via-black/60 md:to-black" />
         <Spotlight
           className="-left-20 -top-40 md:left-20 md:-top-28"
           fill="white"
@@ -33,19 +34,19 @@ export function Hero() {
 
         <div className="relative z-10 flex flex-col md:grid md:grid-cols-[48%_52%] md:min-h-[560px] items-center">
           {/* Left: content — full width on mobile since there's no 3D column there */}
-          <div className="flex flex-col justify-center w-full px-5 sm:px-6 md:px-12 lg:px-16 py-8 md:py-12 z-20 text-left">
-            <p className="mb-2.5 md:mb-4 text-[11px] sm:text-xs md:text-sm font-medium uppercase tracking-[0.18em] text-blue-400">
+          <div className="flex flex-col justify-center w-full px-5 sm:px-6 md:px-12 lg:px-16 py-6 sm:py-7 md:py-12 z-20 text-left">
+            <p className="mb-2 md:mb-4 text-[11px] sm:text-xs md:text-sm font-medium uppercase tracking-[0.18em] text-blue-400">
               IOE &amp; CEE Mock Tests
             </p>
             <h1 className="max-w-xl text-2xl sm:text-3xl font-bold leading-tight text-white md:text-5xl lg:text-6xl not-italic">
               Master Your Entrance Exam
             </h1>
-            <p className="mt-3 md:mt-5 max-w-xl text-xs sm:text-sm leading-relaxed text-neutral-300 md:text-lg md:leading-7">
+            <p className="mt-2.5 md:mt-5 max-w-xl text-xs sm:text-sm leading-relaxed text-neutral-300 md:text-lg md:leading-7">
               Practise realistic IOE and CEE mock tests, improve your speed and
               understand your performance before the real exam.
             </p>
 
-            <div className="mt-6 md:mt-8 flex flex-row flex-wrap items-center gap-2.5 md:gap-3 justify-start">
+            <div className="mt-5 md:mt-8 flex flex-row flex-wrap items-center gap-2.5 md:gap-3 justify-start">
               <button
                 type="button"
                 onClick={() => setOpen(true)}
@@ -61,7 +62,7 @@ export function Hero() {
               </Link>
             </div>
 
-            <div className="mt-5 md:mt-8 flex flex-wrap justify-start items-center gap-2 md:gap-5 text-[11px] md:text-xs text-neutral-400">
+            <div className="mt-4 md:mt-8 flex flex-wrap justify-start items-center gap-2 md:gap-5 text-[11px] md:text-xs text-neutral-400">
               <div><span className="font-semibold text-neutral-100">10,000+</span> questions</div>
               <div className="hidden sm:block h-3 md:h-4 w-px bg-white/10" />
               <div><span className="font-semibold text-neutral-100">Real</span> exam pattern</div>

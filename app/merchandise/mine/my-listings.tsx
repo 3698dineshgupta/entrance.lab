@@ -21,10 +21,10 @@ interface Listing {
 }
 
 const STATUS_META: Record<Listing["status"], { label: string; color: string; bg: string; icon: any }> = {
-  pending: { label: "Pending review", color: "text-amber-400", bg: "bg-amber-500/10 border-amber-400/20", icon: Clock },
-  approved: { label: "Live", color: "text-green-400", bg: "bg-green-500/10 border-green-400/20", icon: CheckCircle2 },
-  rejected: { label: "Rejected", color: "text-red-400", bg: "bg-red-500/10 border-red-400/20", icon: XCircle },
-  sold: { label: "Sold", color: "text-muted-foreground", bg: "bg-white/[0.04] border-white/10", icon: Tag },
+  pending: { label: "Pending review", color: "text-amber-700 dark:text-amber-400", bg: "bg-amber-500/10 border-amber-400/20", icon: Clock },
+  approved: { label: "Live", color: "text-green-700 dark:text-green-400", bg: "bg-green-500/10 border-green-400/20", icon: CheckCircle2 },
+  rejected: { label: "Rejected", color: "text-red-700 dark:text-red-400", bg: "bg-red-500/10 border-red-400/20", icon: XCircle },
+  sold: { label: "Sold", color: "text-muted-foreground", bg: "bg-slate-100 border-slate-200 dark:bg-white/[0.04] dark:border-white/10", icon: Tag },
 };
 
 export function MyListings({ listings: initial }: { listings: Listing[] }) {
@@ -49,14 +49,14 @@ export function MyListings({ listings: initial }: { listings: Listing[] }) {
       </div>
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-400 font-medium">Merchandise</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Merchandise</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">My listings</h1>
         </div>
         <Button asChild size="sm"><Link href="/merchandise/new"><Plus className="h-3.5 w-3.5" /> Post an ad</Link></Button>
       </div>
 
       {listings.length === 0 ? (
-        <div className="mt-10 text-center py-20 rounded-2xl border border-dashed border-white/10">
+        <div className="mt-10 text-center py-20 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
           <p className="text-sm text-muted-foreground">You haven't posted anything yet.</p>
           <Button asChild className="mt-5" size="sm"><Link href="/merchandise/new">Post your first ad</Link></Button>
         </div>
@@ -67,7 +67,7 @@ export function MyListings({ listings: initial }: { listings: Listing[] }) {
             const Icon = meta.icon;
             return (
               <Card key={l.id} className="p-4 flex items-center gap-4">
-                <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-white/[0.03] border border-white/[0.06] shrink-0">
+                <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 dark:bg-white/[0.03] dark:border-white/[0.06] shrink-0">
                   {l.imageUrl ? (
                     <Image src={l.imageUrl} alt={l.title} fill className="object-cover" />
                   ) : (

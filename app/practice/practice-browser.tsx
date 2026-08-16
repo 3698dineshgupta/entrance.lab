@@ -18,7 +18,7 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
     <div className="container py-12 max-w-6xl">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-400 font-medium">Practice</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Practice</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">Practice by topic</h1>
           <p className="mt-2 text-muted-foreground text-sm max-w-xl">
             Structured around the official CEE and IOE entrance syllabi. No timer, no negative
@@ -30,14 +30,14 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
           </div>
         </div>
         {examGroups.length > 1 && (
-          <div className="flex gap-1 p-1 rounded-lg border border-white/10 bg-white/[0.02] w-fit shrink-0">
+          <div className="flex gap-1 p-1 rounded-lg border border-slate-200 bg-slate-900/[0.02] dark:border-white/10 dark:bg-white/[0.02] w-fit shrink-0">
             {["ALL", ...examGroups.map((e) => e.exam)].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
                   "px-4 py-1.5 text-xs font-medium rounded-md transition",
-                  filter === f ? "bg-white/[0.10] text-foreground" : "text-muted-foreground hover:text-foreground"
+                  filter === f ? "bg-white shadow-sm text-foreground dark:bg-white/[0.10] dark:shadow-none" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {f === "ALL" ? "All" : f}
@@ -52,7 +52,7 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
           <div key={group.exam}>
             <div className="flex items-center gap-3 mb-5">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{group.exam}</h2>
-              <div className="h-px flex-1 bg-white/[0.06]" />
+              <div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.06]" />
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -67,7 +67,7 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
                     className={cn(
                       "group relative overflow-hidden rounded-2xl border transition-all",
                       "hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/20",
-                      image ? "border-white/10 aspect-[2.5/1]" : cn("bg-gradient-to-br aspect-[4/1]", color.from, color.to, color.ring)
+                      image ? "border-slate-200 dark:border-white/10 aspect-[2.5/1]" : cn("bg-gradient-to-br aspect-[4/1]", color.from, color.to, color.ring)
                     )}
                   >
                     {image ? (
@@ -113,7 +113,7 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
       </div>
 
       {exams.length === 0 && (
-        <div className="mt-10 text-center py-16 rounded-2xl border border-dashed border-white/10">
+        <div className="mt-10 text-center py-16 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
           <p className="text-sm text-muted-foreground">No practice questions available yet.</p>
         </div>
       )}

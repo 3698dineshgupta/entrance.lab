@@ -57,7 +57,7 @@ export default function ResultsPage() {
     return (
       <div className="container py-20 sm:py-24 text-center max-w-lg mx-auto">
         <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/10 border border-cyan-400/20 mb-6">
-          <FileQuestion className="h-8 w-8 text-cyan-400" />
+          <FileQuestion className="h-8 w-8 text-cyan-700 dark:text-cyan-400" />
         </div>
         <h1 className="text-2xl font-semibold">No recent attempt found</h1>
         <p className="text-muted-foreground mt-2 text-sm">
@@ -90,7 +90,7 @@ export default function ResultsPage() {
 
   const scoreGrade =
     summary.percentage >= 80 ? { label: "Excellent", color: "text-green-600 dark:text-green-400" } :
-    summary.percentage >= 65 ? { label: "Good", color: "text-cyan-600 dark:text-cyan-400" } :
+    summary.percentage >= 65 ? { label: "Good", color: "text-cyan-700 dark:text-cyan-400" } :
     summary.percentage >= 50 ? { label: "Average", color: "text-yellow-600 dark:text-yellow-400" } :
     { label: "Needs Work", color: "text-red-600 dark:text-red-400" };
 
@@ -104,7 +104,7 @@ export default function ResultsPage() {
         className="flex flex-col md:flex-row md:items-end md:justify-between gap-4"
       >
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-600 dark:text-cyan-400 font-medium">Results</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Results</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">{summary.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Completed in {formatTime(summary.durationSeconds)} ·{" "}
@@ -126,7 +126,7 @@ export default function ResultsPage() {
         className="grid grid-cols-2 md:grid-cols-4 gap-3"
       >
         <ScoreCard icon={<Trophy className="h-5 w-5" />} label="Score" value={`${summary.score}/${summary.maxScore}`} color="text-orange-600 dark:text-orange-400" />
-        <ScoreCard icon={<Sparkles className="h-5 w-5" />} label="Percentage" value={`${summary.percentage}%`} color="text-cyan-600 dark:text-cyan-400" />
+        <ScoreCard icon={<Sparkles className="h-5 w-5" />} label="Percentage" value={`${summary.percentage}%`} color="text-cyan-700 dark:text-cyan-400" />
         <ScoreCard icon={<Target className="h-5 w-5" />} label="Accuracy" value={`${summary.accuracy}%`} color="text-purple-600 dark:text-purple-400" />
         <ScoreCard icon={<Timer className="h-5 w-5" />} label="Est. Percentile" value={`${Math.round(percentile)}`} color="text-blue-600 dark:text-blue-400" suffix="tile" />
       </motion.div>
@@ -141,7 +141,7 @@ export default function ResultsPage() {
       <div className="grid md:grid-cols-2 gap-4">
         {/* Bar chart */}
         <Card className="p-6">
-          <h3 className="font-semibold flex items-center gap-2"><TrendingUp className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />Subject-wise Accuracy</h3>
+          <h3 className="font-semibold flex items-center gap-2"><TrendingUp className="h-4 w-4 text-cyan-700 dark:text-cyan-400" />Subject-wise Accuracy</h3>
           <p className="text-xs text-muted-foreground mt-1">Correct answers as % of questions per subject.</p>
           <div className="h-52 mt-4">
             <ResponsiveContainer width="100%" height="100%">
@@ -293,7 +293,7 @@ function AnswerReview({ summary }: { summary: any }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="font-semibold flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-cyan-600 dark:text-cyan-400" /> Answer Review
+            <BookOpen className="h-4 w-4 text-cyan-700 dark:text-cyan-400" /> Answer Review
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
             Your choice and the correct answer are shown for every question.
@@ -393,7 +393,7 @@ function AnswerReview({ summary }: { summary: any }) {
                 </div>
                 {q.explanation && (
                   <div className="mt-3 p-3 rounded-lg bg-cyan-500/[0.06] border border-cyan-400/20">
-                    <p className="text-xs"><span className="text-cyan-600 dark:text-cyan-400 font-semibold">Explanation: </span><span className="text-muted-foreground">{q.explanation}</span></p>
+                    <p className="text-xs"><span className="text-cyan-700 dark:text-cyan-400 font-semibold">Explanation: </span><span className="text-muted-foreground">{q.explanation}</span></p>
                   </div>
                 )}
               </div>

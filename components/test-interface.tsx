@@ -300,7 +300,7 @@ export function TestInterface({ test }: Props) {
                 variant="outline"
                 onClick={() => setMarked((m) => ({ ...m, [current.id]: !m[current.id] }))}
               >
-                <Flag className={cn("h-4 w-4", marked[current.id] && "text-orange-400 fill-orange-400/40")} />
+                <Flag className={cn("h-4 w-4", marked[current.id] && "text-orange-600 dark:text-orange-400 fill-orange-500/40 dark:fill-orange-400/40")} />
                 <span className="hidden sm:inline">{marked[current.id] ? "Marked" : "Mark for Review"}</span>
               </Button>
               <Button onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}>
@@ -344,7 +344,7 @@ export function TestInterface({ test }: Props) {
         <DialogContent showClose={!submitting}>
           {submitting ? (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-cyan-700 dark:text-cyan-400" />
               <p className="font-medium">Submitting your test…</p>
               <p className="text-sm text-muted-foreground">Please don't close this window.</p>
             </div>
@@ -352,15 +352,15 @@ export function TestInterface({ test }: Props) {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-orange-400" /> Submit test?
+                  <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" /> Submit test?
                 </DialogTitle>
                 <DialogDescription>
                   You have answered {answeredCount} of {total} questions. This action cannot be undone.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{answeredCount}</p><p className="text-muted-foreground">Answered</p></div>
-                <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-orange-400">{Object.values(marked).filter(Boolean).length}</p><p className="text-muted-foreground">Marked</p></div>
+                <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-green-700 dark:text-green-400">{answeredCount}</p><p className="text-muted-foreground">Answered</p></div>
+                <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-orange-600 dark:text-orange-400">{Object.values(marked).filter(Boolean).length}</p><p className="text-muted-foreground">Marked</p></div>
                 <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-muted-foreground">{total - answeredCount}</p><p className="text-muted-foreground">Unanswered</p></div>
               </div>
               <DialogFooter>

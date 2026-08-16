@@ -33,7 +33,7 @@ export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
     <div className="container py-12 max-w-6xl">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-400 font-medium">Merchandise</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Merchandise</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">Buy &amp; sell study material</h1>
           <p className="mt-2 text-muted-foreground text-sm max-w-xl">
             Books, calculators, and notes from other IOE/CEE aspirants. Contact sellers directly on WhatsApp — every listing is reviewed before it goes live.
@@ -49,9 +49,9 @@ export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
         </div>
       </div>
 
-      <div className="mt-5 flex gap-2.5 rounded-lg border border-amber-400/20 bg-amber-500/[0.06] p-3 max-w-2xl">
-        <ShieldAlert className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-200/90 leading-relaxed">
+      <div className="mt-5 flex gap-2.5 rounded-lg border border-amber-300/60 bg-amber-50 dark:border-amber-400/20 dark:bg-amber-500/[0.06] p-3 max-w-2xl">
+        <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-800 dark:text-amber-200/90 leading-relaxed">
           We just list ads — we don't verify sellers or handle payment. Inspect the item and confirm everything's genuine before you pay. See something suspicious? Use the Report link on that listing.
         </p>
       </div>
@@ -64,8 +64,8 @@ export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
             className={cn(
               "px-3.5 py-1.5 text-xs font-medium rounded-full border transition",
               category === c
-                ? "bg-cyan-500/15 border-cyan-400/40 text-cyan-300"
-                : "border-white/10 text-muted-foreground hover:text-foreground hover:border-white/20"
+                ? "bg-cyan-50 border-cyan-400/40 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300"
+                : "border-slate-200 text-muted-foreground hover:text-foreground hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20"
             )}
           >
             {c}
@@ -74,7 +74,7 @@ export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="mt-10 text-center py-20 rounded-2xl border border-dashed border-white/10">
+        <div className="mt-10 text-center py-20 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
           <ShoppingBag className="h-9 w-9 text-muted-foreground mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">
             {listings.length === 0 ? "No listings yet — be the first to post one." : "No listings in this category yet."}
@@ -100,7 +100,7 @@ function ListingCard({ listing, onReport }: { listing: Listing; onReport: () => 
 
   return (
     <Card className={cn("overflow-hidden flex flex-col", sold && "opacity-70")}>
-      <div className="relative aspect-[4/3] bg-white/[0.03] border-b border-white/[0.06]">
+      <div className="relative aspect-[4/3] bg-slate-100 border-b border-slate-200 dark:bg-white/[0.03] dark:border-white/[0.06]">
         {listing.imageUrl ? (
           <Image src={listing.imageUrl} alt={listing.title} fill sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover" />
         ) : (
@@ -123,13 +123,13 @@ function ListingCard({ listing, onReport }: { listing: Listing; onReport: () => 
           <h3 className="font-semibold text-sm leading-snug line-clamp-2">{listing.title}</h3>
           <button
             onClick={onReport}
-            className="shrink-0 inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-red-400 transition mt-0.5"
+            className="shrink-0 inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition mt-0.5"
             aria-label="Report this listing"
           >
             <Flag className="h-3 w-3" /> Report
           </button>
         </div>
-        <p className="text-cyan-400 font-semibold mt-1.5">Rs. {listing.price.toLocaleString("en-IN")}</p>
+        <p className="text-cyan-700 dark:text-cyan-400 font-semibold mt-1.5">Rs. {listing.price.toLocaleString("en-IN")}</p>
         <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 flex-1">{listing.description}</p>
 
         {sold ? (
@@ -192,7 +192,7 @@ function ReportDialog({ listing, onOpenChange }: { listing: Listing | null; onOp
         {done ? (
           <div className="py-4 text-center">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-green-500/10 border border-green-400/20 mb-3">
-              <CheckCircle2 className="h-6 w-6 text-green-400" />
+              <CheckCircle2 className="h-6 w-6 text-green-700 dark:text-green-400" />
             </div>
             <p className="font-medium">Report received</p>
             <p className="text-sm text-muted-foreground mt-1">Our team will look into it.</p>
@@ -206,7 +206,7 @@ function ReportDialog({ listing, onOpenChange }: { listing: Listing | null; onOp
             </DialogHeader>
 
             {error && (
-              <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">{error}</div>
+              <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-400 border border-red-500/20">{error}</div>
             )}
 
             <div className="space-y-4">

@@ -14,8 +14,8 @@ const ICONS: Record<ExamType, React.ReactNode> = {
 };
 
 const ACCENTS: Record<ExamType, string> = {
-  IOE: "from-blue-500/20 to-cyan-500/10 text-cyan-300 border-blue-400/20",
-  CEE: "from-orange-500/20 to-purple-500/10 text-orange-300 border-orange-400/20",
+  IOE: "from-blue-500/20 to-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-blue-400/20",
+  CEE: "from-orange-500/20 to-purple-500/10 text-orange-700 dark:text-orange-300 border-orange-400/20",
 };
 
 export function ExamCards() {
@@ -25,7 +25,7 @@ export function ExamCards() {
   return (
     <section className="container py-16 md:py-20">
       <div className="max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-600 dark:text-cyan-400 font-medium">Choose your path</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Choose your path</p>
         <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">Two exams. One place to prepare.</h2>
         <p className="mt-3 text-muted-foreground">
           Pick an examination to see full mock tests, subject-wise practice sets, and detailed analytics.

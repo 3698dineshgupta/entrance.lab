@@ -55,7 +55,7 @@ export function SubtopicBrowser({ sections, subject }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search chapter or topic..."
-            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.02] pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-cyan-400/40 focus:border-cyan-400/40 transition"
+            className="w-full rounded-xl border border-slate-200 bg-slate-900/[0.02] pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-cyan-400/40 focus:border-cyan-400/40 transition dark:border-white/[0.08] dark:bg-white/[0.02]"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -64,8 +64,8 @@ export function SubtopicBrowser({ sections, subject }: Props) {
             className={cn(
               "whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition",
               activeTopic === null
-                ? "bg-cyan-500/15 border-cyan-400/40 text-cyan-300"
-                : "border-white/[0.08] text-muted-foreground hover:border-white/20 hover:text-foreground"
+                ? "bg-cyan-50 border-cyan-400/40 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300"
+                : "border-slate-200 text-muted-foreground hover:border-slate-300 hover:text-foreground dark:border-white/[0.08] dark:hover:border-white/20"
             )}
           >
             All
@@ -77,8 +77,8 @@ export function SubtopicBrowser({ sections, subject }: Props) {
               className={cn(
                 "whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition",
                 activeTopic === s.topic
-                  ? "bg-cyan-500/15 border-cyan-400/40 text-cyan-300"
-                  : "border-white/[0.08] text-muted-foreground hover:border-white/20 hover:text-foreground"
+                  ? "bg-cyan-50 border-cyan-400/40 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300"
+                  : "border-slate-200 text-muted-foreground hover:border-slate-300 hover:text-foreground dark:border-white/[0.08] dark:hover:border-white/20"
               )}
             >
               {s.topic}
@@ -95,10 +95,10 @@ export function SubtopicBrowser({ sections, subject }: Props) {
         {filtered.map((s) => (
           <div key={s.topic}>
             <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-xs font-semibold tracking-[0.15em] text-cyan-300/90 whitespace-nowrap">
+              <h2 className="text-xs font-semibold tracking-[0.15em] text-cyan-700 dark:text-cyan-300/90 whitespace-nowrap">
                 UNIT {s.unitNumber} — {s.topic.toUpperCase()}
               </h2>
-              <div className="h-px flex-1 bg-white/[0.08]" />
+              <div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.08]" />
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {s.cards.map((c) => {
@@ -111,7 +111,7 @@ export function SubtopicBrowser({ sections, subject }: Props) {
                       "group relative flex flex-col gap-3 rounded-2xl border p-4 transition",
                       c.done
                         ? "border-green-400/25 bg-green-500/[0.04] hover:border-green-400/50"
-                        : "border-white/[0.08] bg-white/[0.02] hover:border-cyan-400/40 hover:bg-cyan-500/[0.04]"
+                        : "border-slate-200 bg-slate-900/[0.02] hover:border-cyan-400/40 hover:bg-cyan-500/[0.04] dark:border-white/[0.08] dark:bg-white/[0.02]"
                     )}
                   >
                     <div className="flex items-start justify-between">
@@ -119,20 +119,20 @@ export function SubtopicBrowser({ sections, subject }: Props) {
                         className={cn(
                           "h-10 w-10 rounded-xl inline-flex items-center justify-center border",
                           c.done
-                            ? "bg-green-500/10 border-green-400/25 text-green-400"
-                            : "bg-cyan-500/10 border-cyan-400/20 text-cyan-300"
+                            ? "bg-green-500/10 border-green-400/25 text-green-700 dark:text-green-400"
+                            : "bg-cyan-500/10 border-cyan-400/20 text-cyan-700 dark:text-cyan-300"
                         )}
                       >
                         <Icon className="h-5 w-5" />
                       </span>
-                      <span className="text-[11px] font-mono px-2 py-1 rounded-full bg-white/[0.05] border border-white/[0.07] text-muted-foreground">
+                      <span className="text-[11px] font-mono px-2 py-1 rounded-full bg-slate-900/[0.03] border border-slate-200 text-muted-foreground dark:bg-white/[0.05] dark:border-white/[0.07]">
                         {c.unitLabel}
                       </span>
                     </div>
 
                     <div>
                       <p className="text-sm font-semibold leading-snug flex items-start gap-1.5">
-                        {c.done && <CheckCircle2 className="h-3.5 w-3.5 text-green-400 shrink-0 mt-0.5" />}
+                        {c.done && <CheckCircle2 className="h-3.5 w-3.5 text-green-700 dark:text-green-400 shrink-0 mt-0.5" />}
                         <span>{c.label}</span>
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
@@ -141,7 +141,7 @@ export function SubtopicBrowser({ sections, subject }: Props) {
                     </div>
 
                     {c.answered > 0 && (
-                      <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div className="h-1 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
                         <div
                           className={cn("h-full", c.done ? "bg-green-400" : "bg-cyan-400")}
                           style={{ width: `${Math.min(100, Math.round((c.answered / c.count) * 100))}%` }}
@@ -150,13 +150,13 @@ export function SubtopicBrowser({ sections, subject }: Props) {
                     )}
 
                     <div className="mt-auto pt-1 flex items-center justify-between">
-                      <span className="text-[10px] uppercase tracking-wide px-2 py-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-muted-foreground truncate max-w-[65%]">
+                      <span className="text-[10px] uppercase tracking-wide px-2 py-1 rounded-md bg-slate-900/[0.03] border border-slate-200 text-muted-foreground truncate max-w-[65%] dark:bg-white/[0.04] dark:border-white/[0.06]">
                         {c.topic}
                       </span>
                       <span
                         className={cn(
                           "h-7 w-7 rounded-full inline-flex items-center justify-center border shrink-0 transition",
-                          "border-white/[0.1] text-muted-foreground group-hover:border-cyan-400/50 group-hover:text-cyan-300 group-hover:bg-cyan-500/10"
+                          "border-slate-200 text-muted-foreground group-hover:border-cyan-400/50 group-hover:text-cyan-700 group-hover:bg-cyan-500/10 dark:border-white/[0.1] dark:group-hover:text-cyan-300"
                         )}
                       >
                         <ArrowRight className="h-3.5 w-3.5" />

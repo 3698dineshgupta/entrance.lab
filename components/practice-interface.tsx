@@ -124,14 +124,14 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
       <div className="container py-16 flex justify-center">
         <Card className="w-full max-w-md p-7 text-center">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 border border-cyan-400/20 mx-auto">
-            <Trophy className="h-7 w-7 text-cyan-400" />
+            <Trophy className="h-7 w-7 text-cyan-700 dark:text-cyan-400" />
           </div>
           <h1 className="mt-4 text-xl font-semibold">Practice complete</h1>
           <p className="text-sm text-muted-foreground mt-1">{breadcrumb}</p>
 
           <div className="mt-6 grid grid-cols-3 gap-2 text-center text-xs">
-            <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{stats.correct}</p><p className="text-muted-foreground">Correct</p></div>
-            <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-red-400">{stats.wrong}</p><p className="text-muted-foreground">Wrong</p></div>
+            <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-green-700 dark:text-green-400">{stats.correct}</p><p className="text-muted-foreground">Correct</p></div>
+            <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-red-700 dark:text-red-400">{stats.wrong}</p><p className="text-muted-foreground">Wrong</p></div>
             <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-muted-foreground">{stats.skipped}</p><p className="text-muted-foreground">Skipped</p></div>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Accuracy: <span className="text-foreground font-medium">{accuracy}%</span></p>
@@ -156,13 +156,13 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
             aria-label="Bookmark question"
           >
             {bookmarked.has(current.id)
-              ? <BookmarkCheck className="h-4 w-4 text-cyan-400" />
+              ? <BookmarkCheck className="h-4 w-4 text-cyan-700 dark:text-cyan-400" />
               : <Bookmark className="h-4 w-4 text-muted-foreground" />}
           </button>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground truncate">{breadcrumb}</p>
           </div>
-          <span className="text-sm font-mono text-orange-400 shrink-0">{idx + 1}/{total}</span>
+          <span className="text-sm font-mono text-orange-700 dark:text-orange-400 shrink-0">{idx + 1}/{total}</span>
           <button
             onClick={() => setShowGrid((v) => !v)}
             className="shrink-0 h-9 w-9 rounded-lg border border-slate-200 bg-slate-900/[0.02] inline-flex items-center justify-center hover:border-slate-300 transition dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
@@ -184,9 +184,9 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
                 onClick={() => goTo(i)}
                 className={cn(
                   "shrink-0 h-8 w-8 rounded-full text-xs font-medium border inline-flex items-center justify-center transition",
-                  i === idx ? "border-cyan-400/60 bg-cyan-500/10 text-cyan-300"
+                  i === idx ? "border-cyan-400/60 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300"
                     : answered
-                    ? correct ? "border-green-400/30 text-green-400" : "border-red-400/30 text-red-400"
+                    ? correct ? "border-green-400/30 text-green-700 dark:text-green-400" : "border-red-400/30 text-red-700 dark:text-red-400"
                     : "border-slate-200 text-muted-foreground hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20"
                 )}
               >
@@ -209,9 +209,9 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
                     onClick={() => goTo(i)}
                     className={cn(
                       "h-8 rounded-md text-xs font-medium border inline-flex items-center justify-center transition",
-                      i === idx ? "border-cyan-400/60 bg-cyan-500/10 text-cyan-300"
+                      i === idx ? "border-cyan-400/60 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300"
                         : answered
-                        ? correct ? "border-green-400/30 bg-green-500/10 text-green-400" : "border-red-400/30 bg-red-500/10 text-red-400"
+                        ? correct ? "border-green-400/30 bg-green-500/10 text-green-700 dark:text-green-400" : "border-red-400/30 bg-red-500/10 text-red-700 dark:text-red-400"
                         : "border-slate-200 text-muted-foreground hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20"
                     )}
                   >
@@ -227,7 +227,7 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
       {/* Question */}
       <div className="container py-6 max-w-2xl flex-1">
         {current.previouslyAnswered && !isAnswered && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-400 bg-amber-500/10 border border-amber-400/20 rounded-full px-2.5 py-1 mb-3">
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-400/20 rounded-full px-2.5 py-1 mb-3">
             <RotateCcw className="h-3 w-3" /> Reviewing a question you've answered before
           </span>
         )}
@@ -254,8 +254,8 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
               >
                 <span className="flex items-center justify-between gap-3">
                   <span>{opt}</span>
-                  {showCorrect && <CheckCircle2 className="h-4 w-4 shrink-0 text-green-400" />}
-                  {showWrong && <XCircle className="h-4 w-4 shrink-0 text-red-400" />}
+                  {showCorrect && <CheckCircle2 className="h-4 w-4 shrink-0 text-green-700 dark:text-green-400" />}
+                  {showWrong && <XCircle className="h-4 w-4 shrink-0 text-red-700 dark:text-red-400" />}
                 </span>
               </button>
             );
@@ -275,8 +275,8 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
                 isCorrect ? "bg-green-500/15" : "bg-red-500/15"
               )}>
                 {isCorrect
-                  ? <CheckCircle2 className="h-8 w-8 text-green-400" />
-                  : <XCircle className="h-8 w-8 text-red-400" />}
+                  ? <CheckCircle2 className="h-8 w-8 text-green-700 dark:text-green-400" />
+                  : <XCircle className="h-8 w-8 text-red-700 dark:text-red-400" />}
               </div>
               <p className="text-sm">
                 Answer: <span className="text-green-700 dark:text-green-400 font-semibold">{current.options[current.correctIndex]}</span>

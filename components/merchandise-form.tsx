@@ -122,7 +122,7 @@ export function MerchandiseForm({ editListing }: Props) {
       <div className="container py-16 flex justify-center">
         <Card className="w-full max-w-md p-7 text-center">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/10 border border-green-400/20 mb-4">
-            <CheckCircle2 className="h-7 w-7 text-green-400" />
+            <CheckCircle2 className="h-7 w-7 text-green-700 dark:text-green-400" />
           </div>
           <h1 className="text-xl font-semibold">{isEdit ? "Changes saved" : "Listing submitted"}</h1>
           <p className="text-sm text-muted-foreground mt-2">
@@ -170,15 +170,15 @@ export function MerchandiseForm({ editListing }: Props) {
             : "Selling books, a calculator, or notes? List it here — every ad is reviewed before it goes live."}
         </p>
 
-        <div className="mt-4 flex gap-2.5 rounded-lg border border-amber-400/20 bg-amber-500/[0.06] p-3">
-          <ShieldAlert className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-200/90 leading-relaxed">
+        <div className="mt-4 flex gap-2.5 rounded-lg border border-amber-300/60 bg-amber-50 dark:border-amber-400/20 dark:bg-amber-500/[0.06] p-3">
+          <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800 dark:text-amber-200/90 leading-relaxed">
             EntranceLab only lists ads — we don't verify sellers or handle any payment. Be honest about the item's condition, and expect buyers to inspect it before paying.
           </p>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">{error}</div>
+          <div className="mt-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-400 border border-red-500/20">{error}</div>
         )}
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -198,7 +198,7 @@ export function MerchandiseForm({ editListing }: Props) {
                 id="category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="flex h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:border-white/10 dark:bg-white/[0.03]"
               >
                 {MERCHANDISE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -215,7 +215,7 @@ export function MerchandiseForm({ editListing }: Props) {
           <div className="space-y-1.5">
             <Label>Photo (optional)</Label>
             {imagePreview ? (
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/10">
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-white/10">
                 <Image src={imagePreview} alt="Preview" fill className="object-cover" />
                 <button
                   type="button"
@@ -229,7 +229,7 @@ export function MerchandiseForm({ editListing }: Props) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full aspect-video rounded-lg border border-dashed border-white/15 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-white/30 hover:text-foreground transition"
+                className="w-full aspect-video rounded-lg border border-dashed border-slate-300 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-slate-400 hover:text-foreground transition dark:border-white/15 dark:hover:border-white/30"
               >
                 <ImagePlus className="h-6 w-6" />
                 <span className="text-xs">Add a photo (JPEG, PNG, or WebP · up to 5MB)</span>

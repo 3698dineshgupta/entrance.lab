@@ -48,7 +48,7 @@ export function Navbar() {
             <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </span>
           <span className="font-semibold tracking-tight text-base sm:text-lg">
-            Entrance<span className="text-blue-400">Lab</span>
+            Entrance<span className="text-blue-600 dark:text-blue-400">Lab</span>
           </span>
         </Link>
 

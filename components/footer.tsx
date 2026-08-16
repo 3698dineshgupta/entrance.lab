@@ -32,7 +32,7 @@ export function Footer() {
               <GraduationCap className="h-5 w-5 text-white" />
             </span>
             <span className="text-lg font-semibold tracking-tight">
-              Entrance<span className="text-blue-400">Lab</span>
+              Entrance<span className="text-blue-600 dark:text-blue-400">Lab</span>
             </span>
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">

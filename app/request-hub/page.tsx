@@ -51,7 +51,7 @@ export default function RequestHubPage() {
       <div className="container py-16 flex justify-center">
         <Card className="w-full max-w-md p-7 text-center">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/10 border border-green-400/20 mb-4">
-            <CheckCircle2 className="h-7 w-7 text-green-400" />
+            <CheckCircle2 className="h-7 w-7 text-green-700 dark:text-green-400" />
           </div>
           <h1 className="text-xl font-semibold">Request received</h1>
           <p className="text-sm text-muted-foreground mt-2">
@@ -73,7 +73,7 @@ export default function RequestHubPage() {
     <div className="container py-16 flex justify-center">
       <Card className="w-full max-w-md p-7">
         <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-400/20 mb-3">
-          <MessagesSquare className="h-5 w-5 text-cyan-400" />
+          <MessagesSquare className="h-5 w-5 text-cyan-700 dark:text-cyan-400" />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">Request Hub</h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -82,7 +82,7 @@ export default function RequestHubPage() {
         </p>
 
         {error && (
-          <div className="mt-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">
+          <div className="mt-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-400 border border-red-500/20">
             {error}
           </div>
         )}

@@ -113,7 +113,7 @@ export function MobileFloatingNav() {
                     <GraduationCap className="h-4 w-4 text-white" />
                   </span>
                   <span className="font-semibold tracking-tight">
-                    Entrance<span className="text-blue-400">Lab</span>
+                    Entrance<span className="text-blue-600 dark:text-blue-400">Lab</span>
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -195,7 +195,7 @@ export function MobileFloatingNav() {
                 {session ? (
                   <button
                     onClick={() => { setMenuOpen(false); signOut(); }}
-                    className="w-full rounded-2xl border border-red-500/20 bg-gradient-to-r from-red-500/15 to-red-600/10 px-4 py-3 text-sm font-semibold text-red-300 transition active:scale-[0.99] flex items-center justify-center gap-2"
+                    className="w-full rounded-2xl border border-red-500/20 bg-gradient-to-r from-red-500/15 to-red-600/10 px-4 py-3 text-sm font-semibold text-red-700 dark:text-red-300 transition active:scale-[0.99] flex items-center justify-center gap-2"
                   >
                     <LogOut className="h-4 w-4" /> Logout
                   </button>

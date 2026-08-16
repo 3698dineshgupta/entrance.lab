@@ -28,7 +28,7 @@ export function StatsSection({ data }: { data: HomeStats }) {
 
   const STATS = [
     { icon: Users, label: "Students", value: data.students, suffix: "+", color: "text-blue-600 dark:text-blue-400", bg: "from-blue-500/20 to-blue-500/5", iconBg: "bg-blue-50 dark:bg-blue-500/10" },
-    { icon: FileText, label: "Mock Tests", value: data.mockTests, suffix: "", color: "text-cyan-600 dark:text-cyan-400", bg: "from-cyan-500/20 to-cyan-500/5", iconBg: "bg-cyan-50 dark:bg-cyan-500/10" },
+    { icon: FileText, label: "Mock Tests", value: data.mockTests, suffix: "", color: "text-cyan-700 dark:text-cyan-400", bg: "from-cyan-500/20 to-cyan-500/5", iconBg: "bg-cyan-50 dark:bg-cyan-500/10" },
     { icon: HelpCircle, label: "Questions", value: data.questions, suffix: "+", color: "text-purple-600 dark:text-purple-400", bg: "from-purple-500/20 to-purple-500/5", iconBg: "bg-purple-50 dark:bg-purple-500/10" },
     { icon: Trophy, label: "Tests Attempted", value: data.attempts, suffix: "+", color: "text-orange-600 dark:text-orange-400", bg: "from-orange-500/20 to-orange-500/5", iconBg: "bg-orange-50 dark:bg-orange-500/10" },
   ];

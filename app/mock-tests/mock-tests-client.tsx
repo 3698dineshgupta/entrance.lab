@@ -25,18 +25,18 @@ export function MockTestsClient({ initialTests }: { initialTests: TestSetSummary
     <div className="container py-12">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-400 font-medium">Mock tests</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Mock tests</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">Choose a test to begin</h1>
           <p className="mt-2 text-muted-foreground text-sm">Full mock tests and subject-wise practice sets for IOE and CEE.</p>
         </div>
-        <div className="flex gap-1 p-1 rounded-lg border border-white/10 bg-white/[0.02] w-fit">
+        <div className="flex gap-1 p-1 rounded-lg border border-slate-200 bg-slate-900/[0.02] dark:border-white/10 dark:bg-white/[0.02] w-fit">
           {(["ALL", "IOE", "CEE"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
                 "px-3 py-1.5 text-xs rounded-md transition",
-                filter === f ? "bg-white/[0.08] text-foreground" : "text-muted-foreground hover:text-foreground"
+                filter === f ? "bg-white shadow-sm text-foreground dark:bg-white/[0.08] dark:shadow-none" : "text-muted-foreground hover:text-foreground"
               )}
             >
               {f === "ALL" ? "All" : f}
@@ -49,7 +49,7 @@ export function MockTestsClient({ initialTests }: { initialTests: TestSetSummary
         {tests.map((t) => (
           <Card key={t.id} className="p-5 glass-hover flex flex-col">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-md border border-white/10 bg-white/[0.02]">
+              <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-md border border-slate-200 bg-slate-900/[0.02] dark:border-white/10 dark:bg-white/[0.02]">
                 {t.exam} · {t.mode}
               </span>
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t.difficulty}</span>
@@ -69,7 +69,7 @@ export function MockTestsClient({ initialTests }: { initialTests: TestSetSummary
       </div>
 
       {tests.length === 0 && (
-        <div className="mt-10 text-center py-16 rounded-2xl border border-dashed border-white/10">
+        <div className="mt-10 text-center py-16 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
           <p className="text-sm text-muted-foreground">No tests available yet for this filter.</p>
         </div>
       )}

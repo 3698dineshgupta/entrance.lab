@@ -62,7 +62,7 @@ export function ExamSelectionModal({
                     "text-left rounded-xl border p-3 transition",
                     exam === e.id
                       ? "border-blue-400/50 bg-blue-500/10"
-                      : "border-white/10 hover:border-white/20 bg-white/[0.02]"
+                      : "border-slate-200 hover:border-slate-300 bg-slate-900/[0.02] dark:border-white/10 dark:hover:border-white/20 dark:bg-white/[0.02]"
                   )}
                 >
                   <p className="text-sm font-medium">{e.id}</p>
@@ -83,7 +83,7 @@ export function ExamSelectionModal({
                     "rounded-xl border px-3 py-2 text-sm capitalize transition",
                     mode === m
                       ? "border-blue-400/50 bg-blue-500/10"
-                      : "border-white/10 hover:border-white/20 bg-white/[0.02]"
+                      : "border-slate-200 hover:border-slate-300 bg-slate-900/[0.02] dark:border-white/10 dark:hover:border-white/20 dark:bg-white/[0.02]"
                   )}
                 >
                   {m === "full" ? "Full mock test" : "Subject-wise"}
@@ -103,8 +103,8 @@ export function ExamSelectionModal({
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-xs transition",
                       subject === s
-                        ? "border-cyan-400/50 bg-cyan-500/10 text-cyan-100"
-                        : "border-white/10 hover:border-white/20"
+                        ? "border-cyan-400/50 bg-cyan-500/10 text-cyan-700 dark:text-cyan-100"
+                        : "border-slate-200 hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20"
                     )}
                   >
                     {s}
@@ -125,7 +125,7 @@ export function ExamSelectionModal({
                     "rounded-lg border px-2 py-1.5 text-xs capitalize transition",
                     difficulty === d
                       ? "border-purple-400/50 bg-purple-500/10"
-                      : "border-white/10 hover:border-white/20"
+                      : "border-slate-200 hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20"
                   )}
                 >
                   {d}

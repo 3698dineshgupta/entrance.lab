@@ -45,10 +45,18 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-6px)" },
         },
+        "drift": {
+          "0%, 100%": { transform: "translate(0, 0)" },
+          "50%": { transform: "translate(10px, -14px)" },
+        },
       },
       animation: {
         spotlight: "spotlight 2s ease .1s 1 forwards",
         float: "float 3s ease-in-out infinite",
+        "float-slow": "float 5s ease-in-out infinite",
+        "float-slower": "float 7s ease-in-out infinite",
+        drift: "drift 8s ease-in-out infinite",
+        "drift-slow": "drift 12s ease-in-out infinite",
       },
     },
   },

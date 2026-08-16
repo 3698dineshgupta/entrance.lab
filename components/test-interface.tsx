@@ -199,9 +199,9 @@ export function TestInterface({ test }: Props) {
   submitRef.current = submit;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col">
-      {/* Test header */}
-      <div className="border-b border-white/[0.06] bg-background/60 backdrop-blur-xl sticky top-16 z-30">
+    <div className="min-h-screen flex flex-col">
+      {/* Test header — no global navbar on this route (see components/app-chrome.tsx), so this owns the full top of the viewport for a distraction-free, thumb-friendly layout */}
+      <div className="border-b border-slate-200 bg-background/80 backdrop-blur-xl sticky top-0 z-30 dark:border-white/[0.06]">
         <div className="container py-3 flex items-center gap-3 flex-wrap">
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground truncate">{test.exam} · {test.mode}</p>
@@ -209,7 +209,7 @@ export function TestInterface({ test }: Props) {
           </div>
           <div className={cn(
             "flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-mono",
-            remaining < 300 ? "border-red-500/40 bg-red-500/10 text-red-300" : "border-white/10 bg-white/[0.03]"
+            remaining < 300 ? "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-300" : "border-slate-200 bg-slate-900/[0.02] dark:border-white/10 dark:bg-white/[0.03]"
           )}>
             <Timer className="h-4 w-4" />
             {formatTime(remaining)}
@@ -237,8 +237,8 @@ export function TestInterface({ test }: Props) {
                   className={cn(
                     "flex-shrink-0 px-3 py-1 text-xs rounded-full border transition-all",
                     isActive
-                      ? "border-cyan-400/60 bg-cyan-500/10 text-cyan-300 font-medium"
-                      : "border-white/10 text-muted-foreground hover:border-white/20 hover:text-foreground"
+                      ? "border-cyan-400/60 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 font-medium"
+                      : "border-slate-200 text-muted-foreground hover:border-slate-300 hover:text-foreground dark:border-white/10 dark:hover:border-white/20"
                   )}
                 >
                   {s} <span className="opacity-60 ml-1">{subjectAnswered}/{subjectQs.length}</span>
@@ -249,9 +249,9 @@ export function TestInterface({ test }: Props) {
         )}
       </div>
 
-      <div className="container py-6 grid lg:grid-cols-[1fr_300px] gap-6">
+      <div className="container py-4 sm:py-6 grid lg:grid-cols-[1fr_300px] gap-4 sm:gap-6">
         {/* Question card */}
-        <div className="glass rounded-2xl p-6">
+        <div className="glass rounded-2xl p-4 sm:p-6">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Question {idx + 1} of {total}</span>
             <span className="inline-flex items-center gap-1.5 uppercase tracking-wider">
@@ -273,10 +273,10 @@ export function TestInterface({ test }: Props) {
                   key={i}
                   htmlFor={`opt-${i}`}
                   className={cn(
-                    "flex items-start gap-3 rounded-xl border p-3.5 cursor-pointer transition select-none",
+                    "flex items-start gap-3 rounded-xl border p-3.5 cursor-pointer transition-all active:scale-[0.99] select-none",
                     selected
                       ? "border-cyan-400/50 bg-cyan-500/10"
-                      : "border-white/10 hover:border-white/20 hover:bg-white/[0.03]"
+                      : "border-slate-200 hover:border-slate-300 hover:bg-slate-900/[0.02] dark:border-white/10 dark:hover:border-white/20 dark:hover:bg-white/[0.03]"
                   )}
                 >
                   <RadioGroupItem value={String(i)} id={`opt-${i}`} className="mt-1" />
@@ -289,7 +289,9 @@ export function TestInterface({ test }: Props) {
             })}
           </RadioGroup>
 
-          <div className="mt-6 flex flex-wrap items-center gap-2 justify-between">
+          {/* Sticky on mobile so Previous/Next stay thumb-reachable without scrolling past long
+              questions; on lg+ it sits inline since the desktop navigator already offers quick jumps. */}
+          <div className="sticky bottom-0 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 mt-6 flex flex-wrap items-center justify-between gap-2 rounded-b-2xl border-t border-slate-200 bg-background/95 px-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-xl dark:border-white/[0.06] lg:static lg:mx-0 lg:mb-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
             <Button variant="secondary" onClick={() => setIdx((i) => Math.max(0, i - 1))} disabled={idx === 0}>
               <ChevronLeft className="h-4 w-4" /> Previous
             </Button>
@@ -299,14 +301,14 @@ export function TestInterface({ test }: Props) {
                 onClick={() => setMarked((m) => ({ ...m, [current.id]: !m[current.id] }))}
               >
                 <Flag className={cn("h-4 w-4", marked[current.id] && "text-orange-400 fill-orange-400/40")} />
-                {marked[current.id] ? "Marked" : "Mark for Review"}
+                <span className="hidden sm:inline">{marked[current.id] ? "Marked" : "Mark for Review"}</span>
               </Button>
               <Button onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}>
-                <Save className="h-4 w-4" /> Save & Next
+                <Save className="h-4 w-4" /> Save &amp; Next
               </Button>
             </div>
             {idx < total - 1 && (
-              <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}>
+              <Button variant="ghost" size="sm" className="hidden text-muted-foreground lg:inline-flex" onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}>
                 Skip <ChevronRight className="h-4 w-4" />
               </Button>
             )}
@@ -357,9 +359,9 @@ export function TestInterface({ test }: Props) {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{answeredCount}</p><p className="text-muted-foreground">Answered</p></div>
-                <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-orange-400">{Object.values(marked).filter(Boolean).length}</p><p className="text-muted-foreground">Marked</p></div>
-                <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-muted-foreground">{total - answeredCount}</p><p className="text-muted-foreground">Unanswered</p></div>
+                <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{answeredCount}</p><p className="text-muted-foreground">Answered</p></div>
+                <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-orange-400">{Object.values(marked).filter(Boolean).length}</p><p className="text-muted-foreground">Marked</p></div>
+                <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-muted-foreground">{total - answeredCount}</p><p className="text-muted-foreground">Unanswered</p></div>
               </div>
               <DialogFooter>
                 <Button variant="secondary" onClick={() => setShowSubmit(false)}>Keep testing</Button>
@@ -399,7 +401,7 @@ function NavigatorCard({
     <div className={cn("glass rounded-2xl p-4 space-y-4 max-h-[calc(100vh-10rem)] overflow-y-auto", compact && "p-0 border-0 bg-transparent shadow-none")}>
       <div className="grid grid-cols-2 gap-2 text-[11px]">
         <Legend color="bg-green-500/70" label="Answered" />
-        <Legend color="bg-white/20" label="Unanswered" />
+        <Legend color="bg-slate-300 dark:bg-white/20" label="Unanswered" />
         <Legend color="bg-cyan-500/70" label="Current" />
         <Legend color="bg-orange-500/70" label="Marked" />
       </div>
@@ -425,10 +427,10 @@ function NavigatorCard({
                       isCurrent
                         ? "bg-cyan-500/80 border-cyan-400 text-white"
                         : isMarked
-                          ? "bg-orange-500/20 border-orange-400/40 text-orange-200"
+                          ? "bg-orange-500/20 border-orange-400/40 text-orange-700 dark:text-orange-200"
                           : isAnswered
-                            ? "bg-green-500/20 border-green-400/40 text-green-200"
-                            : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                            ? "bg-green-500/20 border-green-400/40 text-green-700 dark:text-green-200"
+                            : "bg-slate-900/[0.02] border-slate-200 hover:border-slate-300 dark:bg-white/[0.03] dark:border-white/10 dark:hover:border-white/20"
                     )}
                   >
                     {i + 1}

@@ -2,12 +2,40 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { AlertCircle, ArrowRight, BookOpen, ClipboardList, Loader2, Mail, Lock, TrendingUp, User, UserPlus } from "lucide-react";
+import { SpiderAuthScene } from "@/components/auth/spider-auth-scene";
+import { AuthCard } from "@/components/auth/auth-card";
+import { AuthField } from "@/components/auth/auth-field";
+import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { useSpiderAuth } from "@/components/auth/spider-scene-context";
+
+const FEATURES = [
+  { icon: <ClipboardList className="h-[18px] w-[18px]" />, title: "Full-Length Mock Tests", subtitle: "IOE & CEE, timed and realistic" },
+  { icon: <BookOpen className="h-[18px] w-[18px]" />, title: "Subject-Wise Practice", subtitle: "Drill any subject, any time" },
+  { icon: <TrendingUp className="h-[18px] w-[18px]" />, title: "Smart Analytics", subtitle: "Track your performance over time" },
+];
 
 export default function RegisterPage() {
+  return (
+    <SpiderAuthScene
+      brandHeading="Join EntranceLab"
+      brandDescription="Create your account to start practicing for IOE and CEE with realistic mock tests, instant scoring, and detailed analytics."
+      features={FEATURES}
+    >
+      <AuthCard
+        title="Sign Up"
+        subtitle="Join thousands preparing for IOE and CEE."
+        successTitle="Welcome to EntranceLab 🎓"
+        successMessage="Your account is ready — taking you in…"
+      >
+        <RegisterForm />
+      </AuthCard>
+    </SpiderAuthScene>
+  );
+}
+
+function RegisterForm() {
+  const { setSubmitStage, setStatusText, statusText, submitStage, triggerError } = useSpiderAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,6 +46,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSubmitStage("working");
+    setStatusText("Building your account…");
 
     try {
       const res = await fetch("/api/auth/register", {
@@ -30,8 +60,13 @@ export default function RegisterPage() {
       if (!res.ok) {
         setError(data.error || "Registration failed");
         setLoading(false);
+        setSubmitStage("idle");
+        setStatusText(null);
+        triggerError();
         return;
       }
+
+      setStatusText("Connecting your profile…");
 
       // Auto-login after registration
       const loginRes = await signIn("credentials", {
@@ -41,52 +76,100 @@ export default function RegisterPage() {
       });
 
       if (loginRes?.ok) {
+        setStatusText("Almost ready…");
+        // A brief readable beat before the success state — auth has already
+        // succeeded by this point, so this doesn't delay authentication,
+        // just paces the celebration instead of jump-cutting to it.
+        await new Promise((r) => setTimeout(r, 350));
+        setSubmitStage("success");
+        setStatusText(null);
         // Hard navigation — see app/login/page.tsx for why router.push()+
         // router.refresh() is unreliable right after signIn().
-        window.location.href = "/mock-tests";
+        setTimeout(() => { window.location.href = "/mock-tests"; }, 900);
       } else {
+        setSubmitStage("idle");
+        setStatusText(null);
         window.location.href = "/login";
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");
       setLoading(false);
+      setSubmitStage("idle");
+      setStatusText(null);
+      triggerError();
     }
   };
 
   return (
-    <div className="container py-16 flex justify-center">
-      <Card className="w-full max-w-md p-7">
-        <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
-        <p className="text-sm text-muted-foreground mt-1">Join thousands preparing for IOE and CEE.</p>
+    <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm text-red-600 animate-in fade-in slide-in-from-top-1 duration-200 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-300"
+        >
+          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          {error}
+        </div>
+      )}
 
-        {error && (
-          <div className="mt-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">
-            {error}
-          </div>
+      <AuthField
+        name="name"
+        label="Full Name"
+        autoComplete="name"
+        icon={<User className="h-4 w-4" />}
+        value={name}
+        onChange={setName}
+        invalid={!!error}
+        required
+        autoFocus
+      />
+      <AuthField
+        name="email"
+        label="Email Address"
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        icon={<Mail className="h-4 w-4" />}
+        value={email}
+        onChange={setEmail}
+        invalid={!!error}
+        required
+      />
+      <AuthField
+        name="password"
+        label="Password"
+        type="password"
+        autoComplete="new-password"
+        icon={<Lock className="h-4 w-4" />}
+        value={password}
+        onChange={setPassword}
+        invalid={!!error}
+        required
+        minLength={6}
+      />
+
+      <div className="space-y-2">
+        <AuthSubmitButton type="submit" className="w-full rounded-xl" size="lg" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Creating account…
+            </>
+          ) : (
+            <>
+              <UserPlus className="h-4 w-4" /> Create Account <ArrowRight className="h-4 w-4" />
+            </>
+          )}
+        </AuthSubmitButton>
+        {submitStage === "working" && statusText && (
+          <p aria-live="polite" className="text-center text-xs text-blue-600 dark:text-blue-400 animate-in fade-in duration-300">
+            {statusText}
+          </p>
         )}
+      </div>
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-1.5">
-            <Label htmlFor="name">Full Name</Label>
-            <Input id="name" type="text" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} required />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-          </div>
-          <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Creating account..." : "Create Account"}
-          </Button>
-        </form>
-
-        <p className="mt-5 text-xs text-center text-muted-foreground">
-          Already have an account? <Link href="/login" className="text-blue-400 hover:underline">Log in</Link>
-        </p>
-      </Card>
-    </div>
+      <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+        Already have an account? <Link href="/login" className="font-medium text-blue-600 dark:text-blue-400 hover:underline underline-offset-4">Log in</Link>
+      </p>
+    </form>
   );
 }

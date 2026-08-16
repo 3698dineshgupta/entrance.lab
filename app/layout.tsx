@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
+import { AppChrome } from "@/components/app-chrome";
+import { NO_FLASH_SCRIPT } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -26,12 +27,18 @@ import { Providers } from "@/components/providers";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        {/* Applies the saved/system theme class before first paint — avoids
+            a light->dark (or vice versa) flash on load. Must run before
+            hydration, so this is the one case that needs beforeInteractive. */}
+        <Script id="theme-no-flash" strategy="beforeInteractive">
+          {NO_FLASH_SCRIPT}
+        </Script>
+      </head>
       <body className="font-sans min-h-screen flex flex-col" suppressHydrationWarning>
         <Providers>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <AppChrome>{children}</AppChrome>
         </Providers>
       </body>
     </html>

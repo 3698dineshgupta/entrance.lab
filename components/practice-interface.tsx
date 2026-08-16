@@ -130,9 +130,9 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
           <p className="text-sm text-muted-foreground mt-1">{breadcrumb}</p>
 
           <div className="mt-6 grid grid-cols-3 gap-2 text-center text-xs">
-            <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{stats.correct}</p><p className="text-muted-foreground">Correct</p></div>
-            <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-red-400">{stats.wrong}</p><p className="text-muted-foreground">Wrong</p></div>
-            <div className="rounded-lg border border-white/10 p-3"><p className="text-lg font-semibold text-muted-foreground">{stats.skipped}</p><p className="text-muted-foreground">Skipped</p></div>
+            <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-green-400">{stats.correct}</p><p className="text-muted-foreground">Correct</p></div>
+            <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-red-400">{stats.wrong}</p><p className="text-muted-foreground">Wrong</p></div>
+            <div className="rounded-lg border border-slate-200 dark:border-white/10 p-3"><p className="text-lg font-semibold text-muted-foreground">{stats.skipped}</p><p className="text-muted-foreground">Skipped</p></div>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Accuracy: <span className="text-foreground font-medium">{accuracy}%</span></p>
 
@@ -146,13 +146,13 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col">
-      {/* Header */}
-      <div className="border-b border-white/[0.06] bg-background/60 backdrop-blur-xl sticky top-16 z-30">
+    <div className="min-h-screen flex flex-col">
+      {/* Header — no global navbar on this route (see components/app-chrome.tsx) */}
+      <div className="border-b border-slate-200 bg-background/80 backdrop-blur-xl sticky top-0 z-30 dark:border-white/[0.06]">
         <div className="container py-3 flex items-center gap-3">
           <button
             onClick={toggleBookmark}
-            className="shrink-0 h-9 w-9 rounded-lg border border-white/10 bg-white/[0.03] inline-flex items-center justify-center hover:border-white/20 transition"
+            className="shrink-0 h-9 w-9 rounded-lg border border-slate-200 bg-slate-900/[0.02] inline-flex items-center justify-center hover:border-slate-300 transition dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
             aria-label="Bookmark question"
           >
             {bookmarked.has(current.id)
@@ -165,7 +165,7 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
           <span className="text-sm font-mono text-orange-400 shrink-0">{idx + 1}/{total}</span>
           <button
             onClick={() => setShowGrid((v) => !v)}
-            className="shrink-0 h-9 w-9 rounded-lg border border-white/10 bg-white/[0.03] inline-flex items-center justify-center hover:border-white/20 transition"
+            className="shrink-0 h-9 w-9 rounded-lg border border-slate-200 bg-slate-900/[0.02] inline-flex items-center justify-center hover:border-slate-300 transition dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
             aria-label="Question navigator"
           >
             <Grid3x3 className="h-4 w-4 text-muted-foreground" />
@@ -187,7 +187,7 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
                   i === idx ? "border-cyan-400/60 bg-cyan-500/10 text-cyan-300"
                     : answered
                     ? correct ? "border-green-400/30 text-green-400" : "border-red-400/30 text-red-400"
-                    : "border-white/10 text-muted-foreground hover:border-white/20"
+                    : "border-slate-200 text-muted-foreground hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20"
                 )}
               >
                 {i + 1}
@@ -198,7 +198,7 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
 
         {showGrid && (
           <div className="container pb-4">
-            <div className="rounded-xl border border-white/10 bg-background/95 p-3 grid grid-cols-8 sm:grid-cols-10 gap-1.5">
+            <div className="rounded-xl border border-slate-200 bg-background/95 p-3 grid grid-cols-8 sm:grid-cols-10 gap-1.5 dark:border-white/10">
               {questions.map((q, i) => {
                 const a = answers[q.id];
                 const answered = a !== null && a !== undefined;
@@ -212,7 +212,7 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
                       i === idx ? "border-cyan-400/60 bg-cyan-500/10 text-cyan-300"
                         : answered
                         ? correct ? "border-green-400/30 bg-green-500/10 text-green-400" : "border-red-400/30 bg-red-500/10 text-red-400"
-                        : "border-white/10 text-muted-foreground hover:border-white/20"
+                        : "border-slate-200 text-muted-foreground hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20"
                     )}
                   >
                     {i + 1}
@@ -245,11 +245,11 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
                 onClick={() => selectOption(oi)}
                 disabled={isAnswered}
                 className={cn(
-                  "w-full text-left px-5 py-4 rounded-2xl border text-sm font-medium transition",
-                  showCorrect ? "border-green-400/60 bg-green-500/15 text-green-100"
-                    : showWrong ? "border-red-400/60 bg-red-500/15 text-red-100"
-                    : isAnswered ? "border-white/[0.06] text-muted-foreground opacity-60"
-                    : "border-white/10 bg-white/[0.03] hover:border-cyan-400/40 hover:bg-cyan-500/[0.04]"
+                  "w-full text-left px-5 py-4 rounded-2xl border text-sm font-medium transition-all",
+                  showCorrect ? "border-green-400/60 bg-green-500/15 text-green-800 dark:text-green-100"
+                    : showWrong ? "border-red-400/60 bg-red-500/15 text-red-800 dark:text-red-100"
+                    : isAnswered ? "border-slate-200 dark:border-white/[0.06] text-muted-foreground opacity-60"
+                    : "border-slate-200 bg-slate-900/[0.02] hover:border-cyan-400/40 hover:bg-cyan-500/[0.04] active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.03]"
                 )}
               >
                 <span className="flex items-center justify-between gap-3">
@@ -267,8 +267,8 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
       {isAnswered && (
         <>
           <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={next} />
-          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl glass border-t border-white/10 p-6 pb-8 animate-in slide-in-from-bottom duration-300 sm:left-1/2 sm:bottom-6 sm:-translate-x-1/2 sm:w-full sm:max-w-lg sm:rounded-3xl sm:border">
-            <div className="mx-auto h-1 w-10 rounded-full bg-white/15 sm:hidden mb-4" />
+          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl glass border-t border-slate-200 dark:border-white/10 p-6 pb-[max(2rem,env(safe-area-inset-bottom))] animate-in slide-in-from-bottom duration-300 sm:left-1/2 sm:bottom-6 sm:-translate-x-1/2 sm:w-full sm:max-w-lg sm:rounded-3xl sm:border sm:pb-8">
+            <div className="mx-auto h-1 w-10 rounded-full bg-slate-300 dark:bg-white/15 sm:hidden mb-4" />
             <div className="flex flex-col items-center text-center gap-3">
               <div className={cn(
                 "h-14 w-14 rounded-full inline-flex items-center justify-center",
@@ -279,7 +279,7 @@ export function PracticeInterface({ questions: initialQuestions, subject, topic,
                   : <XCircle className="h-8 w-8 text-red-400" />}
               </div>
               <p className="text-sm">
-                Answer: <span className="text-green-400 font-semibold">{current.options[current.correctIndex]}</span>
+                Answer: <span className="text-green-700 dark:text-green-400 font-semibold">{current.options[current.correctIndex]}</span>
               </p>
               <p className="text-sm text-muted-foreground">
                 {current.explanation || "No explanation available for this question yet."}

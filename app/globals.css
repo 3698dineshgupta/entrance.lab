@@ -4,6 +4,25 @@
 
 @layer base {
   :root {
+    /* Light / Day theme — soft blue-white surfaces, deep navy text */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    --muted: 210 40% 95%;
+    --muted-foreground: 215 16% 42%;
+    --accent: 210 40% 93%;
+    --accent-foreground: 222 47% 11%;
+    --border: 214 32% 88%;
+    --input: 214 32% 88%;
+    --ring: 217 91% 60%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark / Night theme — deep navy, not pure black */
     --background: 222 47% 8%;
     --foreground: 210 40% 98%;
     --card: 222 45% 11%;
@@ -17,10 +36,21 @@
     --border: 217 33% 20%;
     --input: 217 33% 17%;
     --ring: 217 91% 60%;
-    --radius: 0.75rem;
   }
+
   * { @apply border-border; }
   html, body { @apply bg-background text-foreground antialiased; font-style: normal; }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+
+  /* Theme + colour transitions on the properties that actually change when
+     toggling — NOT a blanket `transition: all`, which would also animate
+     hover/focus/layout transitions that should stay instant or independently
+     timed. */
+  body, .glass, .grid-bg {
+    transition: background-color 280ms ease, border-color 280ms ease, color 280ms ease, box-shadow 280ms ease;
+  }
+
   /* Background moved to ::before pseudo-element with position:fixed so the GPU composites
      it as a separate layer — eliminates CPU repaints during every scroll frame */
   body::before {
@@ -29,6 +59,12 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
+    transition: background-image 280ms ease;
+    background-image:
+      radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,0.06), transparent 60%),
+      radial-gradient(900px 500px at 100% 10%, rgba(99,102,241,0.05), transparent 60%);
+  }
+  .dark body::before {
     background-image:
       radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,0.08), transparent 60%),
       radial-gradient(900px 500px at 100% 10%, rgba(167,139,250,0.06), transparent 60%);
@@ -37,16 +73,66 @@
 }
 
 @layer components {
+  /* Light: solid near-white card with a soft shadow (no dark backdrop to
+     blur, so true glassmorphism gives way to a clean elevated-card look).
+     Dark: the original translucent glass-over-navy treatment. */
   .glass {
-    @apply bg-white/[0.03] border border-white/10 backdrop-blur-xl;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -30px rgba(0,0,0,0.6);
-    /* Promote to GPU layer to avoid triggering layout/paint during scroll */
+    @apply bg-white/80 border border-slate-200/80 backdrop-blur-xl;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 20px 45px -28px rgba(30,41,59,0.16);
     will-change: transform;
   }
-  .glass-hover { @apply transition-all duration-300 hover:bg-white/[0.05] hover:border-white/20; }
+  .dark .glass {
+    @apply bg-white/[0.03] border-white/10;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+  .glass-hover { @apply transition-all duration-300 hover:border-slate-300 hover:shadow-lg; }
+  .dark .glass-hover { @apply hover:bg-white/[0.05] hover:border-white/20 hover:shadow-none; }
+
   .grid-bg {
-    background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(15,23,42,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.045) 1px, transparent 1px);
     background-size: 44px 44px;
+  }
+  .dark .grid-bg {
+    background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  }
+
+  .text-gradient-brand {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-cyan-500 to-violet-600;
+  }
+  .dark .text-gradient-brand {
+    @apply from-blue-400 via-cyan-300 to-violet-400;
+  }
+}
+
+/* Spider auth mascot — scoped, uniquely-named keyframes (see components/auth/).
+   Leg wiggle uses CSS custom properties so each leg can vary amplitude/timing
+   via inline style without needing a separate keyframe per leg. */
+@keyframes spider-leg-wiggle {
+  0%, 100% { transform: rotate(var(--wiggle-a, -3deg)); }
+  50% { transform: rotate(var(--wiggle-b, 3deg)); }
+}
+@keyframes spider-web-pulse {
+  0%, 100% { opacity: 0.22; }
+  50% { opacity: 0.45; }
+}
+@keyframes spider-node-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.18); }
+}
+@keyframes spider-eye-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.15); }
+}
+
+/* Respect the user's OS-level motion preference: freeze decorative loops
+   (float/drift/spotlight/pulse) instead of just shortening them, so anyone
+   who opted out of motion doesn't get a stuttery fast version instead. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -76,5 +162,7 @@
 /* subtle scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.12); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(15,23,42,0.2); }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }

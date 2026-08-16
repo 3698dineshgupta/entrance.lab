@@ -104,7 +104,7 @@ export function MobileFloatingNav() {
               role="dialog"
               aria-modal="true"
               aria-label="Menu"
-              className="fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-xs flex-col border-r border-slate-200 bg-white/97 backdrop-blur-2xl dark:border-white/10 dark:bg-[#070B14]/97"
+              className="fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-xs flex-col border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#070B14]"
             >
               {/* Header */}
               <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))] dark:border-white/[0.06]">

@@ -10,7 +10,6 @@ export function Footer() {
     { href: "/request-hub", label: "Request Hub" },
   ];
   const platform = [
-    { href: "/dashboard", label: "Dashboard" },
     { href: "/register", label: "Sign Up" },
     { href: "/login", label: "Login" },
   ];

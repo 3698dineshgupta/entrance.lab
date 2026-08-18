@@ -5,7 +5,10 @@ const nextConfig = {
   // merchandise listing photos are hosted on Cloudinary — allow-list that
   // host specifically rather than reopening the previous unused
   // `hostname: "**"` wildcard.
-  images: { remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }] },
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
+    formats: ["image/avif", "image/webp"],
+  },
   experimental: {
     // Tree-shake icon and animation libraries — only import what's actually used
     optimizePackageImports: ["lucide-react", "framer-motion", "recharts"],

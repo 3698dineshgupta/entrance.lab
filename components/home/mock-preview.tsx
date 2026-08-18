@@ -34,7 +34,7 @@ export function MockPreview() {
   };
 
   return (
-    <section className="container py-16 md:py-20">
+    <section className="container py-10 md:py-14">
       <div className="max-w-2xl">
         <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">The test experience</p>
         <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">

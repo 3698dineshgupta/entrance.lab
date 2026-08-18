@@ -90,6 +90,55 @@ model MerchandiseReport {
   @@index([status])
 }
 
+enum ChatStatus {
+  BOT
+  PENDING_HUMAN
+  HUMAN
+  CLOSED
+}
+
+enum ChatSender {
+  USER
+  BOT
+  AGENT
+  SYSTEM
+}
+
+// A single visitor's chat session — starts as bot-answered, and can be
+// handed off to a human agent via the Telegram staff group (see
+// lib/telegram.ts). No login required, matching MaterialRequest's pattern
+// of an optional userId.
+model ChatSession {
+  id                String     @id @default(cuid())
+  visitorId         String
+  userId            String?
+  userName          String?
+  userEmail         String?
+  status            ChatStatus @default(BOT)
+  telegramChatId    String?
+  telegramMessageId Int?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  messages ChatMessage[]
+
+  @@index([visitorId])
+  @@index([status])
+}
+
+model ChatMessage {
+  id        String     @id @default(cuid())
+  sessionId String
+  sender    ChatSender
+  text      String
+  agentName String?
+  createdAt DateTime   @default(now())
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
 model TestSet {
   id              String   @id @default(cuid())
   exam            String // e.g., "IOE" or "CEE"

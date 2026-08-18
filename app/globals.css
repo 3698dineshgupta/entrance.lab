@@ -22,19 +22,21 @@
   }
 
   .dark {
-    /* Dark / Night theme — deep navy, not pure black */
-    --background: 222 47% 8%;
+    /* Dark / Night theme — true black with a whisper of blue, matching the
+       already-hardcoded-black Hero/CTA cards rather than the previous
+       lighter navy. */
+    --background: 220 20% 4%;
     --foreground: 210 40% 98%;
-    --card: 222 45% 11%;
+    --card: 220 18% 7%;
     --card-foreground: 210 40% 98%;
     --primary: 217 91% 60%;
     --primary-foreground: 222 47% 11%;
-    --muted: 217 33% 17%;
+    --muted: 220 16% 12%;
     --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
+    --accent: 220 16% 12%;
     --accent-foreground: 210 40% 98%;
-    --border: 217 33% 20%;
-    --input: 217 33% 17%;
+    --border: 220 14% 15%;
+    --input: 220 16% 12%;
     --ring: 217 91% 60%;
   }
 

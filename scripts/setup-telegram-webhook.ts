@@ -1,7 +1,8 @@
 // One-time setup: tells Telegram where to send button-click updates for the
-// merchandise approval flow. Must point at the LIVE production URL —
-// Telegram can't reach localhost. Re-run any time the bot token, domain, or
-// TELEGRAM_WEBHOOK_SECRET changes.
+// merchandise approval flow, and staff-group message updates for the chat
+// human-handoff flow (see app/api/telegram/webhook/route.ts). Must point at
+// the LIVE production URL — Telegram can't reach localhost. Re-run any time
+// the bot token, domain, or TELEGRAM_WEBHOOK_SECRET changes.
 //
 // Usage: npx tsx scripts/setup-telegram-webhook.ts
 
@@ -20,7 +21,7 @@ async function main() {
     body: JSON.stringify({
       url: webhookUrl,
       secret_token: WEBHOOK_SECRET,
-      allowed_updates: ["callback_query"],
+      allowed_updates: ["callback_query", "message"],
     }),
   });
   const data = await res.json();

@@ -6,7 +6,7 @@ export default function TermsPage() {
         <p className="mt-2 text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
       </div>
 
-      <div className="prose prose-invert max-w-none text-muted-foreground">
+      <div className="text-muted-foreground">
         <h2 className="text-xl font-semibold text-foreground">1. Acceptance of Terms</h2>
         <p>By accessing or using EntranceLab, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, then you do not have permission to access the service.</p>
 

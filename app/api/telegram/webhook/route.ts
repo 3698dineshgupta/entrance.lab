@@ -5,6 +5,35 @@ import { markListingDecided, answerCallback } from "@/lib/telegram";
 const STAFF_GROUP_ID = process.env.TELEGRAM_STAFF_GROUP_ID;
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
 
+// A staff member replying (in the staff group) to the handoff message
+// created by sendChatHandoffToStaff routes their answer back to the
+// matching ChatSession, which the widget picks up via polling
+// (see app/api/chat/[sessionId]/messages/route.ts).
+async function handleChatReply(message: {
+  chat?: { id?: number | string };
+  reply_to_message?: { message_id?: number };
+  text?: string;
+  from?: { username?: string; first_name?: string };
+}) {
+  const chatId = String(message.chat?.id ?? "");
+  const rootMessageId = message.reply_to_message?.message_id;
+  if (!STAFF_GROUP_ID || chatId !== STAFF_GROUP_ID || !rootMessageId || !message.text) return;
+
+  const session = await prisma.chatSession.findFirst({
+    where: { telegramChatId: chatId, telegramMessageId: rootMessageId },
+  });
+  if (!session || session.status === "CLOSED") return;
+
+  const agentName = message.from?.username ? `@${message.from.username}` : message.from?.first_name || "Agent";
+
+  await prisma.$transaction([
+    prisma.chatMessage.create({
+      data: { sessionId: session.id, sender: "AGENT", text: message.text, agentName },
+    }),
+    prisma.chatSession.update({ where: { id: session.id }, data: { status: "HUMAN" } }),
+  ]);
+}
+
 // Telegram calls this whenever an admin taps Approve/Reject in the staff
 // group. Verified via the secret token set during setWebhook (see
 // scripts/setup-telegram-webhook.ts) — without it, anyone who found this
@@ -16,10 +45,17 @@ export async function POST(req: Request) {
     }
 
     const update = await req.json();
+
+    const message = update.message;
+    if (message && message.reply_to_message && typeof message.text === "string") {
+      await handleChatReply(message);
+      return NextResponse.json({ ok: true });
+    }
+
     const callback = update.callback_query;
     if (!callback || typeof callback.data !== "string") {
-      // Not a button-click update (could be a plain message in the group,
-      // a bot added/removed event, etc.) — nothing to do, acknowledge anyway.
+      // Not a button-click or a chat reply (could be a bot added/removed
+      // event, etc.) — nothing to do, acknowledge anyway.
       return NextResponse.json({ ok: true });
     }
 

@@ -25,7 +25,7 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section className="container py-16 md:py-20">
+    <section className="container py-10 md:py-14">
       <div className="max-w-2xl">
         <p className="text-xs uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 font-medium">How it works</p>
         <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">

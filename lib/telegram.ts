@@ -157,6 +157,93 @@ export async function sendFraudAlert(report: FraudReport): Promise<void> {
   }
 }
 
+export interface ChatHandoffMessage {
+  sender: "USER" | "BOT" | "SYSTEM";
+  text: string;
+}
+
+export interface ChatHandoffSession {
+  id: string;
+  userName: string | null;
+  userEmail: string | null;
+  messages: ChatHandoffMessage[];
+}
+
+function transcript(messages: ChatHandoffMessage[]): string {
+  return messages
+    .filter((m) => m.sender !== "SYSTEM")
+    .slice(-20)
+    .map((m) => `${m.sender === "USER" ? "Visitor" : "Bot"}: ${escapeHtml(m.text)}`)
+    .join("\n");
+}
+
+// Posts a live-chat escalation into the same staff group used for
+// merchandise approvals, clearly labeled so it isn't confused with a
+// listing. Returns the chat id + message id so ChatSession can store them —
+// staff must reply directly to this message for the webhook to route their
+// answer back to the right visitor (see app/api/telegram/webhook/route.ts).
+export async function sendChatHandoffToStaff(
+  session: ChatHandoffSession
+): Promise<{ chatId: string; messageId: number } | null> {
+  if (!API_BASE || !STAFF_GROUP_ID) {
+    console.error("[Telegram] TELEGRAM_BOT_TOKEN or TELEGRAM_STAFF_GROUP_ID not configured — skipping chat handoff.");
+    return null;
+  }
+
+  const who = session.userName || session.userEmail
+    ? `${escapeHtml(session.userName || "")} ${session.userEmail ? `(${escapeHtml(session.userEmail)})` : ""}`.trim()
+    : "Anonymous visitor";
+
+  const text = [
+    `🆘 <b>Live chat — visitor needs a human</b>`,
+    `From: ${who}`,
+    ``,
+    transcript(session.messages) || "(no messages yet)",
+    ``,
+    `↩️ <b>Reply to THIS message to answer the visitor.</b>`,
+  ].join("\n");
+
+  try {
+    const res = await fetch(`${API_BASE}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: STAFF_GROUP_ID, text, parse_mode: "HTML" }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      console.error("[Telegram] sendChatHandoffToStaff failed:", data.description);
+      return null;
+    }
+    return { chatId: String(data.result.chat.id), messageId: data.result.message_id };
+  } catch (error) {
+    console.error("[Telegram] sendChatHandoffToStaff error:", error);
+    return null;
+  }
+}
+
+// Relays a new visitor message into the existing handoff thread, so staff
+// see the live conversation in Telegram without needing to check the site.
+export async function sendChatMessageToStaff(
+  chatId: string,
+  rootMessageId: number,
+  text: string
+): Promise<void> {
+  if (!API_BASE) return;
+  try {
+    await fetch(`${API_BASE}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        reply_to_message_id: rootMessageId,
+        text: `Visitor: ${escapeHtml(text)}`,
+      }),
+    });
+  } catch (error) {
+    console.error("[Telegram] sendChatMessageToStaff error:", error);
+  }
+}
+
 export async function answerCallback(callbackQueryId: string, text: string): Promise<void> {
   if (!API_BASE) return;
   try {

@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -195,6 +194,10 @@ export default function AdminDashboard() {
     setMessageType("info");
 
     try {
+      // Loaded on demand rather than at module scope — xlsx is a sizeable
+      // dependency that every admin visit would otherwise pull in even if
+      // this upload feature is never used.
+      const XLSX = await import("xlsx");
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data, { type: "array" });
 
@@ -341,7 +344,7 @@ export default function AdminDashboard() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search by name or email..."
-                className="w-full pl-9 pr-4 py-2 text-sm bg-white/[0.03] border border-white/10 rounded-lg focus:outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20"
+                className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20 dark:bg-white/[0.03] dark:border-white/10"
               />
             </div>
             <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loadingUsers}>
@@ -354,7 +357,7 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-xs text-muted-foreground uppercase tracking-wider border-b border-white/[0.06] bg-white/[0.01]">
+                  <tr className="text-xs text-muted-foreground uppercase tracking-wider border-b border-slate-200 bg-slate-900/[0.01] dark:border-white/[0.06] dark:bg-white/[0.01]">
                     <th className="text-left px-4 py-3">User</th>
                     <th className="text-left px-4 py-3">Joined</th>
                     <th className="text-center px-4 py-3">Attempts</th>
@@ -633,7 +636,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Format selector */}
-          <div className="mt-6 flex gap-1 p-1 rounded-lg border border-white/10 bg-white/[0.02] w-fit">
+          <div className="mt-6 flex gap-1 p-1 rounded-lg border border-slate-200 bg-slate-900/[0.02] w-fit dark:border-white/10 dark:bg-white/[0.02]">
             {([
               { key: "standard", label: "Standard (single sheet)" },
               { key: "subtopic", label: "Subtopic-wise (one sheet per topic)" },
@@ -643,7 +646,7 @@ export default function AdminDashboard() {
                 onClick={() => setUploadFormat(f.key)}
                 className={cn(
                   "px-3 py-1.5 text-xs rounded-md transition",
-                  uploadFormat === f.key ? "bg-white/[0.08] text-foreground" : "text-muted-foreground hover:text-foreground"
+                  uploadFormat === f.key ? "bg-white shadow-sm text-foreground dark:bg-white/[0.08] dark:shadow-none" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {f.label}
@@ -657,7 +660,7 @@ export default function AdminDashboard() {
               <select
                 value={uploadExam}
                 onChange={(e) => setUploadExam(e.target.value as any)}
-                className="text-xs bg-white/[0.03] border border-white/10 rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-400/50"
+                className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-400/50 dark:bg-white/[0.03] dark:border-white/10"
               >
                 <option value="AUTO">Auto-detect from filename</option>
                 <option value="IOE">IOE</option>

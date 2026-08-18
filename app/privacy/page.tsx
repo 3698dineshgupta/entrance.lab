@@ -6,7 +6,7 @@ export default function PrivacyPage() {
         <p className="mt-2 text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
       </div>
 
-      <div className="prose prose-invert max-w-none text-muted-foreground">
+      <div className="text-muted-foreground">
         <h2 className="text-xl font-semibold text-foreground">1. Information We Collect</h2>
         <p>We collect information you provide directly to us when you create an account, such as your name, email address, and any profile information you choose to add. We also collect performance data from the mock tests you attempt to provide you with personalized analytics.</p>
 

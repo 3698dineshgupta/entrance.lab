@@ -4,6 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { MobileFloatingNav } from "@/components/mobile-floating-nav";
+import { ChatWidget } from "@/components/chatbot/chat-widget";
 
 // Test-taking and active practice sessions are timed, focused tasks — the
 // global nav/footer are just extra chrome eating vertical space (worse on
@@ -32,6 +33,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
           the last bit of Footer content once the page is scrolled to the end. */}
       <div className="h-24 md:hidden" />
       <MobileFloatingNav />
+      <ChatWidget />
     </>
   );
 }

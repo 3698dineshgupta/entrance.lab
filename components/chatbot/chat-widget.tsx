@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { MessageCircle, X, Send, Headset, Loader2, GraduationCap } from "lucide-react";
+import { MessageCircle, X, Send, Headset, Loader2, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Sender = "USER" | "BOT" | "AGENT" | "SYSTEM";
@@ -48,8 +49,8 @@ function formatClock(iso: string): string {
 // as part of the site rather than a bolted-on third-party tool.
 function BrandAvatar({ size = "h-8 w-8" }: { size?: string }) {
   return (
-    <span className={cn("relative inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500", size)}>
-      <GraduationCap className="h-[55%] w-[55%] text-white" />
+    <span className={cn("relative inline-flex shrink-0", size)}>
+      <Image src="/brain-logo-mark.png" alt="EntranceLab" fill sizes="36px" className="object-contain" />
     </span>
   );
 }
@@ -81,6 +82,7 @@ export function ChatWidget() {
   const [awaitingFirstToken, setAwaitingFirstToken] = useState(false);
   const [slowWarmup, setSlowWarmup] = useState(false);
   const [waitingForAgent, setWaitingForAgent] = useState(false);
+  const [leavingChat, setLeavingChat] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const visitorIdRef = useRef<string | null>(null);
   const hydratedRef = useRef(false);
@@ -330,6 +332,43 @@ export function ChatWidget() {
     }
   }
 
+  // Resets all local state back to a blank welcome screen, so the widget is
+  // ready for a brand new session instead of showing a dead, closed one.
+  function resetToNewChat() {
+    localStorage.removeItem(SESSION_ID_KEY);
+    setSessionId(null);
+    setMessages([]);
+    setStatus("BOT");
+    setUnreadCount(0);
+    setWaitingForAgent(false);
+    setAwaitingFirstToken(false);
+    clearWarmupTimer();
+    hydratedRef.current = false;
+    agentJoinedRef.current = false;
+    lastMessageTimeRef.current = null;
+    streamingIdRef.current = null;
+  }
+
+  // Explicitly ends the conversation (unlike the X button, which just hides
+  // the panel — the session stays open and resumes on reopen).
+  async function leaveChat() {
+    if (!sessionId || leavingChat) return;
+    if (!window.confirm("Leave this chat? You can always start a new one.")) return;
+    setLeavingChat(true);
+    try {
+      await fetch("/api/chat/leave", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, visitorId: visitorIdRef.current }),
+      });
+    } catch (error) {
+      console.error("[ChatWidget] leave failed:", error);
+    } finally {
+      resetToNewChat();
+      setLeavingChat(false);
+    }
+  }
+
   const meta = useMemo(() => {
     const lastAgent = [...messages].reverse().find((m) => m.sender === "AGENT");
     return statusMeta(status, lastAgent?.agentName ?? null);
@@ -390,9 +429,21 @@ export function ChatWidget() {
                   {meta.label}
                 </div>
               </div>
+              {messages.length > 0 && status !== "CLOSED" && (
+                <button
+                  onClick={leaveChat}
+                  disabled={leavingChat}
+                  aria-label="Leave chat"
+                  title="Leave chat"
+                  className="rounded-md p-1.5 text-white/80 transition hover:bg-white/10 hover:text-white disabled:opacity-60"
+                >
+                  {leavingChat ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+                </button>
+              )}
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close chat"
+                title="Minimize — your conversation is kept"
                 className="rounded-md p-1.5 text-white/80 transition hover:bg-white/10 hover:text-white"
               >
                 <X className="h-4 w-4" />
@@ -400,17 +451,18 @@ export function ChatWidget() {
             </div>
 
             {/* Persistent human-agent affordance — visible from the very
-                first open, not gated behind a failed bot answer. */}
+                first open, not gated behind a failed bot answer. Once the
+                chat is closed, this becomes a "start over" action instead. */}
             <button
-              onClick={requestHuman}
-              disabled={status !== "BOT" || requestingHuman}
+              onClick={status === "CLOSED" ? resetToNewChat : requestHuman}
+              disabled={status === "CLOSED" ? false : status !== "BOT" || requestingHuman}
               className="relative flex items-center justify-center gap-2 border-b border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-slate-200 backdrop-blur-sm transition hover:bg-white/[0.07] disabled:cursor-default disabled:opacity-70"
             >
               {requestingHuman ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Headset className="h-3.5 w-3.5" />}
               {status === "BOT" && "Talk to a human agent"}
               {status === "PENDING_HUMAN" && "Waiting for an agent…"}
               {status === "HUMAN" && "Connected to an agent"}
-              {status === "CLOSED" && "This chat has ended"}
+              {status === "CLOSED" && "This chat has ended · Start a new one"}
             </button>
 
             <div ref={listRef} className="relative flex-1 space-y-3 overflow-y-auto px-3 py-3">

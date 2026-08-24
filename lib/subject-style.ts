@@ -37,18 +37,20 @@ export function getSubjectColor(subject: string) {
   return SUBJECT_COLOR[subject] ?? { text: "text-cyan-600 dark:text-cyan-400", from: "from-cyan-500/20", to: "to-blue-600/10", ring: "border-cyan-400/20" };
 }
 
-// Custom banner artwork per subject (already has the subject name and topic
-// list baked into the image). Falls back to the gradient+icon treatment for
-// any subject without one.
+// Custom banner artwork per subject (already has the subject name baked
+// into the image) — keyed by exam since the same subject (e.g. Physics,
+// Chemistry) appears under both IOE and CEE with a different banner for
+// each. Falls back to the gradient+icon treatment for any subject without one.
 export const SUBJECT_IMAGE: Record<string, string> = {
-  Physics: "/practice/physics_new.png",
-  Chemistry: "/practice/chemistry_new.png",
-  Botany: "/practice/botany_new.png",
-  Zoology: "/practice/zoology_new.png",
-  Biology: "/practice/biology_new.png",
-  Mathematics: "/practice/mathematics_new.png",
-  English: "/practice/english_new.png",
-  MAT: "/practice/mat_new.png",
+  IOE_Physics: "/practice/physics_ioe.png",
+  IOE_Chemistry: "/practice/chemistry_ioe.png",
+  IOE_Mathematics: "/practice/math_ioe.png",
+  IOE_English: "/practice/english_ioe.png",
+  CEE_Physics: "/practice/physics_cee.png",
+  CEE_Chemistry: "/practice/chemistry_cee.png",
+  CEE_Botany: "/practice/botany_cee.png",
+  CEE_Zoology: "/practice/zoology_cee.png",
+  CEE_MAT: "/practice/mat_cee.png",
 };
 
 export function getSubjectImage(subject: string, exam?: string): string | null {

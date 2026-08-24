@@ -244,6 +244,26 @@ export async function sendChatMessageToStaff(
   }
 }
 
+// Lets staff know the visitor ended the chat, so they don't keep replying
+// into a thread nobody's reading anymore.
+export async function sendChatEndedToStaff(chatId: string, rootMessageId: number): Promise<void> {
+  if (!API_BASE) return;
+  try {
+    await fetch(`${API_BASE}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        reply_to_message_id: rootMessageId,
+        text: "🚪 <b>Visitor left the chat.</b>",
+        parse_mode: "HTML",
+      }),
+    });
+  } catch (error) {
+    console.error("[Telegram] sendChatEndedToStaff error:", error);
+  }
+}
+
 export async function answerCallback(callbackQueryId: string, text: string): Promise<void> {
   if (!API_BASE) return;
   try {

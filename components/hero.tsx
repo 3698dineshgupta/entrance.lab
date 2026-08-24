@@ -1,12 +1,13 @@
 'use client'
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, useMotionValue, useReducedMotion } from "framer-motion";
-import { ArrowRight, ListChecks, FileText, Sparkles } from "lucide-react";
-import { SplineScene } from "@/components/ui/spline-scene";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { BrainScene } from "@/components/hero/brain-scene";
+import { FeatureOrbit } from "@/components/hero/feature-orbit";
 import { Spotlight } from "@/components/ui/spotlight";
+import { Magnetic } from "@/components/ui/magnetic";
 import { ExamSelectionModal } from "@/components/exam-selection-modal";
-import { FloatingStatCard } from "@/components/home/floating-stat-card";
 import { MobileHero } from "@/components/home/mobile-hero";
 import { ExamType } from "@/lib/types";
 
@@ -19,11 +20,11 @@ export function Hero({
 }) {
   const [open, setOpen] = useState(false);
   const [exam, setExam] = useState<ExamType>("IOE");
-  // The Spline 3D scene pins the main thread at ~100% CPU continuously
-  // (a permanent WebGL render loop) — fine on desktop, but makes every
-  // interaction on mobile (where most traffic is) feel janky. Only mount it
-  // on wider viewports; the right-hand column is hidden entirely on mobile
-  // (see the `hidden md:flex` column below), so text takes the full card.
+  // The 3D brain scene pins the main thread with a permanent WebGL render
+  // loop — fine on desktop, but makes every interaction on mobile (where
+  // most traffic is) feel janky. Only mount it on wider viewports; the
+  // right-hand column is hidden entirely on mobile, so text takes the full
+  // card. Same gate that used to guard the Spline scene here.
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -34,20 +35,6 @@ export function Hero({
   }, []);
 
   const prefersReducedMotion = useReducedMotion();
-  const cardRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (prefersReducedMotion || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    mouseX.set(((e.clientX - rect.left) / rect.width) * 2 - 1);
-    mouseY.set(((e.clientY - rect.top) / rect.height) * 2 - 1);
-  };
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
 
   const trustItems = [
     questionCount ? `${questionCount.toLocaleString()}+ Questions` : null,
@@ -56,158 +43,140 @@ export function Hero({
   ].filter(Boolean) as string[];
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 py-5 sm:py-6 md:px-6 md:py-8">
-      {/* Mobile-only hero — completely separate markup from the desktop card
-          below (not the same JSX with mobile classes threaded through it),
-          so the desktop block below is guaranteed pixel-identical to before. */}
+    <section className="relative mx-auto w-full max-w-7xl px-4 py-5 sm:py-6 md:px-6 md:py-8">
+      {/* Soft ambient glow — sits on the plain page background behind both
+          columns, independent of any card. */}
+      <div
+        className="pointer-events-none absolute inset-x-4 -top-6 h-[420px] md:h-[600px] opacity-40 blur-3xl dark:opacity-70"
+        style={{
+          backgroundImage:
+            "radial-gradient(600px 300px at 30% 20%, rgba(79,107,255,0.28), transparent 60%), radial-gradient(500px 300px at 80% 60%, rgba(61,217,255,0.18), transparent 60%)",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Mobile-only hero — completely separate markup from the desktop
+          layout below. */}
       <MobileHero questionCount={questionCount} mockTestCount={mockTestCount} />
 
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="hidden md:block relative md:min-h-[560px] overflow-hidden rounded-[20px] border border-white/10 bg-black shadow-2xl"
-        style={{
-          // Hardcoded (not the theme-aware .grid-bg utility): this card is
-          // intentionally always-black regardless of site theme, so its grid
-          // lines must always be the light-on-black variant.
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "44px 44px",
-        }}
-      >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/70 to-black md:bg-gradient-to-r md:from-black/20 md:via-black/60 md:to-black" />
+      {/* Desktop layout: a plain grid, no shared border/card around both
+          columns — the ONLY boundary in this section is the one wrapping
+          the brain + badges on the right. */}
+      <div className="hidden md:grid md:min-h-[560px] md:grid-cols-[48%_52%] items-center gap-6 lg:gap-10">
+        {/* Left: content — sits directly on the page background, no card,
+            theme-adaptive colors (this used to assume an always-black
+            backdrop; now it needs to read on both light and dark). */}
+        <div className="relative z-10 flex flex-col justify-center w-full text-left">
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full border border-[#4F6BFF]/25 bg-[#4F6BFF]/[0.06] px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-blue-700 dark:border-[#4F6BFF]/30 dark:bg-[#4F6BFF]/10 dark:text-[#8FB4FF]"
+          >
+            <Sparkles className="h-3 w-3" />
+            The Next Generation of Exam Preparation
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="max-w-xl font-heading font-extrabold text-4xl leading-tight text-foreground md:text-5xl lg:text-[3.4rem] not-italic"
+          >
+            Prepare Smarter.
+            <br />
+            Practice Better.
+            <br />
+            <span className="text-gradient-animated">Crack Any Exam.</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg md:leading-7"
+          >
+            Practise realistic IOE and CEE mock tests, improve your speed and
+            understand your performance before the real exam.
+          </motion.p>
 
-        {/* Subtle drifting particles — desktop only, GPU-cheap CSS transforms, no canvas */}
-        {!prefersReducedMotion && (
-          <div className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden="true">
-            <span className="absolute left-[15%] top-[20%] h-1.5 w-1.5 rounded-full bg-cyan-300/40 blur-[1px] animate-drift" />
-            <span className="absolute left-[38%] top-[12%] h-1 w-1 rounded-full bg-blue-300/40 blur-[1px] animate-drift-slow" />
-            <span className="absolute left-[8%] top-[65%] h-1 w-1 rounded-full bg-violet-300/40 blur-[1px] animate-drift-slow" />
-            <span className="absolute left-[55%] top-[78%] h-1.5 w-1.5 rounded-full bg-cyan-300/30 blur-[1px] animate-drift" />
-            <span className="absolute left-[70%] top-[30%] h-1 w-1 rounded-full bg-white/30 blur-[1px] animate-drift-slow" />
-          </div>
-        )}
-
-        <Spotlight
-          className="-left-20 -top-40 md:left-20 md:-top-28"
-          fill="white"
-        />
-
-        <div className="relative z-10 flex flex-col md:grid md:grid-cols-[48%_52%] md:min-h-[560px] items-center">
-          {/* Left: content — full width on mobile since there's no 3D column there */}
-          <div className="flex flex-col justify-center w-full px-5 sm:px-6 md:px-12 lg:px-16 py-6 sm:py-7 md:py-12 z-20 text-left">
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-2 md:mb-4 inline-flex w-fit items-center gap-1.5 rounded-full border border-blue-400/20 bg-blue-500/[0.06] px-3 py-1 text-[10px] sm:text-[11px] md:text-xs font-medium uppercase tracking-[0.14em] text-blue-300"
-            >
-              <Sparkles className="h-3 w-3" />
-              The Next Generation of Exam Preparation
-            </motion.p>
-            <motion.h1
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.05 }}
-              className="max-w-xl text-2xl sm:text-3xl font-bold leading-tight text-white md:text-5xl lg:text-6xl not-italic"
-            >
-              Master Your
-              <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-violet-400">Entrance Exam.</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="mt-2.5 md:mt-5 max-w-xl text-xs sm:text-sm leading-relaxed text-neutral-300 md:text-lg md:leading-7"
-            >
-              Practise realistic IOE and CEE mock tests, improve your speed and
-              understand your performance before the real exam.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="mt-5 md:mt-8 flex flex-row flex-wrap items-center gap-2.5 md:gap-3 justify-start"
-            >
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="mt-8 flex flex-row flex-wrap items-center gap-3 justify-start"
+          >
+            <Magnetic>
               <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-2.5 md:px-6 md:py-3.5 text-xs md:text-base font-semibold text-white transition-all hover:scale-[1.02] hover:from-blue-400 hover:to-blue-500 whitespace-nowrap text-center shadow-lg shadow-blue-600/25"
+                className="btn-shine group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#4F6BFF] to-[#8B5CF6] px-6 py-3.5 text-base font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:brightness-110 hover:shadow-xl hover:shadow-[#8B5CF6]/40 whitespace-nowrap text-center shadow-lg shadow-[#4F6BFF]/25"
               >
                 Start Practicing
-                <ArrowRight className="h-3.5 w-3.5 md:h-4 md:w-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </button>
+            </Magnetic>
+            <Magnetic strength={0.2}>
               <Link
                 href="/mock-tests"
-                className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.04] px-4 py-2.5 md:px-6 md:py-3.5 text-xs md:text-base font-medium text-white/90 transition-all hover:scale-[1.02] hover:bg-white/10 whitespace-nowrap text-center"
+                className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-slate-900/[0.03] px-6 py-3.5 text-base font-medium text-foreground transition-all duration-300 hover:scale-[1.02] hover:bg-slate-900/[0.06] hover:border-[#4F6BFF]/40 whitespace-nowrap text-center dark:border-white/15 dark:bg-white/[0.04] dark:text-white/90 dark:hover:bg-white/10"
               >
                 Explore Mock Tests
               </Link>
+            </Magnetic>
+          </motion.div>
+
+          {trustItems.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mt-8 flex flex-wrap justify-start items-center gap-5 text-xs text-muted-foreground"
+            >
+              {trustItems.map((item, i) => (
+                <div key={item} className="flex items-center gap-5">
+                  {i > 0 && <div className="hidden sm:block h-4 w-px bg-slate-300 dark:bg-white/10" />}
+                  <span className="font-semibold text-foreground">{item}</span>
+                </div>
+              ))}
             </motion.div>
+          )}
+        </div>
 
-            {trustItems.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="mt-4 md:mt-8 flex flex-wrap justify-start items-center gap-2 md:gap-5 text-[11px] md:text-xs text-neutral-400"
-              >
-                {trustItems.map((item, i) => (
-                  <div key={item} className="flex items-center gap-2 md:gap-5">
-                    {i > 0 && <div className="hidden sm:block h-3 md:h-4 w-px bg-white/10" />}
-                    <span className="font-semibold text-neutral-100">{item}</span>
-                  </div>
-                ))}
-              </motion.div>
-            )}
-          </div>
+        {/* Right: the ONE boundary in this section — rotating 3D "AI brain"
+            + orbiting real-feature nodes, framed in the always-black
+            showcase box. Hidden entirely on mobile (MobileHero covers
+            mobile with its own lightweight visual). */}
+        <div
+          className="relative hidden md:block h-full min-h-[560px] overflow-hidden rounded-[20px] border border-white/10 bg-black shadow-2xl shadow-[#4F6BFF]/[0.08]"
+          style={{
+            // Hardcoded (not the theme-aware .grid-bg utility): this box is
+            // intentionally always-black regardless of site theme.
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        >
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-black/20 via-black/50 to-black" />
 
-          {/* Right: Spline 3D scene + floating UI cards — hidden entirely on mobile, no fallback graphic */}
-          <div className="hidden md:flex md:h-auto md:min-h-[560px] relative items-center justify-center pointer-events-auto" style={{ touchAction: 'pan-y' }}>
+          {/* Subtle drifting particles — GPU-cheap CSS transforms, no canvas */}
+          {!prefersReducedMotion && (
+            <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+              <span className="absolute left-[15%] top-[20%] h-1.5 w-1.5 rounded-full bg-cyan-300/40 blur-[1px] animate-drift" />
+              <span className="absolute left-[38%] top-[12%] h-1 w-1 rounded-full bg-blue-300/40 blur-[1px] animate-drift-slow" />
+              <span className="absolute left-[8%] top-[65%] h-1 w-1 rounded-full bg-violet-300/40 blur-[1px] animate-drift-slow" />
+              <span className="absolute left-[55%] top-[78%] h-1.5 w-1.5 rounded-full bg-cyan-300/30 blur-[1px] animate-drift" />
+              <span className="absolute left-[70%] top-[30%] h-1 w-1 rounded-full bg-white/30 blur-[1px] animate-drift-slow" />
+            </div>
+          )}
+
+          <Spotlight className="left-1/4 -top-40" fill="white" />
+
+          <div className="relative z-10 h-full w-full" style={{ touchAction: 'pan-y' }}>
             {isDesktop && (
-              <SplineScene
-                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                className="absolute inset-0 w-full h-full"
-              />
+              <>
+                <BrainScene className="absolute inset-0 w-full h-full" />
+                <FeatureOrbit />
+              </>
             )}
-
-            {questionCount && (
-              <FloatingStatCard
-                icon={<ListChecks className="h-4 w-4" />}
-                label="Practice Questions"
-                value={`${questionCount.toLocaleString()}+`}
-                mouseX={mouseX}
-                mouseY={mouseY}
-                floatClassName="animate-float-slow"
-                delay={0.4}
-                className="left-2 top-10 lg:left-6"
-              />
-            )}
-            {mockTestCount && (
-              <FloatingStatCard
-                icon={<FileText className="h-4 w-4" />}
-                label="Full Mock Tests"
-                value={String(mockTestCount)}
-                mouseX={mouseX}
-                mouseY={mouseY}
-                floatClassName="animate-float-slower"
-                delay={0.55}
-                className="bottom-14 left-0 lg:left-2"
-              />
-            )}
-            <FloatingStatCard
-              icon={<Sparkles className="h-4 w-4" />}
-              label="Detailed Explanations"
-              value="Instant Scoring"
-              mouseX={mouseX}
-              mouseY={mouseY}
-              floatClassName="animate-float"
-              delay={0.7}
-              className="right-4 top-16 lg:right-8"
-            />
           </div>
         </div>
       </div>

@@ -1,12 +1,12 @@
-import { GraduationCap } from "lucide-react";
+import Image from "next/image";
 
 export default function Loading() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="flex flex-col items-center gap-4">
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-blue-500/20">
-          <div className="absolute inset-0 rounded-2xl border-2 border-white/20 animate-ping" />
-          <GraduationCap className="h-8 w-8 text-white animate-pulse" />
+        <div className="relative flex h-16 w-16 items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-2 border-[#4F6BFF]/40 animate-ping" />
+          <Image src="/brain-logo-mark.png" alt="EntranceLab" fill sizes="64px" className="object-contain animate-pulse" priority />
         </div>
         <div className="text-center">
           <h2 className="text-lg font-semibold tracking-tight text-foreground">

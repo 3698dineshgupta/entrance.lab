@@ -20,7 +20,7 @@ export function CtaSection() {
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "radial-gradient(600px 300px at 20% 0%, rgba(59,130,246,0.18), transparent 60%), radial-gradient(600px 300px at 80% 100%, rgba(167,139,250,0.16), transparent 60%)",
+              "radial-gradient(600px 300px at 20% 0%, rgba(79,107,255,0.22), transparent 60%), radial-gradient(600px 300px at 80% 100%, rgba(139,92,246,0.2), transparent 60%)",
           }}
           aria-hidden="true"
         />
@@ -37,9 +37,9 @@ export function CtaSection() {
         />
 
         <div className="relative">
-          <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-white md:text-5xl">
+          <h2 className="font-heading mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-white md:text-5xl">
             Your rank starts with{" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-violet-400">your next question.</span>
+            <span className="text-gradient-animated">your next question.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-md text-sm text-neutral-400 md:text-base">
             Free to start. No credit card, no catch — just a realistic mock test waiting for you.
@@ -47,7 +47,7 @@ export function CtaSection() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="group mx-auto mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all hover:scale-[1.03] hover:from-blue-400 hover:to-blue-500 md:text-base"
+            className="btn-shine group mx-auto mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#4F6BFF] to-[#8B5CF6] px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#4F6BFF]/25 transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 hover:brightness-110 hover:shadow-xl hover:shadow-[#8B5CF6]/40 md:text-base"
           >
             Start Practicing
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

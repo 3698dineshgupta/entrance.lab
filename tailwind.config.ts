@@ -8,6 +8,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        heading: ["var(--font-poppins)", "var(--font-inter)", "system-ui", "sans-serif"],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -24,10 +25,13 @@ const config: Config = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         brand: {
+          bg: "#050816",
+          bgSecondary: "#0B1024",
           navy: "#0A1128",
-          blue: "#3B82F6",
-          cyan: "#22D3EE",
-          purple: "#A78BFA",
+          blue: "#4F6BFF",
+          purple: "#8B5CF6",
+          glow: "#7C4DFF",
+          cyan: "#3DD9FF",
           orange: "#F97316",
         },
       },

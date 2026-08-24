@@ -4,12 +4,15 @@
 
 @layer base {
   :root {
-    /* Light / Day theme — soft blue-white surfaces, deep navy text */
+    /* Light / Day theme — soft blue-white surfaces, deep navy text. Accents
+       retinted to the new blue/purple/cyan brand family (--ring, and the
+       gradient utilities further down) so light and dark read as one
+       identity rather than two different products. */
     --background: 210 40% 98%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
-    --primary: 217 91% 60%;
+    --primary: 231 100% 65%;
     --primary-foreground: 210 40% 98%;
     --muted: 210 40% 95%;
     --muted-foreground: 215 16% 42%;
@@ -17,27 +20,31 @@
     --accent-foreground: 222 47% 11%;
     --border: 214 32% 88%;
     --input: 214 32% 88%;
-    --ring: 217 91% 60%;
+    --ring: 231 100% 65%;
     --radius: 0.75rem;
+
+    --brand-blue: 231 100% 65%;    /* #4F6BFF */
+    --brand-purple: 258 90% 66%;   /* #8B5CF6 */
+    --brand-glow: 262 100% 64%;    /* #7C4DFF */
+    --brand-cyan: 191 100% 61%;    /* #3DD9FF */
   }
 
   .dark {
-    /* Dark / Night theme — true black with a whisper of blue, matching the
-       already-hardcoded-black Hero/CTA cards rather than the previous
-       lighter navy. */
-    --background: 220 20% 4%;
-    --foreground: 210 40% 98%;
-    --card: 220 18% 7%;
-    --card-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
-    --muted: 220 16% 12%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 220 16% 12%;
-    --accent-foreground: 210 40% 98%;
-    --border: 220 14% 15%;
-    --input: 220 16% 12%;
-    --ring: 217 91% 60%;
+    /* Dark / Night theme — the flagship "futuristic AI" surface: deep
+       navy-black with glowing blue/purple/cyan accents. */
+    --background: 234 62% 5%;      /* #050816 */
+    --foreground: 0 0% 100%;
+    --card: 231 40% 8%;            /* #0B1024-ish, glass overlay handles the rest */
+    --card-foreground: 0 0% 100%;
+    --primary: 231 100% 65%;
+    --primary-foreground: 234 62% 5%;
+    --muted: 230 30% 12%;
+    --muted-foreground: 228 38% 76%; /* #B8C2E6 */
+    --accent: 230 30% 12%;
+    --accent-foreground: 0 0% 100%;
+    --border: 230 24% 16%;
+    --input: 230 24% 14%;
+    --ring: 231 100% 65%;
   }
 
   * { @apply border-border; }
@@ -54,26 +61,79 @@
   }
 
   /* Background moved to ::before pseudo-element with position:fixed so the GPU composites
-     it as a separate layer — eliminates CPU repaints during every scroll frame */
+     it as a separate layer — eliminates CPU repaints during every scroll frame.
+     Three-layer ambient glow (blue / indigo / cyan) for more depth than a flat
+     two-tone wash, plus a very slow position drift for a barely-perceptible
+     "living" background — frozen by the prefers-reduced-motion rule below. */
   body::before {
+    content: '';
+    position: fixed;
+    inset: -10%;
+    z-index: -2;
+    pointer-events: none;
+    transition: background-image 280ms ease;
+    background-image:
+      radial-gradient(1200px 600px at 10% -10%, rgba(79,107,255,0.06), transparent 60%),
+      radial-gradient(900px 500px at 100% 10%, rgba(139,92,246,0.05), transparent 60%),
+      radial-gradient(800px 500px at 30% 100%, rgba(61,217,255,0.04), transparent 60%);
+    animation: aurora-drift 40s ease-in-out infinite alternate;
+  }
+  .dark body::before {
+    background-image:
+      radial-gradient(1200px 600px at 10% -10%, rgba(79,107,255,0.14), transparent 60%),
+      radial-gradient(900px 500px at 100% 10%, rgba(139,92,246,0.11), transparent 60%),
+      radial-gradient(800px 500px at 30% 100%, rgba(61,217,255,0.07), transparent 60%);
+  }
+  @keyframes aurora-drift {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-2%, 1.5%, 0); }
+  }
+
+  /* Ultra-subtle grain over the ambient glow — the classic "premium SaaS"
+     texture that keeps large flat gradient areas from looking sterile/banded.
+     Sits above the glow layer (-2) but still behind all real content (-1). */
+  body::after {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    transition: background-image 280ms ease;
-    background-image:
-      radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,0.06), transparent 60%),
-      radial-gradient(900px 500px at 100% 10%, rgba(99,102,241,0.05), transparent 60%);
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-  .dark body::before {
-    background-image:
-      radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,0.08), transparent 60%),
-      radial-gradient(900px 500px at 100% 10%, rgba(167,139,250,0.06), transparent 60%);
-  }
+  .dark body::after { opacity: 0.05; }
+
   i, em { font-style: normal; }
+
+  /* Poppins for display type, Inter everywhere else — applied here rather
+     than threading a className through every heading in every component,
+     so this is a one-line, zero-layout-risk typography change. */
+  h1, h2, h3, h4 { font-family: var(--font-poppins), var(--font-inter), system-ui, sans-serif; }
 }
 
+@keyframes gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* "Data flowing into the brain" pulse for the hero's SVG connector lines —
+   a bright dash travels along the path via an animated dash offset. */
+@keyframes orbit-line-flow {
+  to { stroke-dashoffset: -24; }
+}
+
+/* Hero "AI core" orbit rings (components/hero/brain-scene.tsx) — each ring
+   is pre-tilted via a static rotateX on its wrapper, then spun on rotateZ
+   here so the satellite dot traces a true elliptical path in 3D space
+   rather than a squashed 2D ellipse. */
+@keyframes ring-spin-cw {
+  from { transform: rotateZ(0deg); }
+  to { transform: rotateZ(360deg); }
+}
+@keyframes ring-spin-ccw {
+  from { transform: rotateZ(0deg); }
+  to { transform: rotateZ(-360deg); }
+}
 @layer components {
   /* Light: solid near-white card with a soft shadow (no dark backdrop to
      blur, so true glassmorphism gives way to a clean elevated-card look).
@@ -84,8 +144,8 @@
     will-change: transform;
   }
   .dark .glass {
-    @apply bg-white/[0.03] border-white/10;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -30px rgba(0,0,0,0.6);
+    @apply bg-white/[0.04] border-white/[0.08];
+    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -30px rgba(0,0,0,0.7);
   }
   .glass-hover { @apply transition-all duration-300 hover:border-slate-300 hover:shadow-lg; }
   .dark .glass-hover { @apply hover:bg-white/[0.05] hover:border-white/20 hover:shadow-none; }
@@ -99,10 +159,45 @@
   }
 
   .text-gradient-brand {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-cyan-500 to-violet-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#4F6BFF] via-[#3DD9FF] to-[#8B5CF6];
   }
   .dark .text-gradient-brand {
-    @apply from-blue-400 via-cyan-300 to-violet-400;
+    @apply from-[#7C93FF] via-[#3DD9FF] to-[#A78BFA];
+  }
+
+  /* Slowly-panning variant for hero-scale headline text — same brand
+     gradient, animated background-position instead of a static one. */
+  .text-gradient-animated {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#4F6BFF] via-[#3DD9FF] to-[#8B5CF6];
+    background-size: 200% auto;
+    animation: gradient-pan 6s ease-in-out infinite;
+  }
+
+  /* Gradient hairline — used between sections instead of a hard border so
+     the seam fades out at the edges rather than spanning full-bleed. */
+  .divider-gradient {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-slate-300/70 to-transparent;
+  }
+  .dark .divider-gradient {
+    @apply via-white/[0.08];
+  }
+
+  /* Diagonal light sweep on hover, used by the primary CTA buttons (both the
+     shadcn Button and the raw hero/CTA buttons that predate it). Kept as a
+     shared class rather than repeating the before: utility string everywhere. */
+  .btn-shine {
+    @apply relative overflow-hidden;
+  }
+  .btn-shine::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.28) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+  }
+  .btn-shine:hover::before {
+    transform: translateX(120%);
   }
 }
 

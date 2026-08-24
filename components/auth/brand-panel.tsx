@@ -1,4 +1,4 @@
-import { GraduationCap } from "lucide-react";
+import Image from "next/image";
 
 interface FeatureItem {
   icon: React.ReactNode;
@@ -22,8 +22,8 @@ export function BrandPanel({ heading, description, features }: BrandPanelProps) 
       <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-indigo-400/20 blur-3xl" aria-hidden="true" />
 
       <div className="relative z-10">
-        <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
-          <GraduationCap className="h-8 w-8 text-white" />
+        <span className="relative inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/15 p-2 backdrop-blur-sm">
+          <Image src="/brain-logo-mark.png" alt="EntranceLab" fill sizes="64px" className="object-contain p-1" />
         </span>
         <h1 className="mt-8 text-4xl font-bold tracking-tight text-white">{heading}</h1>
         <p className="mt-4 max-w-sm leading-relaxed text-blue-100/90">{description}</p>

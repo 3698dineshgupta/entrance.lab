@@ -80,12 +80,13 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
                           className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
                           priority={false}
                         />
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="bg-white/70 backdrop-blur-sm rounded-full px-6 py-2 border border-white/40 shadow-sm">
-                            <h3 className="text-xl md:text-2xl font-serif font-bold text-slate-800 uppercase tracking-widest">
-                              {s.subject}
-                            </h3>
-                          </div>
+                        {/* Banner artwork already has the subject name baked
+                            in — just a bottom scrim for the topic/question
+                            count and a hover affordance, no redundant label. */}
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-2.5">
+                          <p className="text-[11px] font-medium text-white/90">{s.topics.length} topics · {s.total} questions</p>
+                          <ArrowRight className="h-4 w-4 text-white opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0" />
                         </div>
                       </>
                     ) : (

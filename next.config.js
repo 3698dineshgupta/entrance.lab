@@ -28,12 +28,13 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             // 'unsafe-inline'/'unsafe-eval' on scripts is required by
-            // Next.js's own inline bootstrap scripts and the Spline/recharts
+            // Next.js's own inline bootstrap scripts and the recharts
             // runtime; tightening further would need a nonce-based setup
             // that's out of scope for a drop-in header change. connect-src
-            // covers the app's own API plus Upstash Redis, Supabase
+            // covers the app's own API plus Upstash Redis — Supabase
             // Postgres access is server-side only (not called from the
-            // browser) and Spline's scene CDN.
+            // browser). The hero's "AI core" visual is pure CSS/SVG (no
+            // WebGL, no external asset), so no extra host is needed for it.
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -41,9 +42,7 @@ const nextConfig = {
               "img-src 'self' data: blob: https://res.cloudinary.com",
               "font-src 'self' data:",
               "media-src 'self' data: blob:",
-              // unpkg.com: @splinetool/runtime fetches its modelling WASM
-              // module from there at runtime, not from Spline's own domain.
-              "connect-src 'self' https://*.upstash.io https://prod.spline.design https://unpkg.com",
+              "connect-src 'self' https://*.upstash.io",
               "worker-src 'self' blob:",
               "frame-ancestors 'self'",
               "base-uri 'self'",

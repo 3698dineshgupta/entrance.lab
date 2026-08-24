@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Home, ClipboardList, BookOpen, BarChart3, ShoppingBag, Menu, X,
-  LogOut, LogIn, UserPlus, ArrowRight, GraduationCap, Mail,
+  LogOut, LogIn, UserPlus, ArrowRight, Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -109,8 +110,8 @@ export function MobileFloatingNav() {
               {/* Header */}
               <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))] dark:border-white/[0.06]">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-500">
-                    <GraduationCap className="h-4 w-4 text-white" />
+                  <span className="relative inline-flex h-8 w-8 shrink-0">
+                    <Image src="/brain-logo-mark.png" alt="EntranceLab" fill sizes="32px" className="object-contain" />
                   </span>
                   <span className="font-semibold tracking-tight">
                     Entrance<span className="text-blue-600 dark:text-blue-400">Lab</span>

@@ -27,10 +27,10 @@ export function StatsSection({ data }: { data: HomeStats }) {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   const STATS = [
-    { icon: Users, label: "Students", value: data.students, suffix: "+", color: "text-blue-600 dark:text-blue-400", bg: "from-blue-500/20 to-blue-500/5", iconBg: "bg-blue-50 dark:bg-blue-500/10" },
-    { icon: FileText, label: "Mock Tests", value: data.mockTests, suffix: "", color: "text-cyan-700 dark:text-cyan-400", bg: "from-cyan-500/20 to-cyan-500/5", iconBg: "bg-cyan-50 dark:bg-cyan-500/10" },
-    { icon: HelpCircle, label: "Questions", value: data.questions, suffix: "+", color: "text-purple-600 dark:text-purple-400", bg: "from-purple-500/20 to-purple-500/5", iconBg: "bg-purple-50 dark:bg-purple-500/10" },
-    { icon: Trophy, label: "Tests Attempted", value: data.attempts, suffix: "+", color: "text-orange-600 dark:text-orange-400", bg: "from-orange-500/20 to-orange-500/5", iconBg: "bg-orange-50 dark:bg-orange-500/10" },
+    { icon: Users, label: "Students", value: data.students, suffix: "+", color: "text-blue-600 dark:text-blue-400", bg: "from-blue-500/20 to-blue-500/5", iconBg: "bg-blue-50 dark:bg-blue-500/10", gradient: "from-[#4F6BFF] to-[#3DD9FF]" },
+    { icon: FileText, label: "Mock Tests", value: data.mockTests, suffix: "", color: "text-cyan-700 dark:text-cyan-400", bg: "from-cyan-500/20 to-cyan-500/5", iconBg: "bg-cyan-50 dark:bg-cyan-500/10", gradient: "from-[#3DD9FF] to-[#4F6BFF]" },
+    { icon: HelpCircle, label: "Questions", value: data.questions, suffix: "+", color: "text-purple-600 dark:text-purple-400", bg: "from-purple-500/20 to-purple-500/5", iconBg: "bg-purple-50 dark:bg-purple-500/10", gradient: "from-[#8B5CF6] to-[#4F6BFF]" },
+    { icon: Trophy, label: "Tests Attempted", value: data.attempts, suffix: "+", color: "text-orange-600 dark:text-orange-400", bg: "from-orange-500/20 to-orange-500/5", iconBg: "bg-orange-50 dark:bg-orange-500/10", gradient: "from-orange-500 to-pink-500" },
   ];
 
   return (
@@ -47,7 +47,7 @@ export function StatsSection({ data }: { data: HomeStats }) {
   );
 }
 
-function StatCard({ icon: Icon, label, value, suffix, color, bg, iconBg, inView, delay }: any) {
+function StatCard({ icon: Icon, label, value, suffix, color, bg, iconBg, gradient, inView, delay }: any) {
   const n = useCountUp(value, inView);
   const formatted = n.toLocaleString();
 
@@ -56,20 +56,25 @@ function StatCard({ icon: Icon, label, value, suffix, color, bg, iconBg, inView,
       initial={{ opacity: 0, y: 16 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay }}
-      // Mobile: borderless, centered, pastel icon square — matches the rest
-      // of the mobile homepage's lighter, card-less feel. Desktop keeps the
-      // original bordered glass card, untouched, via the md: overrides.
+      // Mobile: no card chrome at all — just a big bold gradient number and
+      // a label, matching a plain "stat strip" look. Desktop keeps the
+      // original bordered glass card + icon, untouched, via the md: overrides.
       className="relative flex flex-col items-center overflow-hidden rounded-2xl p-3 text-center md:items-start md:p-6 md:text-left md:border md:border-slate-200 md:bg-white/80 md:shadow-sm md:backdrop-blur-xl dark:md:border-white/10 dark:md:bg-white/[0.03]"
     >
       <div className={`hidden md:block absolute -top-16 -right-16 h-40 w-40 rounded-full bg-gradient-to-br ${bg} blur-2xl`} />
-      <div className={`relative inline-flex h-11 w-11 md:h-10 md:w-10 items-center justify-center rounded-2xl md:rounded-xl ${iconBg} md:bg-slate-900/[0.03] md:border md:border-slate-200 dark:md:bg-white/[0.04] dark:md:border-white/10 ${color}`}>
-        <Icon className="h-5 w-5 md:h-5 md:w-5" />
+      <div className={`relative hidden md:inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/[0.03] border border-slate-200 dark:bg-white/[0.04] dark:border-white/10 ${color}`}>
+        <Icon className="h-5 w-5" />
       </div>
-      <p className="relative mt-2.5 md:mt-3 text-lg md:text-3xl font-bold md:font-semibold tracking-tight">
+      {/* Mobile */}
+      <p className={`relative md:hidden text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br ${gradient}`}>
+        {formatted}{suffix}
+      </p>
+      {/* Desktop — unchanged from before */}
+      <p className="relative hidden md:block mt-3 text-3xl font-semibold tracking-tight">
         {formatted}
         <span className={color}>{suffix}</span>
       </p>
-      <p className="relative text-xs text-muted-foreground mt-0.5 md:mt-1">{label}</p>
+      <p className="relative text-xs text-muted-foreground mt-1 md:mt-1">{label}</p>
     </motion.div>
   );
 }

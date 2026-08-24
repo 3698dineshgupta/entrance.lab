@@ -51,7 +51,7 @@ export function HowItWorks() {
           >
             <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 bg-white text-blue-600 shadow-sm dark:border-white/10 dark:bg-[#0A1020] dark:text-blue-300 dark:shadow-none">
               <step.icon className="h-6 w-6" />
-              <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 text-[10px] font-bold text-white shadow-lg shadow-blue-500/30">
+              <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#4F6BFF] to-[#3DD9FF] text-[10px] font-bold text-white shadow-lg shadow-[#4F6BFF]/30">
                 {step.n}
               </span>
             </div>

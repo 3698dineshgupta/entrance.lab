@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GraduationCap } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   const resources = [
@@ -19,20 +19,24 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative mt-16 overflow-hidden border-t border-slate-200 bg-slate-50/60 dark:border-white/[0.06] dark:bg-black/20">
+    <footer className="relative mt-16 overflow-hidden border-t border-slate-200 bg-slate-50/60 dark:border-white/[0.06] dark:bg-[#0B1024]/60">
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4F6BFF]/50 via-50% to-transparent"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full bg-[#4F6BFF]/[0.05] blur-3xl dark:bg-[#8B5CF6]/[0.08]"
         aria-hidden="true"
       />
       <div className="container grid gap-10 py-10 md:grid-cols-4 md:py-14">
         {/* Brand */}
         <div>
-          <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-blue-500/20">
-              <GraduationCap className="h-5 w-5 text-white" />
+          <Link href="/" className="group flex items-center gap-2 w-fit">
+            <span className="relative inline-flex h-9 w-9 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3">
+              <Image src="/brain-logo-mark.png" alt="EntranceLab" fill sizes="36px" className="object-contain" />
             </span>
-            <span className="text-lg font-semibold tracking-tight">
-              Entrance<span className="text-blue-600 dark:text-blue-400">Lab</span>
+            <span className="font-heading text-lg font-semibold tracking-tight">
+              Entrance<span className="text-blue-600 dark:text-[#8FB4FF]">Lab</span>
             </span>
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">

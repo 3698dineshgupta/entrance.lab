@@ -96,9 +96,14 @@ export function Navbar() {
               the bottom-nav drawer instead (components/mobile-floating-nav.tsx). */}
           <ThemeToggle className="hidden md:inline-flex h-10 w-10" />
           {session ? (
-            <Button variant="secondary" onClick={() => signOut()}>
-              Logout
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" className="hidden sm:inline-flex px-3 lg:px-4">
+                <Link href="/account">Account</Link>
+              </Button>
+              <Button variant="secondary" onClick={() => signOut()}>
+                Logout
+              </Button>
+            </div>
           ) : (
             <div className="flex items-center gap-2 md:gap-3">
               <Button asChild variant="ghost" className="px-3 md:px-3 lg:px-4">

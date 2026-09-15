@@ -143,13 +143,18 @@ export function MobileFloatingNav() {
                   <ArrowRight className="h-4 w-4 text-white/90 transition-transform group-hover:translate-x-0.5" />
                 </Link>
 
-                {/* Profile */}
+                {/* Profile — links to /account for profile details + the
+                    account-deletion option. */}
                 {session ? (
-                  <div className="flex items-center gap-3 pb-1">
+                  <Link
+                    href="/account"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 pb-1 -mx-1 px-1 py-1 rounded-xl transition hover:bg-slate-900/[0.03] dark:hover:bg-white/[0.04]"
+                  >
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-lg font-semibold text-white ring-2 ring-slate-200 dark:ring-white/10">
                       {initial}
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-base font-semibold truncate">{session.user?.name || "Your account"}</p>
                       {session.user?.email && (
                         <p className="text-xs text-muted-foreground truncate flex items-center gap-1 mt-0.5">
@@ -157,7 +162,8 @@ export function MobileFloatingNav() {
                         </p>
                       )}
                     </div>
-                  </div>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </Link>
                 ) : (
                   <p className="text-sm text-muted-foreground">Sign in to save your progress and see your analytics.</p>
                 )}

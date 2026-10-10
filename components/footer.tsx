@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.entrancelab.app";
+
 export function Footer() {
   const resources = [
     { href: "/mock-tests", label: "Mock Tests" },
@@ -42,6 +44,25 @@ export function Footer() {
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
             Free &amp; premium mock tests for IOE Engineering and CEE Medical entrance aspirants in Nepal. Realistic questions, instant analytics, and honest explanations.
           </p>
+          <a
+            href={PLAY_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex w-fit transition-transform hover:-translate-y-0.5"
+          >
+            {/* Google's own official badge artwork, self-hosted in public/
+                (the site's CSP img-src only allows self/cloudinary, and
+                self-hosting also avoids depending on Google's hotlinking
+                policy) — the real multi-colour Play Store mark, not a
+                hand-redrawn approximation of a trademarked logo. */}
+            <Image
+              src="/google-play-badge.png"
+              alt="Get it on Google Play"
+              width={646}
+              height={250}
+              className="h-12 w-auto"
+            />
+          </a>
         </div>
 
         <FooterCol title="Resources" links={resources} />

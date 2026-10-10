@@ -64,7 +64,7 @@ export function AccountClient({
 
   return (
     <div className="container max-w-2xl py-12">
-      <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Account</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Account</p>
       <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">Manage your account</h1>
       <p className="mt-2 text-muted-foreground text-sm">Your profile details and account controls.</p>
 

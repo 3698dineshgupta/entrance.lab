@@ -31,12 +31,10 @@ interface Props {
 export function SubtopicBrowser({ sections, subject }: Props) {
   const subjectIcon = getSubjectIcon(subject);
   const [query, setQuery] = useState("");
-  const [activeTopic, setActiveTopic] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return sections
-      .filter((s) => !activeTopic || s.topic === activeTopic)
       .map((s) => ({
         ...s,
         cards: s.cards.filter(
@@ -44,47 +42,18 @@ export function SubtopicBrowser({ sections, subject }: Props) {
         ),
       }))
       .filter((s) => s.cards.length > 0);
-  }, [sections, query, activeTopic]);
+  }, [sections, query]);
 
   return (
     <div className="mt-8">
-      <div className="flex flex-col gap-3">
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search chapter or topic..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-900/[0.02] pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-cyan-400/40 focus:border-cyan-400/40 transition dark:border-white/[0.08] dark:bg-white/[0.02]"
-          />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveTopic(null)}
-            className={cn(
-              "whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition",
-              activeTopic === null
-                ? "bg-cyan-50 border-cyan-400/40 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300"
-                : "border-slate-200 text-muted-foreground hover:border-slate-300 hover:text-foreground dark:border-white/[0.08] dark:hover:border-white/20"
-            )}
-          >
-            All
-          </button>
-          {sections.map((s) => (
-            <button
-              key={s.topic}
-              onClick={() => setActiveTopic(s.topic)}
-              className={cn(
-                "whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition",
-                activeTopic === s.topic
-                  ? "bg-cyan-50 border-cyan-400/40 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300"
-                  : "border-slate-200 text-muted-foreground hover:border-slate-300 hover:text-foreground dark:border-white/[0.08] dark:hover:border-white/20"
-              )}
-            >
-              {s.topic}
-            </button>
-          ))}
-        </div>
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search chapter or topic..."
+          className="w-full rounded-xl border border-slate-200 bg-slate-900/[0.02] pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-cyan-400/40 focus:border-cyan-400/40 transition dark:border-white/[0.08] dark:bg-white/[0.02]"
+        />
       </div>
 
       {filtered.length === 0 && (

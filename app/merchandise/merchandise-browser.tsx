@@ -33,7 +33,7 @@ export function MerchandiseBrowser({ listings }: { listings: Listing[] }) {
     <div className="container py-12 max-w-6xl">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Merchandise</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Merchandise</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">Buy &amp; sell study material</h1>
           <p className="mt-2 text-muted-foreground text-sm max-w-xl">
             Books, calculators, and notes from other IOE/CEE aspirants. Contact sellers directly on WhatsApp — every listing is reviewed before it goes live.

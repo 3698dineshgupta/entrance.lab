@@ -52,6 +52,31 @@
   html { color-scheme: light; }
   html.dark { color-scheme: dark; }
 
+  /* Kills the ~300ms double-tap-to-zoom gesture mobile browsers arm on
+     every tap target. Without this, two quick taps on a button/link (a
+     normal double-tap, not a deliberate zoom gesture) are read as a zoom
+     request and the whole page visibly zooms in/out. Pinch-zoom itself
+     stays enabled (no maximum-scale lock) — this only removes the
+     accidental single-finger trigger. */
+  a, button, [role="button"], input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  /* The real cause of the "page zooms in/out on its own" report: iOS
+     Safari force-zooms the page on focus of any text input/select/textarea
+     rendered below 16px, then often doesn't zoom back out cleanly on blur.
+     The shared Input/Textarea components already guard against this, but a
+     few raw <input>/<textarea> elements elsewhere (chat widget, WhatsApp
+     field) use a smaller `text-sm`. Enforcing the floor at the element
+     level — not per-component — means no future input can reintroduce
+     this; !important is deliberate here, since a plain element selector
+     can't outrank the `.text-sm` utility class it needs to override. */
+  @media (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+
   /* Theme + colour transitions on the properties that actually change when
      toggling — NOT a blanket `transition: all`, which would also animate
      hover/focus/layout transitions that should stay instant or independently

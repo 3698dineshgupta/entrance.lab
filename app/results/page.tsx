@@ -104,7 +104,7 @@ export default function ResultsPage() {
         className="flex flex-col md:flex-row md:items-end md:justify-between gap-4"
       >
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Results</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Results</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">{summary.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Completed in {formatTime(summary.durationSeconds)} ·{" "}

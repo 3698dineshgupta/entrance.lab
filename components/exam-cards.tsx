@@ -59,7 +59,7 @@ export function ExamCards() {
   return (
     <section className="container py-10 md:py-14">
       <div className="max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Choose your path</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Choose your path</p>
         <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">Two exams. One place to prepare.</h2>
         <p className="mt-3 text-muted-foreground">
           Pick an examination to see full mock tests, subject-wise practice sets, and detailed analytics.

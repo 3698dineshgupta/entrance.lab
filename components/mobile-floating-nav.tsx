@@ -8,7 +8,7 @@ import { useSession, signOut } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Home, ClipboardList, BookOpen, BarChart3, ShoppingBag, Menu, X,
-  LogOut, LogIn, UserPlus, ArrowRight, Mail,
+  LogOut, LogIn, UserPlus, ArrowRight, Mail, Headset,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -194,6 +194,27 @@ export function MobileFloatingNav() {
                       </motion.div>
                     );
                   })}
+
+                  {/* Live support — opens the floating ChatWidget (same
+                      instance mounted site-wide) instead of navigating, so
+                      it's reachable from the hamburger without duplicating
+                      the chat UI. */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.25, delay: 0.05 + MENU_TABS.length * 0.03 }}
+                  >
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        window.dispatchEvent(new Event("entrancelab:open-chat"));
+                      }}
+                      className="flex w-full items-center gap-3.5 rounded-xl px-2.5 py-3 text-[15px] font-medium text-slate-500 transition hover:text-foreground dark:text-neutral-300 dark:hover:text-white"
+                    >
+                      <Headset className="h-5 w-5 text-slate-400 dark:text-neutral-500" />
+                      Live Support
+                    </button>
+                  </motion.div>
                 </nav>
               </div>
 

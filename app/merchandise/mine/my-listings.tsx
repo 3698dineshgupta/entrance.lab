@@ -49,7 +49,7 @@ export function MyListings({ listings: initial }: { listings: Listing[] }) {
       </div>
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Merchandise</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Merchandise</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">My listings</h1>
         </div>
         <Button asChild size="sm"><Link href="/merchandise/new"><Plus className="h-3.5 w-3.5" /> Post an ad</Link></Button>

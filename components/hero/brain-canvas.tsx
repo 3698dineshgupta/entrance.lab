@@ -262,17 +262,23 @@ export default function BrainCanvas() {
     camera.lookAt(0, -0.1, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    // Small container (mobile's showcase box is ~320px) gets no visible
+    // benefit from 1.5x supersampling but pays the full fragment-shader
+    // cost for it — cap harder below ~500px.
+    const dprCap = container.clientWidth < 500 ? 1 : 1.5;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, dprCap));
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
     const geometry = createBrainGeometry();
-    const material = new THREE.MeshPhysicalMaterial({
+    // Plain MeshStandardMaterial, not MeshPhysicalMaterial — clearcoat adds
+    // a second full BRDF evaluation per lit fragment every frame for a
+    // continuously-rendering mesh; roughness/metalness alone still reads as
+    // glossy at a fraction of the shader cost.
+    const material = new THREE.MeshStandardMaterial({
       vertexColors: true,
-      roughness: 0.7,
-      metalness: 0,
-      clearcoat: 0.35,
-      clearcoatRoughness: 0.45,
+      roughness: 0.6,
+      metalness: 0.08,
       emissive: new THREE.Color("#191247"),
       emissiveIntensity: 0.45,
     });
@@ -303,26 +309,38 @@ export default function BrainCanvas() {
     rimGlow.scale.setScalar(1.045);
     brain.add(rimGlow);
 
+    // Three lights total, not four — each additional light is a full extra
+    // lighting-equation evaluation per lit fragment, every frame, forever
+    // (this mesh renders continuously). One point light blending the old
+    // rim+fill colors keeps the two-tone glow with a quarter less lighting
+    // work than running both separately.
     scene.add(new THREE.AmbientLight("#5a5aa0", 1.6));
     const key = new THREE.DirectionalLight("#a8bfff", 0.55);
     key.position.set(3, 3, 4);
     scene.add(key);
-    const rim = new THREE.PointLight("#3DD9FF", 14, 20);
-    rim.position.set(-3, -1, -3);
-    scene.add(rim);
-    const fill = new THREE.PointLight("#8B5CF6", 6, 20);
-    fill.position.set(-2, 2, 2);
-    scene.add(fill);
+    const accent = new THREE.PointLight("#6B8FEA", 16, 20);
+    accent.position.set(-3, 0, -2);
+    scene.add(accent);
 
     const clock = new THREE.Clock();
     let raf = 0;
 
     const renderOnce = () => renderer.render(scene, camera);
 
+    // Capped to ~30fps rather than the display's native refresh rate — a
+    // slow, steady rotation reads just as smooth at 30fps as 60/120fps, for
+    // roughly half the GPU work on high-refresh-rate screens (and the main
+    // thread is free that much more often in between frames).
+    const FRAME_INTERVAL = 1000 / 30;
+    let acc = 0;
     const animate = () => {
-      const delta = clock.getDelta();
-      brain.rotation.y += delta * 0.35;
-      renderOnce();
+      const deltaMs = clock.getDelta() * 1000;
+      acc += deltaMs;
+      if (acc >= FRAME_INTERVAL) {
+        brain.rotation.y += (acc / 1000) * 0.35;
+        renderOnce();
+        acc = 0;
+      }
       raf = requestAnimationFrame(animate);
     };
 

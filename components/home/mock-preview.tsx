@@ -76,7 +76,7 @@ export function MockPreview() {
   return (
     <section className="container py-10 md:py-14">
       <div className="max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-[#3DD9FF] font-medium">The test experience</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">The test experience</p>
         <h2 className="font-heading mt-2 text-3xl md:text-4xl font-semibold tracking-tight">
           Practice like the real exam.
         </h2>

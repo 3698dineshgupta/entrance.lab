@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -30,6 +30,18 @@ export const metadata: Metadata = {
 };
 
 import { Providers } from "@/components/providers";
+
+// Explicit instead of relying on Next's implicit default — some mobile
+// browsers behave inconsistently without a declared viewport, which showed
+// up as the page visibly zooming in/out on its own. Pinch-zoom stays
+// available (maximumScale 5) for accessibility; see globals.css for the
+// separate touch-action fix for accidental double-tap zoom.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

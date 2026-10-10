@@ -18,7 +18,7 @@ export function PracticeBrowser({ examGroups }: { examGroups: ExamGroup[] }) {
     <div className="container py-12 max-w-6xl">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Practice</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Practice</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">Practice by topic</h1>
           <p className="mt-2 text-muted-foreground text-sm max-w-xl">
             Structured around the official CEE and IOE entrance syllabi. No timer, no negative

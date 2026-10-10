@@ -135,7 +135,7 @@ export function AnalyticsClient({ initialSummaries, readiness }: { initialSummar
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Performance Analytics</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Performance Analytics</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">Your Progress</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {filtered.length} test{filtered.length !== 1 ? "s" : ""} completed · {totalQPracticed} questions practiced

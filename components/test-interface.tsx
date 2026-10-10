@@ -35,6 +35,27 @@ export function TestInterface({ test }: Props) {
   // Stable ref to submit so the timer interval never captures a stale closure
   const submitRef = useRef<() => void>(() => {});
 
+  // Swipe-to-navigate on the question card — left advances, right goes back,
+  // mirroring the arrow-key shortcuts below. Horizontal-dominance check
+  // (dx > dy) keeps it from firing on a vertical scroll of a long question.
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    const SWIPE_THRESHOLD = 60;
+    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) setIdx((i) => Math.min(total - 1, i + 1));
+    else setIdx((i) => Math.max(0, i - 1));
+  };
+
   const current = test.questions[idx];
   const answeredCount = Object.values(answers).filter((v) => v !== null).length;
   const progress = (answeredCount / total) * 100;
@@ -251,7 +272,11 @@ export function TestInterface({ test }: Props) {
 
       <div className="container py-4 sm:py-6 grid lg:grid-cols-[1fr_300px] gap-4 sm:gap-6">
         {/* Question card */}
-        <div className="glass rounded-2xl p-4 sm:p-6">
+        <div
+          className="glass rounded-2xl p-4 sm:p-6"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Question {idx + 1} of {total}</span>
             <span className="inline-flex items-center gap-1.5 uppercase tracking-wider">
@@ -259,6 +284,7 @@ export function TestInterface({ test }: Props) {
               {current.subject}
             </span>
           </div>
+          <p className="mt-1 text-[11px] text-muted-foreground/70 lg:hidden">Swipe left or right to change question</p>
           <h3 className="mt-3 text-lg md:text-xl leading-relaxed">{current.text}</h3>
 
           <RadioGroup

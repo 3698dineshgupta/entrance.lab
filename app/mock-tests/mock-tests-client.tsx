@@ -106,8 +106,8 @@ const EXAM_FALLBACK: Record<string, (Colorway & { Icon: LucideIcon })[]> = {
     { Icon: Layers, topBar: "from-indigo-500 to-[#4F6BFF]", chip: "border-indigo-400/25 bg-indigo-500/[0.08] text-indigo-700 dark:text-indigo-300", iconWrap: "from-indigo-500/20 to-[#4F6BFF]/10 border-indigo-400/25", iconText: "text-indigo-600 dark:text-indigo-300", glow: "from-indigo-500/25 to-[#4F6BFF]/10", button: "from-indigo-500 to-[#4F6BFF] shadow-indigo-500/25 hover:shadow-indigo-500/40" },
   ],
   CEE: [
-    { Icon: Trophy, topBar: "from-orange-500 to-pink-500", chip: "border-orange-400/25 bg-orange-500/[0.08] text-orange-700 dark:text-orange-300", iconWrap: "from-orange-500/20 to-pink-500/10 border-orange-400/25", iconText: "text-orange-600 dark:text-orange-300", glow: "from-orange-500/25 to-pink-500/10", button: "from-orange-500 to-pink-500 shadow-orange-500/25 hover:shadow-orange-500/40" },
-    { Icon: Layers, topBar: "from-rose-500 to-orange-400", chip: "border-rose-400/25 bg-rose-500/[0.08] text-rose-700 dark:text-rose-300", iconWrap: "from-rose-500/20 to-orange-400/10 border-rose-400/25", iconText: "text-rose-600 dark:text-rose-300", glow: "from-rose-500/25 to-orange-400/10", button: "from-rose-500 to-orange-400 shadow-rose-500/25 hover:shadow-rose-500/40" },
+    { Icon: Trophy, topBar: "from-[#8B5CF6] to-[#4F6BFF]", chip: "border-[#8B5CF6]/25 bg-[#8B5CF6]/[0.08] text-violet-700 dark:text-violet-300", iconWrap: "from-[#8B5CF6]/20 to-[#4F6BFF]/10 border-[#8B5CF6]/25", iconText: "text-violet-600 dark:text-violet-300", glow: "from-[#8B5CF6]/25 to-[#4F6BFF]/10", button: "from-[#8B5CF6] to-[#4F6BFF] shadow-[#8B5CF6]/25 hover:shadow-[#8B5CF6]/40" },
+    { Icon: Layers, topBar: "from-fuchsia-500 to-[#8B5CF6]", chip: "border-fuchsia-400/25 bg-fuchsia-500/[0.08] text-fuchsia-700 dark:text-fuchsia-300", iconWrap: "from-fuchsia-500/20 to-[#8B5CF6]/10 border-fuchsia-400/25", iconText: "text-fuchsia-600 dark:text-fuchsia-300", glow: "from-fuchsia-500/25 to-[#8B5CF6]/10", button: "from-fuchsia-500 to-[#8B5CF6] shadow-fuchsia-500/25 hover:shadow-fuchsia-500/40" },
   ],
 };
 
@@ -125,7 +125,7 @@ export function MockTestsClient({ initialTests }: { initialTests: TestSetSummary
     <div className="container py-12">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400 font-medium">Mock tests</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Mock tests</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">Choose a test to begin</h1>
           <p className="mt-2 text-muted-foreground text-sm">Full mock tests and subject-wise practice sets for IOE and CEE.</p>
         </div>

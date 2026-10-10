@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { MessageCircle, X, Send, Headset, Loader2, LogOut } from "lucide-react";
+import { X, Send, Headset, Loader2, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Sender = "USER" | "BOT" | "AGENT" | "SYSTEM";
@@ -106,6 +106,15 @@ export function ChatWidget() {
   useEffect(() => {
     if (open) setUnreadCount(0);
   }, [open]);
+
+  // Lets other chrome (the mobile hamburger menu's "Live Support" entry)
+  // open this widget without the two components needing a shared parent
+  // or context — this is the one global instance mounted in app-chrome.
+  useEffect(() => {
+    const onOpenRequest = () => setOpen(true);
+    window.addEventListener("entrancelab:open-chat", onOpenRequest);
+    return () => window.removeEventListener("entrancelab:open-chat", onOpenRequest);
+  }, []);
 
   // Hydrate full history once a session id is known (regardless of whether
   // the panel is open yet), so the header status/badge are correct even
@@ -581,15 +590,62 @@ export function ChatWidget() {
         )}
       </AnimatePresence>
 
-      <button
+      <motion.button
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? "Close chat" : "Open chat"}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-lg shadow-blue-500/30 transition hover:scale-105 active:scale-95"
+        aria-label={open ? "Close chat" : "Open live support"}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
+        animate={!open && !prefersReducedMotion ? { y: [0, -3, 0] } : { y: 0 }}
+        transition={!open && !prefersReducedMotion ? { y: { duration: 2.6, repeat: Infinity, ease: "easeInOut" } } : undefined}
+        className="relative hidden h-16 w-16 items-center justify-center rounded-full text-white md:flex"
       >
+        {/* Ambient glow — reads as "alive" rather than a flat icon button */}
         {!open && !prefersReducedMotion && (
-          <span className="absolute inset-0 -z-10 rounded-full bg-blue-500/40 blur-md animate-pulse" aria-hidden="true" />
+          <span className="absolute inset-0 -z-10 rounded-full bg-gradient-to-br from-[#4F6BFF] to-[#8B5CF6] opacity-60 blur-2xl animate-pulse" aria-hidden="true" />
         )}
-        {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
+
+        {/* Deep two-part contact shadow (tight dark + soft colour-matched
+            ambient) sits BEHIND the sphere, separate from the sphere's own
+            inset shading below — this is what actually reads as "sitting
+            above the page" rather than painted flat onto it. */}
+        <span className="absolute inset-0 rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.35),0_16px_32px_-10px_rgba(79,107,255,0.65)]" aria-hidden="true" />
+
+        {/* Rim bezel — a slim bright-to-transparent ring behind the sphere
+            body, like light catching the edge of a convex glass button. */}
+        <span
+          className="absolute inset-0 rounded-full p-[1.5px]"
+          style={{ background: "linear-gradient(155deg, rgba(255,255,255,0.75), rgba(255,255,255,0.05) 40%, rgba(0,0,0,0.25))" }}
+          aria-hidden="true"
+        >
+          <span className="block h-full w-full rounded-full bg-gradient-to-br from-[#5B78FF] via-[#7C4DFF] to-[#8B5CF6]" />
+        </span>
+
+        {/* Glass dome highlight — a real elliptical reflection near the top,
+            not just a soft radial tint, plus bottom inner shadow for the
+            sphere to read as curved rather than a flat tinted disc. */}
+        <span className="absolute inset-[1.5px] overflow-hidden rounded-full" aria-hidden="true">
+          <span
+            className="absolute -top-3 left-1/2 h-9 w-12 -translate-x-1/2 rounded-[50%] blur-[3px]"
+            style={{ background: "linear-gradient(to bottom, rgba(255,255,255,0.85), rgba(255,255,255,0))" }}
+          />
+          <span className="absolute inset-0 rounded-full shadow-[inset_0_-10px_14px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)]" />
+        </span>
+
+        <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+          {open ? <X className="h-6 w-6" /> : <Headset className="h-6 w-6" strokeWidth={2.2} />}
+        </span>
+
+        {/* Live/online status dot — the "realistic" support cue: this is a
+            staffed channel, not a static icon. */}
+        {!open && (
+          <span className="absolute -bottom-0.5 -right-0.5 z-10 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background">
+            {!prefersReducedMotion && (
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            )}
+            <span className="relative inline-flex h-full w-full rounded-full bg-emerald-400" />
+          </span>
+        )}
+
         <AnimatePresence>
           {!open && unreadCount > 0 && (
             <motion.span
@@ -597,13 +653,13 @@ export function ChatWidget() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 20 }}
-              className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-[10px] font-semibold text-white"
+              className="absolute -right-1 -top-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-[10px] font-semibold text-white"
             >
               {unreadCount > 9 ? "9+" : unreadCount}
             </motion.span>
           )}
         </AnimatePresence>
-      </button>
+      </motion.button>
     </div>
   );
 }

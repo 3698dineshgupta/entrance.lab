@@ -39,7 +39,7 @@ export function FeaturesGrid() {
   return (
     <section className="container py-10 md:py-14">
       <div className="max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 font-medium">Why EntranceLab</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-medium">Why EntranceLab</p>
         <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">
           Everything you need to prepare, in one place.
         </h2>
